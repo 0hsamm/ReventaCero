@@ -1,2 +1,2 @@
-# SistemaHospital
-This is a project where we´re going to do an hospital management system
+# ReventaCero
+This is a project in which we will hold a festival with no unauthorized resales.
