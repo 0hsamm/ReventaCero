@@ -19,6 +19,29 @@
 *.tar.gz
 *.rar
 
+# Excepción: el wrapper de Maven sí debe subirse si usas mvnw
+!.mvn/wrapper/maven-wrapper.jar
+
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Credenciales de la base de datos (no subir)
+config.properties
+application.properties
+application-*.properties
+.env
+
+# Salida de compilación de Maven
+target/
+
+# Eclipse
+.classpath
+.project
+.settings/
+.metadata/
+bin/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
