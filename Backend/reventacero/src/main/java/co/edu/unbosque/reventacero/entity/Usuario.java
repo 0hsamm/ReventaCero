@@ -2,12 +2,16 @@ package co.edu.unbosque.reventacero.entity;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import co.edu.unbosque.reventacero.enums.TipoUsuario;
 
-public class Usuario {
+public class Usuario implements UserDetails {
 	
 	private long documento;
 	private String nombreUsuario;
@@ -138,6 +142,24 @@ public class Usuario {
 
 	public void setTelefono(List<String> telefono) {
 		this.telefono = telefono;
+	}
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		if (tipoUsuario == null) {
+			return List.of();
+		}
+		return List.of(tipoUsuario);
+	}
+
+	@Override
+	public String getPassword() {
+		return contrasenia;
+	}
+
+	@Override
+	public String getUsername() {
+		return correo;
 	}
 
 	@Override
