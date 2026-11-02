@@ -97,4 +97,12 @@ public class VentaPrimariaRepository {
     private static Boleta boletaRef(ResultSet rs, String columna) throws SQLException {
         return referencia(rs, columna, id -> { var e = new Boleta(); e.setCodigoBoleta(id); return e; });
     }
+    
+
+    public void save(VentaPrimaria venta) {
+        jdbcClient.sql("INSERT INTO VENTA_PRIMARIA (ID_TRANSACCION, CANAL_VENTA) VALUES (:id, :canal)")
+                .param("id", venta.getIdTransaccion())
+                .param("canal", venta.getCanalVena(), java.sql.Types.VARCHAR)
+                .update();
+    }
 }

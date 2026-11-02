@@ -80,4 +80,55 @@ public class FestivalRepository {
         long id = rs.getLong(columna);
         return rs.wasNull() ? null : factory.apply(id);
     }
+    
+    public long nextId() {
+        return jdbcClient.sql("SELECT SEQ_FESTIVAL.NEXTVAL FROM DUAL").query(Long.class).single();
+    }
+
+    public Festival save(Festival festival) {
+        festival.setIdFestival(nextId());
+        jdbcClient.sql("INSERT INTO FESTIVAL (ID_FESTIVAL, NOMBRE, EDICION, FECHA_INICIO, FECHA_FIN, UBICACION_PAIS, "
+                + "UBICACION_CIUDAD, UBICACION_DIRECCION, ORGANIZADOR_DOCUMENTO) "
+                + "VALUES (:id, :nombre, :edicion, :fechaInicio, :fechaFin, :pais, :ciudad, :direccion, :organizador)")
+                .param("id", festival.getIdFestival())
+                .param("nombre", festival.getNombre())
+                .param("edicion", festival.getEdicion())
+                .param("fechaInicio", java.sql.Date.valueOf(festival.getFechaInicio()))
+                .param("fechaFin", java.sql.Date.valueOf(festival.getFechaFin()))
+                .param("pais", festival.getUbicacion().getPais(), java.sql.Types.VARCHAR)
+                .param("ciudad", festival.getUbicacion().getCiudad(), java.sql.Types.VARCHAR)
+                .param("direccion", festival.getUbicacion().getDireccion(), java.sql.Types.VARCHAR)
+                .param("organizador", festival.getOrganizador().getDocumento())
+                .update();
+        return festival;
+    }
+
+    public void update(Festival festival) {
+        jdbcClient.sql("UPDATE FESTIVAL SET NOMBRE = :nombre, EDICION = :edicion, FECHA_INICIO = :fechaInicio, "
+                + "FECHA_FIN = :fechaFin, UBICACION_PAIS = :pais, UBICACION_CIUDAD = :ciudad, "
+                + "UBICACION_DIRECCION = :direccion, ORGANIZADOR_DOCUMENTO = :organizador "
+                + "WHERE ID_FESTIVAL = :id")
+                .param("id", festival.getIdFestival())
+                .param("nombre", festival.getNombre())
+                .param("edicion", festival.getEdicion())
+                .param("fechaInicio", java.sql.Date.valueOf(festival.getFechaInicio()))
+                .param("fechaFin", java.sql.Date.valueOf(festival.getFechaFin()))
+                .param("pais", festival.getUbicacion().getPais(), java.sql.Types.VARCHAR)
+                .param("ciudad", festival.getUbicacion().getCiudad(), java.sql.Types.VARCHAR)
+                .param("direccion", festival.getUbicacion().getDireccion(), java.sql.Types.VARCHAR)
+                .param("organizador", festival.getOrganizador().getDocumento())
+                .update();
+    }
+
+    public void deleteById(long id) {
+        jdbcClient.sql("DELETE FROM FESTIVAL WHERE ID_FESTIVAL = :id").param("id", id).update();
+    }
+
+    public List<Festival> findByNombreAndEdicion(String nombre, int edicion) {
+        return jdbcClient.sql(SELECT_FESTIVAL + "WHERE f.NOMBRE = :nombre AND f.EDICION = :edicion ORDER BY f.ID_FESTIVAL")
+                .param("nombre", nombre)
+                .param("edicion", edicion)
+                .query(this::mapRow)
+                .list();
+    }
 }

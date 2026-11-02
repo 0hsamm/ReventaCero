@@ -1,19 +1,28 @@
 package co.edu.unbosque.reventacero.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
-public class DevolucionDTO extends TransaccionDTO{
+public class DevolucionDTO extends TransaccionDTO {
+
+	private String motivo;
+	private BigDecimal porcentajeReembolso;
 
 	public DevolucionDTO() {
-		// TODO Auto-generated constructor stub
 	}
 
-	public DevolucionDTO(int idTransaccion, LocalDateTime fechaHora, BigDecimal precio, BigDecimal comisionOrganizador,
-			String codigoBoleta) {
-		super(idTransaccion, fechaHora, precio, comisionOrganizador, codigoBoleta);
+	public String getMotivo() {
+		return motivo;
 	}
-	
-	
-	
+
+	public void setMotivo(String motivo) {
+		this.motivo = motivo;
+	}
+
+	public BigDecimal getPorcentajeReembolso() {
+		return porcentajeReembolso;
+	}
+
+	public void setPorcentajeReembolso(BigDecimal porcentajeReembolso) {
+		this.porcentajeReembolso = porcentajeReembolso;
+	}
 }

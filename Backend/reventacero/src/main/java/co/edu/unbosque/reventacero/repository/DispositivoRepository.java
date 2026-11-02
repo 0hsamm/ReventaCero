@@ -86,4 +86,36 @@ public class DispositivoRepository {
         long id = rs.getLong(columna);
         return rs.wasNull() ? null : factory.apply(id);
     }
+    
+
+    public long nextId() {
+        return jdbcClient.sql("SELECT SEQ_DISPOSITIVO.NEXTVAL FROM DUAL").query(Long.class).single();
+    }
+
+    public Dispositivo save(Dispositivo dispositivo) {
+        dispositivo.setIdDispositivo(nextId());
+        jdbcClient.sql("INSERT INTO DISPOSITIVO (ID_DISPOSITIVO, IDENTIFICADOR_UNICO, TIPO, ACTIVO, DOCUMENTO) "
+                + "VALUES (:id, :identificador, :tipo, :activo, :documento)")
+                .param("id", dispositivo.getIdDispositivo())
+                .param("identificador", dispositivo.getIdentificadorUnico())
+                .param("tipo", dispositivo.getTipo(), java.sql.Types.VARCHAR)
+                .param("activo", dispositivo.isActivo() ? 1 : 0)
+                .param("documento", dispositivo.getUsuario().getDocumento())
+                .update();
+        return dispositivo;
+    }
+
+    public void update(Dispositivo dispositivo) {
+        jdbcClient.sql("UPDATE DISPOSITIVO SET IDENTIFICADOR_UNICO = :identificador, TIPO = :tipo, ACTIVO = :activo "
+                + "WHERE ID_DISPOSITIVO = :id")
+                .param("id", dispositivo.getIdDispositivo())
+                .param("identificador", dispositivo.getIdentificadorUnico())
+                .param("tipo", dispositivo.getTipo(), java.sql.Types.VARCHAR)
+                .param("activo", dispositivo.isActivo() ? 1 : 0)
+                .update();
+    }
+
+    public void deleteById(long id) {
+        jdbcClient.sql("DELETE FROM DISPOSITIVO WHERE ID_DISPOSITIVO = :id").param("id", id).update();
+    }
 }

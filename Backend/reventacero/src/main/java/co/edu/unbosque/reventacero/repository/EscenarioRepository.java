@@ -74,4 +74,30 @@ public class EscenarioRepository {
         long id = rs.getLong(columna);
         return rs.wasNull() ? null : factory.apply(id);
     }
+
+    public Escenario save(Escenario escenario) {
+        jdbcClient.sql("INSERT INTO ESCENARIO (ID_FESTIVAL, NOMBRE_ESCENARIO, CAPACIDAD) "
+                + "VALUES (:idFestival, :nombreEscenario, :capacidad)")
+                .param("idFestival", escenario.getFestival().getIdFestival())
+                .param("nombreEscenario", escenario.getNombreEscenario())
+                .param("capacidad", escenario.getCapacidad())
+                .update();
+        return escenario;
+    }
+
+    public void update(Escenario escenario) {
+        jdbcClient.sql("UPDATE ESCENARIO SET CAPACIDAD = :capacidad "
+                + "WHERE ID_FESTIVAL = :idFestival AND NOMBRE_ESCENARIO = :nombreEscenario")
+                .param("idFestival", escenario.getFestival().getIdFestival())
+                .param("nombreEscenario", escenario.getNombreEscenario())
+                .param("capacidad", escenario.getCapacidad())
+                .update();
+    }
+
+    public void deleteById(long idFestival, String nombreEscenario) {
+        jdbcClient.sql("DELETE FROM ESCENARIO WHERE ID_FESTIVAL = :idFestival AND NOMBRE_ESCENARIO = :nombreEscenario")
+                .param("idFestival", idFestival)
+                .param("nombreEscenario", nombreEscenario)
+                .update();
+    }
 }

@@ -110,4 +110,50 @@ public class PresentacionRepository {
         long id = rs.getLong(columna);
         return rs.wasNull() ? null : factory.apply(id);
     }
+    
+    public long nextId() {
+        return jdbcClient.sql("SELECT SEQ_PRESENTACION.NEXTVAL FROM DUAL").query(Long.class).single();
+    }
+
+    public Presentacion save(Presentacion presentacion) {
+        presentacion.setIdPresentacion(nextId());
+        jdbcClient.sql("INSERT INTO PRESENTACION (ID_PRESENTACION, FECHA, HORA_INICIO, HORA_FIN, "
+                + "ESCENARIO_FESTIVAL_ID, ESCENARIO_NOMBRE, ID_ARTISTA) "
+                + "VALUES (:id, :fecha, :horaInicio, :horaFin, :idFestival, :nombreEscenario, :idArtista)")
+                .param("id", presentacion.getIdPresentacion())
+                .param("fecha", java.sql.Date.valueOf(presentacion.getFecha()))
+                .param("horaInicio", java.sql.Timestamp.valueOf(presentacion.getHoraInicio()))
+                .param("horaFin", java.sql.Timestamp.valueOf(presentacion.getHoraFin()))
+                .param("idFestival", presentacion.getEscenario().getFestival().getIdFestival())
+                .param("nombreEscenario", presentacion.getEscenario().getNombreEscenario())
+                .param("idArtista", presentacion.getArtista().getIdArtista())
+                .update();
+        return presentacion;
+    }
+
+    public void update(Presentacion presentacion) {
+        jdbcClient.sql("UPDATE PRESENTACION SET FECHA = :fecha, HORA_INICIO = :horaInicio, HORA_FIN = :horaFin, "
+                + "ESCENARIO_FESTIVAL_ID = :idFestival, ESCENARIO_NOMBRE = :nombreEscenario, ID_ARTISTA = :idArtista "
+                + "WHERE ID_PRESENTACION = :id")
+                .param("id", presentacion.getIdPresentacion())
+                .param("fecha", java.sql.Date.valueOf(presentacion.getFecha()))
+                .param("horaInicio", java.sql.Timestamp.valueOf(presentacion.getHoraInicio()))
+                .param("horaFin", java.sql.Timestamp.valueOf(presentacion.getHoraFin()))
+                .param("idFestival", presentacion.getEscenario().getFestival().getIdFestival())
+                .param("nombreEscenario", presentacion.getEscenario().getNombreEscenario())
+                .param("idArtista", presentacion.getArtista().getIdArtista())
+                .update();
+    }
+
+    public void deleteById(long id) {
+        jdbcClient.sql("DELETE FROM PRESENTACION WHERE ID_PRESENTACION = :id").param("id", id).update();
+    }
+
+    public List<Presentacion> findByFestivalId(long idFestival) {
+        return jdbcClient.sql(SELECT_PRESENTACION + "WHERE p.ESCENARIO_FESTIVAL_ID = :idFestival"
+                + " ORDER BY p.FECHA, p.HORA_INICIO, p.ID_PRESENTACION")
+                .param("idFestival", idFestival)
+                .query(this::mapRow)
+                .list();
+    }
 }

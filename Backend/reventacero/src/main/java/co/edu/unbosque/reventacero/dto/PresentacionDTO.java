@@ -1,108 +1,34 @@
 package co.edu.unbosque.reventacero.dto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class PresentacionDTO {
 
-	private int idPresentacion;
+	private long idPresentacion;
 	private LocalDate fecha;
-	private String horaInicio;
-	private String horaFin;
-	private int idFestival;
+	private LocalDateTime horaInicio;
+	private LocalDateTime horaFin;
+	private long idFestival;
 	private String nombreEscenario;
-	private int idArtista;
-	
-	
+	private long idArtista;
+
 	public PresentacionDTO() {
-		// TODO Auto-generated constructor stub
 	}
 
+	public long getIdPresentacion() { return idPresentacion; }
+	public void setIdPresentacion(long idPresentacion) { this.idPresentacion = idPresentacion; }
+	public LocalDate getFecha() { return fecha; }
+	public void setFecha(LocalDate fecha) { this.fecha = fecha; }
+	public LocalDateTime getHoraInicio() { return horaInicio; }
+	public void setHoraInicio(LocalDateTime horaInicio) { this.horaInicio = horaInicio; }
+	public LocalDateTime getHoraFin() { return horaFin; }
+	public void setHoraFin(LocalDateTime horaFin) { this.horaFin = horaFin; }
+	public long getIdFestival() { return idFestival; }
+	public void setIdFestival(long idFestival) { this.idFestival = idFestival; }
+	public String getNombreEscenario() { return nombreEscenario; }
+	public void setNombreEscenario(String nombreEscenario) { this.nombreEscenario = nombreEscenario; }
+	public long getIdArtista() { return idArtista; }
+	public void setIdArtista(long idArtista) { this.idArtista = idArtista; }
 
-	public PresentacionDTO(int idPresentacion, LocalDate fecha, String horaInicio, String horaFin, int idFestival,
-			String nombreEscenario, int idArtista) {
-		super();
-		this.idPresentacion = idPresentacion;
-		this.fecha = fecha;
-		this.horaInicio = horaInicio;
-		this.horaFin = horaFin;
-		this.idFestival = idFestival;
-		this.nombreEscenario = nombreEscenario;
-		this.idArtista = idArtista;
-	}
-
-
-	public int getIdPresentacion() {
-		return idPresentacion;
-	}
-
-
-	public void setIdPresentacion(int idPresentacion) {
-		this.idPresentacion = idPresentacion;
-	}
-
-
-	public LocalDate getFecha() {
-		return fecha;
-	}
-
-
-	public void setFecha(LocalDate fecha) {
-		this.fecha = fecha;
-	}
-
-
-	public String getHoraInicio() {
-		return horaInicio;
-	}
-
-
-	public void setHoraInicio(String horaInicio) {
-		this.horaInicio = horaInicio;
-	}
-
-
-	public String getHoraFin() {
-		return horaFin;
-	}
-
-
-	public void setHoraFin(String horaFin) {
-		this.horaFin = horaFin;
-	}
-
-
-	public int getIdFestival() {
-		return idFestival;
-	}
-
-
-	public void setIdFestival(int idFestival) {
-		this.idFestival = idFestival;
-	}
-
-
-	public String getNombreEscenario() {
-		return nombreEscenario;
-	}
-
-
-	public void setNombreEscenario(String nombreEscenario) {
-		this.nombreEscenario = nombreEscenario;
-	}
-
-
-	public int getIdArtista() {
-		return idArtista;
-	}
-
-
-	public void setIdArtista(int idArtista) {
-		this.idArtista = idArtista;
-	}
-	
-	
-	
-	
-	
-	
 }

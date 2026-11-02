@@ -93,4 +93,24 @@ public class NotificacionRepository {
     private static Usuario usuarioRef(ResultSet rs, String columna) throws SQLException {
         return referencia(rs, columna, id -> { var e = new Usuario(); e.setDocumento(id); return e; });
     }
+    
+    public long nextId() {
+        return jdbcClient.sql("SELECT SEQ_NOTIFICACION.NEXTVAL FROM DUAL").query(Long.class).single();
+    }
+
+    public Notificacion save(Notificacion notificacion) {
+        notificacion.setIdNotificacion(nextId());
+        jdbcClient.sql("INSERT INTO NOTIFICACION (ID_NOTIFICACION, FECHA_HORA, CANAL, MENSAJE, USUARIO_DOCUMENTO, ID_LISTA) "
+                + "VALUES (:id, :fechaHora, :canal, :mensaje, :documento, :idLista)")
+                .param("id", notificacion.getIdNotificacion())
+                .param("fechaHora",
+                        notificacion.getFechaHora() != null ? java.sql.Timestamp.valueOf(notificacion.getFechaHora()) : null,
+                        java.sql.Types.TIMESTAMP)
+                .param("canal", notificacion.getCanal(), java.sql.Types.VARCHAR)
+                .param("mensaje", notificacion.getMensaje(), java.sql.Types.VARCHAR)
+                .param("documento", notificacion.getInscripcion().getUsuario().getDocumento())
+                .param("idLista", notificacion.getInscripcion().getListaEspera().getIdLista())
+                .update();
+        return notificacion;
+    }
 }

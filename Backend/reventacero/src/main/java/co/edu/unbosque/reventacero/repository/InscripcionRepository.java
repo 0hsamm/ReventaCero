@@ -90,4 +90,30 @@ public class InscripcionRepository {
     private static Usuario usuarioRef(ResultSet rs, String columna) throws SQLException {
         return referencia(rs, columna, id -> { var e = new Usuario(); e.setDocumento(id); return e; });
     }
+    
+    public void save(Inscripcion inscripcion) {
+        jdbcClient.sql("INSERT INTO INSCRIPCION (DOCUMENTO, ID_LISTA, FECHA_SOLICITUD, ESTADO) "
+                + "VALUES (:documento, :idLista, SYSDATE, :estado)")
+                .param("documento", inscripcion.getUsuario().getDocumento())
+                .param("idLista", inscripcion.getListaEspera().getIdLista())
+                .param("estado", inscripcion.getEstado())
+                .update();
+    }
+
+    public void reactivar(long documento, long idLista, String estado) {
+        jdbcClient.sql("UPDATE INSCRIPCION SET ESTADO = :estado, FECHA_SOLICITUD = SYSDATE "
+                + "WHERE DOCUMENTO = :documento AND ID_LISTA = :idLista")
+                .param("documento", documento)
+                .param("idLista", idLista)
+                .param("estado", estado)
+                .update();
+    }
+
+    public void actualizarEstado(long documento, long idLista, String estado) {
+        jdbcClient.sql("UPDATE INSCRIPCION SET ESTADO = :estado WHERE DOCUMENTO = :documento AND ID_LISTA = :idLista")
+                .param("documento", documento)
+                .param("idLista", idLista)
+                .param("estado", estado)
+                .update();
+    }
 }

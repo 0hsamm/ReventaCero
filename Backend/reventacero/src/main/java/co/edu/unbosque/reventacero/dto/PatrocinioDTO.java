@@ -4,76 +4,24 @@ import java.math.BigDecimal;
 
 public class PatrocinioDTO {
 
-	private int idPatrocinio;
+	private long idPatrocinio;
 	private BigDecimal monto;
 	private String tipoAporte;
-	private int idFestival;
-	private int idPatrocinador;
-	
-	
+	private long idFestival;
+	private long idPatrocinador;
+
 	public PatrocinioDTO() {
-		// TODO Auto-generated constructor stub
 	}
 
+	public long getIdPatrocinio() { return idPatrocinio; }
+	public void setIdPatrocinio(long idPatrocinio) { this.idPatrocinio = idPatrocinio; }
+	public BigDecimal getMonto() { return monto; }
+	public void setMonto(BigDecimal monto) { this.monto = monto; }
+	public String getTipoAporte() { return tipoAporte; }
+	public void setTipoAporte(String tipoAporte) { this.tipoAporte = tipoAporte; }
+	public long getIdFestival() { return idFestival; }
+	public void setIdFestival(long idFestival) { this.idFestival = idFestival; }
+	public long getIdPatrocinador() { return idPatrocinador; }
+	public void setIdPatrocinador(long idPatrocinador) { this.idPatrocinador = idPatrocinador; }
 
-	public PatrocinioDTO(int idPatrocinio, BigDecimal monto, String tipoAporte, int idFestival, int idPatrocinador) {
-		super();
-		this.idPatrocinio = idPatrocinio;
-		this.monto = monto;
-		this.tipoAporte = tipoAporte;
-		this.idFestival = idFestival;
-		this.idPatrocinador = idPatrocinador;
-	}
-
-
-	public int getIdPatrocinio() {
-		return idPatrocinio;
-	}
-
-
-	public void setIdPatrocinio(int idPatrocinio) {
-		this.idPatrocinio = idPatrocinio;
-	}
-
-
-	public BigDecimal getMonto() {
-		return monto;
-	}
-
-
-	public void setMonto(BigDecimal monto) {
-		this.monto = monto;
-	}
-
-
-	public String getTipoAporte() {
-		return tipoAporte;
-	}
-
-
-	public void setTipoAporte(String tipoAporte) {
-		this.tipoAporte = tipoAporte;
-	}
-
-
-	public int getIdFestival() {
-		return idFestival;
-	}
-
-
-	public void setIdFestival(int idFestival) {
-		this.idFestival = idFestival;
-	}
-
-
-	public int getIdPatrocinador() {
-		return idPatrocinador;
-	}
-
-
-	public void setIdPatrocinador(int idPatrocinador) {
-		this.idPatrocinador = idPatrocinador;
-	}
-	
-	
 }

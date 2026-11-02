@@ -61,4 +61,34 @@ public class PatrocinadorRepository {
         return new Patrocinador(rs.getLong("ID_PATROCINADOR"), rs.getString("NOMBRE"),
                 rs.getString("TIPO"), rs.getString("CONTACTO"));
     }
+
+    public long nextId() {
+        return jdbcClient.sql("SELECT SEQ_PATROCINADOR.NEXTVAL FROM DUAL").query(Long.class).single();
+    }
+
+    public Patrocinador save(Patrocinador patrocinador) {
+        patrocinador.setIdPatrocinador(nextId());
+        jdbcClient.sql("INSERT INTO PATROCINADOR (ID_PATROCINADOR, NOMBRE, TIPO, CONTACTO) "
+                + "VALUES (:id, :nombre, :tipo, :contacto)")
+                .param("id", patrocinador.getIdPatrocinador())
+                .param("nombre", patrocinador.getNombre())
+                .param("tipo", patrocinador.getTipo(), java.sql.Types.VARCHAR)
+                .param("contacto", patrocinador.getContacto(), java.sql.Types.VARCHAR)
+                .update();
+        return patrocinador;
+    }
+
+    public void update(Patrocinador patrocinador) {
+        jdbcClient.sql("UPDATE PATROCINADOR SET NOMBRE = :nombre, TIPO = :tipo, CONTACTO = :contacto "
+                + "WHERE ID_PATROCINADOR = :id")
+                .param("id", patrocinador.getIdPatrocinador())
+                .param("nombre", patrocinador.getNombre())
+                .param("tipo", patrocinador.getTipo(), java.sql.Types.VARCHAR)
+                .param("contacto", patrocinador.getContacto(), java.sql.Types.VARCHAR)
+                .update();
+    }
+
+    public void deleteById(long id) {
+        jdbcClient.sql("DELETE FROM PATROCINADOR WHERE ID_PATROCINADOR = :id").param("id", id).update();
+    }
 }

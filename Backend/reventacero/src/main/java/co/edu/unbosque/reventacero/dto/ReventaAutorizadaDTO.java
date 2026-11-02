@@ -1,39 +1,26 @@
 package co.edu.unbosque.reventacero.dto;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+public class ReventaAutorizadaDTO extends TransaccionDTO {
 
-public class ReventaAutorizadaDTO extends TransaccionDTO{
+	private long vendedorDocumento;
+	private long compradorDocumento;
 
-	private String documentoVendedor;
-	private String documentoComprador;
-	
 	public ReventaAutorizadaDTO() {
-		// TODO Auto-generated constructor stub
 	}
 
-	public ReventaAutorizadaDTO(int idTransaccion, LocalDateTime fechaHora, BigDecimal precio,
-			BigDecimal comisionOrganizador, String codigoBoleta) {
-		super(idTransaccion, fechaHora, precio, comisionOrganizador, codigoBoleta);
-		// TODO Auto-generated constructor stub
+	public long getVendedorDocumento() {
+		return vendedorDocumento;
 	}
 
-	public String getDocumentoVendedor() {
-		return documentoVendedor;
+	public void setVendedorDocumento(long vendedorDocumento) {
+		this.vendedorDocumento = vendedorDocumento;
 	}
 
-	public void setDocumentoVendedor(String documentoVendedor) {
-		this.documentoVendedor = documentoVendedor;
+	public long getCompradorDocumento() {
+		return compradorDocumento;
 	}
 
-	public String getDocumentoComprador() {
-		return documentoComprador;
+	public void setCompradorDocumento(long compradorDocumento) {
+		this.compradorDocumento = compradorDocumento;
 	}
-
-	public void setDocumentoComprador(String documentoComprador) {
-		this.documentoComprador = documentoComprador;
-	}
-	
-	
-	
 }

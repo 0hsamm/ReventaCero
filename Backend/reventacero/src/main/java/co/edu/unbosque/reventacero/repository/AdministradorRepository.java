@@ -99,4 +99,29 @@ public class AdministradorRepository {
         long id = rs.getLong(columna);
         return rs.wasNull() ? null : factory.apply(id);
     }
+
+    public void save(Administrador administrador) {
+        jdbcClient.sql("INSERT INTO ADMINISTRADOR (DOCUMENTO, NIVEL_ACCESO, FECHA_DESIGNACION) "
+                + "VALUES (:documento, :nivelAcceso, :fechaDesignacion)")
+                .param("documento", administrador.getDocumento())
+                .param("nivelAcceso", administrador.getNivelAcceso(), java.sql.Types.VARCHAR)
+                .param("fechaDesignacion",
+                        administrador.getFechaDesignacion() != null
+                                ? java.sql.Date.valueOf(administrador.getFechaDesignacion()) : null,
+                        java.sql.Types.DATE)
+                .update();
+    }
+
+    public void update(Administrador administrador) {
+        jdbcClient.sql("UPDATE ADMINISTRADOR SET NIVEL_ACCESO = :nivelAcceso WHERE DOCUMENTO = :documento")
+                .param("documento", administrador.getDocumento())
+                .param("nivelAcceso", administrador.getNivelAcceso(), java.sql.Types.VARCHAR)
+                .update();
+    }
+
+    public void deleteById(long documento) {
+        jdbcClient.sql("DELETE FROM ADMINISTRADOR WHERE DOCUMENTO = :documento")
+                .param("documento", documento)
+                .update();
+    }
 }

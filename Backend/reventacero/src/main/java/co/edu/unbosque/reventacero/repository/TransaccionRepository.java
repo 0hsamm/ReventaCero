@@ -101,4 +101,28 @@ public class TransaccionRepository {
     private static Boleta boletaRef(ResultSet rs, String columna) throws SQLException {
         return referencia(rs, columna, id -> { var e = new Boleta(); e.setCodigoBoleta(id); return e; });
     }
+    
+
+    public long nextId() {
+        return jdbcClient.sql("SELECT SEQ_TRANSACCION.NEXTVAL FROM DUAL").query(Long.class).single();
+    }
+
+    public Transaccion save(Transaccion transaccion) {
+        transaccion.setIdTransaccion(nextId());
+        jdbcClient.sql("INSERT INTO TRANSACCION (ID_TRANSACCION, FECHA_HORA, PRECIO, COMISION_ORGANIZADOR, "
+                + "METODO_PAGO, CODIGO_BOLETA, ID_DISPOSITIVO, TIPO_TRANSACCION) "
+                + "VALUES (:id, :fechaHora, :precio, :comision, :metodoPago, :codigoBoleta, :idDispositivo, :tipo)")
+                .param("id", transaccion.getIdTransaccion())
+                .param("fechaHora",
+                        transaccion.getFechaHora() != null ? java.sql.Timestamp.valueOf(transaccion.getFechaHora()) : null,
+                        java.sql.Types.TIMESTAMP)
+                .param("precio", transaccion.getPrecio(), java.sql.Types.NUMERIC)
+                .param("comision", transaccion.getComisionOrganizador(), java.sql.Types.NUMERIC)
+                .param("metodoPago", transaccion.getMetodoPago(), java.sql.Types.VARCHAR)
+                .param("codigoBoleta", transaccion.getBoleta().getCodigoBoleta())
+                .param("idDispositivo", transaccion.getDispositivo().getIdDispositivo())
+                .param("tipo", transaccion.getTipoTransaccion().name())
+                .update();
+        return transaccion;
+    }
 }
