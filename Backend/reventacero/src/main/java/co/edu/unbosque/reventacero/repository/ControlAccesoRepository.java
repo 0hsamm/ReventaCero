@@ -78,4 +78,21 @@ public class ControlAccesoRepository {
         long id = rs.getLong(columna);
         return rs.wasNull() ? null : factory.apply(id);
     }
+    public long nextId() {
+        return jdbcClient.sql("SELECT SEQ_CONTROL_ACCESO.NEXTVAL FROM DUAL").query(Long.class).single();
+    }
+
+    public ControlAcceso save(ControlAcceso acceso) {
+        acceso.setIdAcceso(nextId());
+        jdbcClient.sql("INSERT INTO CONTROL_ACCESO (ID_ACCESO, FECHA_HORA_INGRESO, RESULTADO, CODIGO_BOLETA) "
+                + "VALUES (:id, :fechaHora, :resultado, :codigoBoleta)")
+                .param("id", acceso.getIdAcceso())
+                .param("fechaHora",
+                        acceso.getFechaHoraIngreso() != null ? java.sql.Timestamp.valueOf(acceso.getFechaHoraIngreso()) : null,
+                        java.sql.Types.TIMESTAMP)
+                .param("resultado", acceso.getResultado(), java.sql.Types.VARCHAR)
+                .param("codigoBoleta", acceso.getBoleta().getCodigoBoleta())
+                .update();
+        return acceso;
+    }
 }

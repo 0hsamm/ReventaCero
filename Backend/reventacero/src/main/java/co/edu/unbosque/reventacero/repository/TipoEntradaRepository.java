@@ -69,4 +69,36 @@ public class TipoEntradaRepository {
         long id = rs.getLong(columna);
         return rs.wasNull() ? null : factory.apply(id);
     }
+
+    public long nextId() {
+        return jdbcClient.sql("SELECT SEQ_TIPO_ENTRADA.NEXTVAL FROM DUAL").query(Long.class).single();
+    }
+
+    public TipoEntrada save(TipoEntrada tipoEntrada) {
+        tipoEntrada.setIdTipoEntrada(nextId());
+        jdbcClient.sql("INSERT INTO TIPO_ENTRADA (ID_TIPO_ENTRADA, CATEGORIA, PRECIO_BASE, PRECIO_TOPE_REVENTA, ID_ZONA) "
+                + "VALUES (:id, :categoria, :precioBase, :precioTope, :idZona)")
+                .param("id", tipoEntrada.getIdTipoEntrada())
+                .param("categoria", tipoEntrada.getCategoria())
+                .param("precioBase", tipoEntrada.getPrecioBase())
+                .param("precioTope", tipoEntrada.getPrecioTopeReventa())
+                .param("idZona", tipoEntrada.getZona().getIdZona())
+                .update();
+        return tipoEntrada;
+    }
+
+    public void update(TipoEntrada tipoEntrada) {
+        jdbcClient.sql("UPDATE TIPO_ENTRADA SET CATEGORIA = :categoria, PRECIO_BASE = :precioBase, "
+                + "PRECIO_TOPE_REVENTA = :precioTope, ID_ZONA = :idZona WHERE ID_TIPO_ENTRADA = :id")
+                .param("id", tipoEntrada.getIdTipoEntrada())
+                .param("categoria", tipoEntrada.getCategoria())
+                .param("precioBase", tipoEntrada.getPrecioBase())
+                .param("precioTope", tipoEntrada.getPrecioTopeReventa())
+                .param("idZona", tipoEntrada.getZona().getIdZona())
+                .update();
+    }
+
+    public void deleteById(long id) {
+        jdbcClient.sql("DELETE FROM TIPO_ENTRADA WHERE ID_TIPO_ENTRADA = :id").param("id", id).update();
+    }
 }

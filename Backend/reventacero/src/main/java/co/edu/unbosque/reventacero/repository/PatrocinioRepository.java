@@ -82,4 +82,36 @@ public class PatrocinioRepository {
     private static Festival festivalRef(ResultSet rs, String columna) throws SQLException {
         return referencia(rs, columna, id -> { var e = new Festival(); e.setIdFestival(id); return e; });
     }
+
+    public long nextId() {
+        return jdbcClient.sql("SELECT SEQ_PATROCINIO.NEXTVAL FROM DUAL").query(Long.class).single();
+    }
+
+    public Patrocinio save(Patrocinio patrocinio) {
+        patrocinio.setIdPatrocinio(nextId());
+        jdbcClient.sql("INSERT INTO PATROCINIO (ID_PATROCINIO, MONTO, TIPO_APORTE, ID_PATROCINADOR, ID_FESTIVAL) "
+                + "VALUES (:id, :monto, :tipoAporte, :idPatrocinador, :idFestival)")
+                .param("id", patrocinio.getIdPatrocinio())
+                .param("monto", patrocinio.getMonto())
+                .param("tipoAporte", patrocinio.getTipoAporte(), java.sql.Types.VARCHAR)
+                .param("idPatrocinador", patrocinio.getPatrocinador().getIdPatrocinador())
+                .param("idFestival", patrocinio.getFestival().getIdFestival())
+                .update();
+        return patrocinio;
+    }
+
+    public void update(Patrocinio patrocinio) {
+        jdbcClient.sql("UPDATE PATROCINIO SET MONTO = :monto, TIPO_APORTE = :tipoAporte, "
+                + "ID_PATROCINADOR = :idPatrocinador, ID_FESTIVAL = :idFestival WHERE ID_PATROCINIO = :id")
+                .param("id", patrocinio.getIdPatrocinio())
+                .param("monto", patrocinio.getMonto())
+                .param("tipoAporte", patrocinio.getTipoAporte(), java.sql.Types.VARCHAR)
+                .param("idPatrocinador", patrocinio.getPatrocinador().getIdPatrocinador())
+                .param("idFestival", patrocinio.getFestival().getIdFestival())
+                .update();
+    }
+
+    public void deleteById(long id) {
+        jdbcClient.sql("DELETE FROM PATROCINIO WHERE ID_PATROCINIO = :id").param("id", id).update();
+    }
 }

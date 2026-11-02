@@ -132,4 +132,76 @@ public class UsuarioRepository {
 	private static LocalDate toLocalDate(Date fecha) {
 		return fecha != null ? fecha.toLocalDate() : null;
 	}
+	
+
+	public Optional<Usuario> findByDocumento(long documento) {
+		return jdbcClient.sql(SELECT_USUARIO + "WHERE DOCUMENTO = :documento")
+				.param("documento", documento)
+				.query(this::mapRow)
+				.optional()
+				.map(this::cargarTelefonos);
+	}
+
+	public List<Usuario> findAll() {
+		return jdbcClient.sql(SELECT_USUARIO + "ORDER BY DOCUMENTO")
+				.query(this::mapRow)
+				.list().stream().map(this::cargarTelefonos).toList();
+	}
+
+	public long countByAutorizadoPor(long documentoAdministrador) {
+		return jdbcClient.sql("SELECT COUNT(*) FROM USUARIO WHERE ADMINISTRADOR_DOCUMENTO = :documento")
+				.param("documento", documentoAdministrador)
+				.query(Long.class).single();
+	}
+
+	@Transactional
+	public void update(Usuario usuario) {
+		jdbcClient.sql("UPDATE USUARIO SET NOMBRE_USUARIO = :nombreUsuario, NOMBRES = :nombre, "
+				+ "APELLIDOS = :apellido, CORREO = :correo, FECHA_NACIMIENTO = :fechaNacimiento "
+				+ "WHERE DOCUMENTO = :documento")
+				.param("documento", usuario.getDocumento())
+				.param("nombreUsuario", usuario.getNombreUsuario())
+				.param("nombre", usuario.getNombreCompleto().getNombre())
+				.param("apellido", usuario.getNombreCompleto().getApellido())
+				.param("correo", usuario.getCorreo())
+				.param("fechaNacimiento", toSqlDate(usuario.getFechaNacimiento()), java.sql.Types.DATE)
+				.update();
+
+		jdbcClient.sql("DELETE FROM USUARIO_TELEFONO WHERE DOCUMENTO = :documento")
+				.param("documento", usuario.getDocumento())
+				.update();
+
+		if (usuario.getTelefono() != null) {
+			for (String telefono : usuario.getTelefono()) {
+				jdbcClient.sql("INSERT INTO USUARIO_TELEFONO (DOCUMENTO, TELEFONO) VALUES (:documento, :telefono)")
+						.param("documento", usuario.getDocumento())
+						.param("telefono", telefono)
+						.update();
+			}
+		}
+	}
+
+	public void actualizarContrasenia(long documento, String contraseniaCodificada) {
+		jdbcClient.sql("UPDATE USUARIO SET CONTRASENIA = :contrasenia WHERE DOCUMENTO = :documento")
+				.param("documento", documento)
+				.param("contrasenia", contraseniaCodificada)
+				.update();
+	}
+
+	public void actualizarEstado(long documento, String estado) {
+		jdbcClient.sql("UPDATE USUARIO SET ESTADO_CUENTA = :estado WHERE DOCUMENTO = :documento")
+				.param("documento", documento)
+				.param("estado", estado)
+				.update();
+	}
+
+	@Transactional
+	public void deleteById(long documento) {
+		jdbcClient.sql("DELETE FROM USUARIO_TELEFONO WHERE DOCUMENTO = :documento")
+				.param("documento", documento)
+				.update();
+		jdbcClient.sql("DELETE FROM USUARIO WHERE DOCUMENTO = :documento")
+				.param("documento", documento)
+				.update();
+	}
 }

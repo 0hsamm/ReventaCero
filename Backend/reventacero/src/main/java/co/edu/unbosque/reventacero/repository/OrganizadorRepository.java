@@ -108,4 +108,31 @@ public class OrganizadorRepository {
         var valor = rs.getDate(columna);
         return valor == null ? null : valor.toLocalDate();
     }
+    
+
+    public void save(Organizador organizador) {
+        jdbcClient.sql("INSERT INTO ORGANIZADOR (DOCUMENTO, CARGO, SUPERVISOR_DOCUMENTO) "
+                + "VALUES (:documento, :cargo, :supervisor)")
+                .param("documento", organizador.getDocumento())
+                .param("cargo", organizador.getCargo(), java.sql.Types.VARCHAR)
+                .param("supervisor", organizador.getSupervisor() != null ? organizador.getSupervisor().getDocumento() : null,
+                        java.sql.Types.NUMERIC)
+                .update();
+    }
+
+    public void update(Organizador organizador) {
+        jdbcClient.sql("UPDATE ORGANIZADOR SET CARGO = :cargo, SUPERVISOR_DOCUMENTO = :supervisor "
+                + "WHERE DOCUMENTO = :documento")
+                .param("documento", organizador.getDocumento())
+                .param("cargo", organizador.getCargo(), java.sql.Types.VARCHAR)
+                .param("supervisor", organizador.getSupervisor() != null ? organizador.getSupervisor().getDocumento() : null,
+                        java.sql.Types.NUMERIC)
+                .update();
+    }
+
+    public void deleteById(long documento) {
+        jdbcClient.sql("DELETE FROM ORGANIZADOR WHERE DOCUMENTO = :documento")
+                .param("documento", documento)
+                .update();
+    }
 }

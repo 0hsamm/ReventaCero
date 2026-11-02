@@ -90,4 +90,36 @@ public class BoletaRepository {
         long id = rs.getLong(columna);
         return rs.wasNull() ? null : factory.apply(id);
     }
+
+    public long nextId() {
+        return jdbcClient.sql("SELECT SEQ_BOLETA.NEXTVAL FROM DUAL").query(Long.class).single();
+    }
+
+    public Boleta save(Boleta boleta) {
+        boleta.setCodigoBoleta(nextId());
+        jdbcClient.sql("INSERT INTO BOLETA (CODIGO_BOLETA, FECHA_EMISION, ID_TIPO_ENTRADA, COMPRADOR_DOCUMENTO) "
+                + "VALUES (:codigo, :fechaEmision, :idTipoEntrada, :comprador)")
+                .param("codigo", boleta.getCodigoBoleta())
+                .param("fechaEmision",
+                        boleta.getFechaEmision() != null ? java.sql.Date.valueOf(boleta.getFechaEmision()) : null,
+                        java.sql.Types.DATE)
+                .param("idTipoEntrada", boleta.getTipoEntrada().getIdTipoEntrada())
+                .param("comprador", boleta.getComprador().getDocumento())
+                .update();
+        return boleta;
+    }
+
+    public void actualizarComprador(long codigoBoleta, long documentoComprador) {
+        jdbcClient.sql("UPDATE BOLETA SET COMPRADOR_DOCUMENTO = :comprador WHERE CODIGO_BOLETA = :codigo")
+                .param("codigo", codigoBoleta)
+                .param("comprador", documentoComprador)
+                .update();
+    }
+
+    public void bloquearPorCodigo(long codigoBoleta) {
+        jdbcClient.sql("SELECT CODIGO_BOLETA FROM BOLETA WHERE CODIGO_BOLETA = :codigo FOR UPDATE")
+                .param("codigo", codigoBoleta)
+                .query(Long.class)
+                .optional();
+    }
 }

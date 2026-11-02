@@ -1,83 +1,46 @@
 package co.edu.unbosque.reventacero.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class BoletaDTO {
 
-	
-	private String codigoBoleta;
-	private LocalDateTime fechaEmision;
-	private int idTipoEntrada;
-	private String documentoAsistente;
-	private int idDispositivo;
-	
-	
+	private long codigoBoleta;
+	private LocalDate fechaEmision;
+	private long idTipoEntrada;
+	private long documentoComprador;
+
 	public BoletaDTO() {
-		// TODO Auto-generated constructor stub
 	}
 
-
-	public BoletaDTO(String codigoBoleta, LocalDateTime fechaEmision, int idTipoEntrada, String documentoAsistente,
-			int idDispositivo) {
-		super();
-		this.codigoBoleta = codigoBoleta;
-		this.fechaEmision = fechaEmision;
-		this.idTipoEntrada = idTipoEntrada;
-		this.documentoAsistente = documentoAsistente;
-		this.idDispositivo = idDispositivo;
-	}
-
-
-	public String getCodigoBoleta() {
+	public long getCodigoBoleta() {
 		return codigoBoleta;
 	}
 
-
-	public void setCodigoBoleta(String codigoBoleta) {
+	public void setCodigoBoleta(long codigoBoleta) {
 		this.codigoBoleta = codigoBoleta;
 	}
 
-
-	public LocalDateTime getFechaEmision() {
+	public LocalDate getFechaEmision() {
 		return fechaEmision;
 	}
 
-
-	public void setFechaEmision(LocalDateTime fechaEmision) {
+	public void setFechaEmision(LocalDate fechaEmision) {
 		this.fechaEmision = fechaEmision;
 	}
 
-
-	public int getIdTipoEntrada() {
+	public long getIdTipoEntrada() {
 		return idTipoEntrada;
 	}
 
-
-	public void setIdTipoEntrada(int idTipoEntrada) {
+	public void setIdTipoEntrada(long idTipoEntrada) {
 		this.idTipoEntrada = idTipoEntrada;
 	}
 
-
-	public String getDocumentoAsistente() {
-		return documentoAsistente;
+	public long getDocumentoComprador() {
+		return documentoComprador;
 	}
 
-
-	public void setDocumentoAsistente(String documentoAsistente) {
-		this.documentoAsistente = documentoAsistente;
+	public void setDocumentoComprador(long documentoComprador) {
+		this.documentoComprador = documentoComprador;
 	}
-
-
-	public int getIdDispositivo() {
-		return idDispositivo;
-	}
-
-
-	public void setIdDispositivo(int idDispositivo) {
-		this.idDispositivo = idDispositivo;
-	}
-	
-	
-	
-	
 }

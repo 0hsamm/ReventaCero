@@ -90,4 +90,68 @@ public class ArtistaRepository {
         long id = rs.getLong(columna);
         return rs.wasNull() ? null : factory.apply(id);
     }
+    
+    // ---------- Escritura ----------
+
+    public long nextId() {
+        return jdbcClient.sql("SELECT SEQ_ARTISTA.NEXTVAL FROM DUAL").query(Long.class).single();
+    }
+
+    public Artista save(Artista artista) {
+        artista.setIdArtista(nextId());
+        jdbcClient.sql("INSERT INTO ARTISTA (ID_ARTISTA, NOMBRE_ARTISTICO, PAIS, ID_GENERO) "
+                + "VALUES (:id, :nombre, :pais, :idGenero)")
+                .param("id", artista.getIdArtista())
+                .param("nombre", artista.getNombreArtistico())
+                .param("pais", artista.getPais(), java.sql.Types.VARCHAR)
+                .param("idGenero", artista.getGenero().getIdGenero())
+                .update();
+        return artista;
+    }
+
+    public void update(Artista artista) {
+        jdbcClient.sql("UPDATE ARTISTA SET NOMBRE_ARTISTICO = :nombre, PAIS = :pais, ID_GENERO = :idGenero "
+                + "WHERE ID_ARTISTA = :id")
+                .param("id", artista.getIdArtista())
+                .param("nombre", artista.getNombreArtistico())
+                .param("pais", artista.getPais(), java.sql.Types.VARCHAR)
+                .param("idGenero", artista.getGenero().getIdGenero())
+                .update();
+    }
+
+    public void deleteById(long id) {
+        jdbcClient.sql("DELETE FROM ARTISTA WHERE ID_ARTISTA = :id").param("id", id).update();
+    }
+
+    public void guardarRedSocial(long idArtista, String redSocial) {
+        jdbcClient.sql("INSERT INTO ARTISTA_RED_SOCIAL (ID_ARTISTA, RED_SOCIAL) VALUES (:idArtista, :redSocial)")
+                .param("idArtista", idArtista)
+                .param("redSocial", redSocial)
+                .update();
+    }
+
+    public void eliminarRedesSociales(long idArtista) {
+        jdbcClient.sql("DELETE FROM ARTISTA_RED_SOCIAL WHERE ID_ARTISTA = :idArtista")
+                .param("idArtista", idArtista)
+                .update();
+    }
+
+    public void guardarColaboracion(long idPrincipal, long idInvitado) {
+        jdbcClient.sql("INSERT INTO COLABORACION (ARTISTA_PRINCIPAL, ARTISTA_INVITADO) VALUES (:principal, :invitado)")
+                .param("principal", idPrincipal)
+                .param("invitado", idInvitado)
+                .update();
+    }
+
+    public void eliminarInvitados(long idPrincipal) {
+        jdbcClient.sql("DELETE FROM COLABORACION WHERE ARTISTA_PRINCIPAL = :id")
+                .param("id", idPrincipal)
+                .update();
+    }
+
+    public void eliminarColaboracionesDe(long idArtista) {
+        jdbcClient.sql("DELETE FROM COLABORACION WHERE ARTISTA_PRINCIPAL = :id OR ARTISTA_INVITADO = :id")
+                .param("id", idArtista)
+                .update();
+    }
 }

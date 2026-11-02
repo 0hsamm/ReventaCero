@@ -71,4 +71,21 @@ public class ListaEsperaRepository {
         long id = rs.getLong(columna);
         return rs.wasNull() ? null : factory.apply(id);
     }
+    
+    public long nextId() {
+        return jdbcClient.sql("SELECT SEQ_LISTA_ESPERA.NEXTVAL FROM DUAL").query(Long.class).single();
+    }
+
+    public ListaEspera save(ListaEspera lista) {
+        lista.setIdLista(nextId());
+        jdbcClient.sql("INSERT INTO LISTA_ESPERA (ID_LISTA, ID_TIPO_ENTRADA) VALUES (:id, :idTipoEntrada)")
+                .param("id", lista.getIdLista())
+                .param("idTipoEntrada", lista.getTipoEntrada().getIdTipoEntrada())
+                .update();
+        return lista;
+    }
+
+    public void deleteById(long id) {
+        jdbcClient.sql("DELETE FROM LISTA_ESPERA WHERE ID_LISTA = :id").param("id", id).update();
+    }
 }

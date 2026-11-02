@@ -2,43 +2,18 @@ package co.edu.unbosque.reventacero.dto;
 
 public class GeneroDTO {
 
-	
-	private int idGenero;
+	private long idGenero;
 	private String nombre;
-	
-	
+	private Long idGeneroPrincipal;
+
 	public GeneroDTO() {
-		// TODO Auto-generated constructor stub
 	}
 
+	public long getIdGenero() { return idGenero; }
+	public void setIdGenero(long idGenero) { this.idGenero = idGenero; }
+	public String getNombre() { return nombre; }
+	public void setNombre(String nombre) { this.nombre = nombre; }
+	public Long getIdGeneroPrincipal() { return idGeneroPrincipal; }
+	public void setIdGeneroPrincipal(Long idGeneroPrincipal) { this.idGeneroPrincipal = idGeneroPrincipal; }
 
-	public GeneroDTO(int idGenero, String nombre) {
-		super();
-		this.idGenero = idGenero;
-		this.nombre = nombre;
-	}
-
-
-	public int getIdGenero() {
-		return idGenero;
-	}
-
-
-	public void setIdGenero(int idGenero) {
-		this.idGenero = idGenero;
-	}
-
-
-	public String getNombre() {
-		return nombre;
-	}
-
-
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
-	
-	
-	
-	
 }

@@ -124,4 +124,13 @@ public class ReventaAutorizadaRepository {
     private static Boleta boletaRef(ResultSet rs, String columna) throws SQLException {
         return referencia(rs, columna, id -> { var e = new Boleta(); e.setCodigoBoleta(id); return e; });
     }
+
+    public void save(ReventaAutorizada reventa) {
+        jdbcClient.sql("INSERT INTO REVENTA_AUTORIZADA (ID_TRANSACCION, VENDEDOR_DOCUMENTO, COMPRADOR_DOCUMENTO) "
+                + "VALUES (:id, :vendedor, :comprador)")
+                .param("id", reventa.getIdTransaccion())
+                .param("vendedor", reventa.getVendedor().getDocumento())
+                .param("comprador", reventa.getComprador().getDocumento())
+                .update();
+    }
 }

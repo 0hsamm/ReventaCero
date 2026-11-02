@@ -75,4 +75,33 @@ public class GeneroRepository {
         long id = rs.getLong(columna);
         return rs.wasNull() ? null : factory.apply(id);
     }
+    
+    public long nextId() {
+        return jdbcClient.sql("SELECT SEQ_GENERO.NEXTVAL FROM DUAL").query(Long.class).single();
+    }
+
+    public Genero save(Genero genero) {
+        genero.setIdGenero(nextId());
+        jdbcClient.sql("INSERT INTO GENERO (ID_GENERO, NOMBRE, GENERO_PRINCIPAL_ID) "
+                + "VALUES (:id, :nombre, :principal)")
+                .param("id", genero.getIdGenero())
+                .param("nombre", genero.getNombre())
+                .param("principal", genero.getGeneroPrincipal() != null ? genero.getGeneroPrincipal().getIdGenero() : null,
+                        java.sql.Types.NUMERIC)
+                .update();
+        return genero;
+    }
+
+    public void update(Genero genero) {
+        jdbcClient.sql("UPDATE GENERO SET NOMBRE = :nombre, GENERO_PRINCIPAL_ID = :principal WHERE ID_GENERO = :id")
+                .param("id", genero.getIdGenero())
+                .param("nombre", genero.getNombre())
+                .param("principal", genero.getGeneroPrincipal() != null ? genero.getGeneroPrincipal().getIdGenero() : null,
+                        java.sql.Types.NUMERIC)
+                .update();
+    }
+
+    public void deleteById(long id) {
+        jdbcClient.sql("DELETE FROM GENERO WHERE ID_GENERO = :id").param("id", id).update();
+    }
 }

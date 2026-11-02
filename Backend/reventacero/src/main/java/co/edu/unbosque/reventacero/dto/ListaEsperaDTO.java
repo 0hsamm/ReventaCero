@@ -2,36 +2,25 @@ package co.edu.unbosque.reventacero.dto;
 
 public class ListaEsperaDTO {
 
-	private int idLista;
-	private int idTipoEntrada;
-	
+	private long idLista;
+	private long idTipoEntrada;
+
 	public ListaEsperaDTO() {
-		// TODO Auto-generated constructor stub
 	}
 
-	public ListaEsperaDTO(int idLista, int idTipoEntrada) {
-		super();
-		this.idLista = idLista;
-		this.idTipoEntrada = idTipoEntrada;
-	}
-
-	public int getIdLista() {
+	public long getIdLista() {
 		return idLista;
 	}
 
-	public void setIdLista(int idLista) {
+	public void setIdLista(long idLista) {
 		this.idLista = idLista;
 	}
 
-	public int getIdTipoEntrada() {
+	public long getIdTipoEntrada() {
 		return idTipoEntrada;
 	}
 
-	public void setIdTipoEntrada(int idTipoEntrada) {
+	public void setIdTipoEntrada(long idTipoEntrada) {
 		this.idTipoEntrada = idTipoEntrada;
 	}
-	
-	
-	
-	
 }

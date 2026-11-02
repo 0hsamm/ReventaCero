@@ -98,4 +98,13 @@ public class DevolucionRepository {
     private static Boleta boletaRef(ResultSet rs, String columna) throws SQLException {
         return referencia(rs, columna, id -> { var e = new Boleta(); e.setCodigoBoleta(id); return e; });
     }
+    
+    public void save(Devolucion devolucion) {
+        jdbcClient.sql("INSERT INTO DEVOLUCION (ID_TRANSACCION, MOTIVO, PORCENTAJE_REEMBOLSO) "
+                + "VALUES (:id, :motivo, :porcentaje)")
+                .param("id", devolucion.getIdTransaccion())
+                .param("motivo", devolucion.getMotivo(), java.sql.Types.VARCHAR)
+                .param("porcentaje", devolucion.getPorcentajeReembolso(), java.sql.Types.NUMERIC)
+                .update();
+    }
 }

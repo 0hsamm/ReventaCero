@@ -5,31 +5,23 @@ import java.time.LocalDateTime;
 
 public class TransaccionDTO {
 
-	private int idTransaccion;
+	private long idTransaccion;
 	private LocalDateTime fechaHora;
 	private BigDecimal precio;
 	private BigDecimal comisionOrganizador;
-	private String codigoBoleta;
-	
+	private String metodoPago;
+	private long codigoBoleta;
+	private long idDispositivo;
+	private String tipoTransaccion;
+
 	public TransaccionDTO() {
-		// TODO Auto-generated constructor stub
 	}
 
-	public TransaccionDTO(int idTransaccion, LocalDateTime fechaHora, BigDecimal precio, BigDecimal comisionOrganizador,
-			String codigoBoleta) {
-		super();
-		this.idTransaccion = idTransaccion;
-		this.fechaHora = fechaHora;
-		this.precio = precio;
-		this.comisionOrganizador = comisionOrganizador;
-		this.codigoBoleta = codigoBoleta;
-	}
-
-	public int getIdTransaccion() {
+	public long getIdTransaccion() {
 		return idTransaccion;
 	}
 
-	public void setIdTransaccion(int idTransaccion) {
+	public void setIdTransaccion(long idTransaccion) {
 		this.idTransaccion = idTransaccion;
 	}
 
@@ -57,16 +49,35 @@ public class TransaccionDTO {
 		this.comisionOrganizador = comisionOrganizador;
 	}
 
-	public String getCodigoBoleta() {
+	public String getMetodoPago() {
+		return metodoPago;
+	}
+
+	public void setMetodoPago(String metodoPago) {
+		this.metodoPago = metodoPago;
+	}
+
+	public long getCodigoBoleta() {
 		return codigoBoleta;
 	}
 
-	public void setCodigoBoleta(String codigoBoleta) {
+	public void setCodigoBoleta(long codigoBoleta) {
 		this.codigoBoleta = codigoBoleta;
 	}
-	
-	
-	
-	
-	
+
+	public long getIdDispositivo() {
+		return idDispositivo;
+	}
+
+	public void setIdDispositivo(long idDispositivo) {
+		this.idDispositivo = idDispositivo;
+	}
+
+	public String getTipoTransaccion() {
+		return tipoTransaccion;
+	}
+
+	public void setTipoTransaccion(String tipoTransaccion) {
+		this.tipoTransaccion = tipoTransaccion;
+	}
 }

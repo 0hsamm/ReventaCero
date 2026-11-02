@@ -72,4 +72,52 @@ public class ZonaRepository {
         long id = rs.getLong(columna);
         return rs.wasNull() ? null : factory.apply(id);
     }
+    
+    public long nextId() {
+        return jdbcClient.sql("SELECT SEQ_ZONA.NEXTVAL FROM DUAL").query(Long.class).single();
+    }
+
+    public Zona save(Zona zona) {
+        zona.setIdZona(nextId());
+        jdbcClient.sql("INSERT INTO ZONA (ID_ZONA, NOMBRE, TIPO_ZONA, AFORO_MAXIMO, ID_FESTIVAL) "
+                + "VALUES (:id, :nombre, :tipoZona, :aforo, :idFestival)")
+                .param("id", zona.getIdZona())
+                .param("nombre", zona.getNombre())
+                .param("tipoZona", zona.getTipoZona(), java.sql.Types.VARCHAR)
+                .param("aforo", zona.getAforoMaximo())
+                .param("idFestival", zona.getFestival().getIdFestival())
+                .update();
+        return zona;
+    }
+
+    public void update(Zona zona) {
+        jdbcClient.sql("UPDATE ZONA SET NOMBRE = :nombre, TIPO_ZONA = :tipoZona, AFORO_MAXIMO = :aforo, "
+                + "ID_FESTIVAL = :idFestival WHERE ID_ZONA = :id")
+                .param("id", zona.getIdZona())
+                .param("nombre", zona.getNombre())
+                .param("tipoZona", zona.getTipoZona(), java.sql.Types.VARCHAR)
+                .param("aforo", zona.getAforoMaximo())
+                .param("idFestival", zona.getFestival().getIdFestival())
+                .update();
+    }
+
+    public void deleteById(long id) {
+        jdbcClient.sql("DELETE FROM ZONA WHERE ID_ZONA = :id").param("id", id).update();
+    }
+
+    public int countBoletasEmitidas(long idZona) {
+        return jdbcClient.sql("SELECT COUNT(*) FROM BOLETA b JOIN TIPO_ENTRADA te "
+                + "ON te.ID_TIPO_ENTRADA = b.ID_TIPO_ENTRADA WHERE te.ID_ZONA = :idZona "
+                + "AND NOT EXISTS (SELECT 1 FROM TRANSACCION t WHERE t.CODIGO_BOLETA = b.CODIGO_BOLETA "
+                + "AND t.TIPO_TRANSACCION = 'DEVOLUCION')")
+                .param("idZona", idZona)
+                .query(Integer.class).single();
+    }
+
+    public void bloquearPorId(long idZona) {
+        jdbcClient.sql("SELECT ID_ZONA FROM ZONA WHERE ID_ZONA = :idZona FOR UPDATE")
+                .param("idZona", idZona)
+                .query(Long.class)
+                .optional();
+    }
 }
