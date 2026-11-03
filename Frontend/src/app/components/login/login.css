@@ -1,0 +1,198 @@
+.pagina {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  min-height: 100dvh;
+}
+
+/* Panel de marca: color fijo, no cambia con el tema */
+.marca {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 40px 48px;
+  background: #1d3f53;
+  color: #eef3f6;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.logo-marca {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius);
+  background: #eef3f6;
+  color: #1d3f53;
+}
+
+.marca-texto h1 {
+  max-width: 14ch;
+  font-size: clamp(32px, 3.4vw, 44px);
+  line-height: 1.12;
+}
+
+.marca-texto p {
+  max-width: 44ch;
+  margin-top: 16px;
+  color: #c6d4dc;
+}
+
+.muestra {
+  display: flex;
+  max-width: 440px;
+  border-radius: var(--radius);
+  background: #f7f9fa;
+  color: #18252e;
+}
+
+.muestra-cuerpo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+}
+
+.muestra-talon {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 16px;
+  border-left: 2px dashed #aeb9c0;
+}
+
+.muestra-talon::before,
+.muestra-talon::after {
+  content: '';
+  position: absolute;
+  left: -9px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #1d3f53;
+}
+
+.muestra-talon::before {
+  top: -8px;
+}
+
+.muestra-talon::after {
+  bottom: -8px;
+}
+
+.muestra-etiqueta {
+  font-size: 13px;
+  color: #51616c;
+}
+
+.muestra code {
+  font-family: var(--font-mono);
+  font-size: 15px;
+}
+
+.muestra dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 8px 0 0;
+}
+
+.muestra dt {
+  font-size: 13px;
+  color: #51616c;
+}
+
+.muestra dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+/* Formulario */
+.acceso {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 32px 24px;
+}
+
+.tema {
+  align-self: flex-end;
+  min-height: 40px;
+  font-size: 14px;
+}
+
+.tarjeta {
+  width: min(460px, 100%);
+  margin-block: auto;
+}
+
+.tarjeta h2 {
+  font-size: 26px;
+  margin-bottom: 16px;
+}
+
+.modos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 24px;
+  background: var(--surface-2);
+  border-radius: var(--radius);
+}
+
+.modos button {
+  min-height: 40px;
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  font-size: 15px;
+  color: var(--text-2);
+}
+
+.modos button.activo {
+  background: var(--surface);
+  color: var(--text-1);
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgb(15 30 40 / 12%);
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.enviar {
+  margin-top: 8px;
+  width: 100%;
+}
+
+.error-general {
+  padding: 12px;
+  margin-bottom: 16px;
+  background: var(--danger-soft);
+  border-radius: var(--radius);
+  color: var(--danger);
+  font-size: 14px;
+}
+

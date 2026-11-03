@@ -1,0 +1,45 @@
+.contenido {
+  max-width: 860px;
+  margin-inline: auto;
+  padding: 32px;
+}
+
+.pestanas {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.pestanas button {
+  min-height: 44px;
+  margin-bottom: -1px;
+  padding: 0 2px;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--text-2);
+}
+
+.pestanas button:hover {
+  color: var(--text-1);
+}
+
+.pestanas button.activa {
+  border-bottom-color: var(--accent);
+  color: var(--text-1);
+  font-weight: 500;
+}
+
+.pestanas span {
+  margin-left: 4px;
+  font-size: 13px;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.boletas {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

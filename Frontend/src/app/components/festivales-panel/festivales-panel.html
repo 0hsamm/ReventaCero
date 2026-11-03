@@ -1,0 +1,189 @@
+<div class="panel">
+  <section class="lista">
+    <header class="panel-header">
+      <h1>Festivales</h1>
+    </header>
+
+    <div class="filtros">
+      <div class="field">
+        <label for="busqueda">Buscar por nombre</label>
+        <input
+          id="busqueda"
+          type="search"
+          class="input"
+          [ngModel]="busqueda()"
+          (ngModelChange)="busqueda.set($event)"
+        />
+      </div>
+
+      <div class="field">
+        <label for="ciudad">Ciudad</label>
+        <select
+          id="ciudad"
+          class="input"
+          [ngModel]="ciudad()"
+          (ngModelChange)="ciudad.set($event)"
+        >
+          <option value="">Todas</option>
+          @for (item of ciudades(); track item) {
+            <option [value]="item">{{ item }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="segmentos" role="group" aria-label="Filtrar por estado">
+        @for (filtro of filtrosEstado; track filtro.valor) {
+          <button
+            type="button"
+            [class.activo]="estado() === filtro.valor"
+            [attr.aria-pressed]="estado() === filtro.valor"
+            (click)="estado.set(filtro.valor)"
+          >
+            {{ filtro.etiqueta }}
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (cargando()) {
+      <div class="esqueleto" style="height: 320px"></div>
+    } @else if (error()) {
+      <div class="aviso aviso-error" role="alert">
+        <strong>No pudimos cargar los festivales</strong>
+        <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+      </div>
+    } @else if (filtrados().length === 0) {
+      <div class="aviso">
+        <strong>Ningún festival coincide</strong>
+        <button type="button" class="btn btn-ghost" (click)="limpiarFiltros()">
+          Quitar filtros
+        </button>
+      </div>
+    } @else {
+      <ul class="filas">
+        @for (festival of filtrados(); track festival.idFestival) {
+          <li>
+            <button
+              type="button"
+              [class.activo]="seleccionado()?.idFestival === festival.idFestival"
+              [attr.aria-current]="seleccionado()?.idFestival === festival.idFestival ? 'true' : null"
+              (click)="seleccionar(festival)"
+            >
+              <span class="fila-superior">
+                <strong>{{ festival.nombre }}</strong>
+                <span class="chip" [class]="'chip-' + estadoFestival(festival)">
+                  {{ etiquetaEstado[estadoFestival(festival)] }}
+                </span>
+              </span>
+              <span class="fila-datos">
+                {{ festival.fechaInicio | date: 'd MMM y' }} · {{ festival.ubicacionCiudad }}
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="detalle">
+    @if (seleccionado(); as festival) {
+      <header class="detalle-encabezado">
+        <span class="chip" [class]="'chip-' + estadoFestival(festival)">
+          {{ etiquetaEstado[estadoFestival(festival)] }}
+        </span>
+        <h2>{{ festival.nombre }}</h2>
+        <p>Edición {{ festival.edicion }}</p>
+
+        <dl>
+          <div>
+            <dt>Fechas</dt>
+            <dd>
+              {{ festival.fechaInicio | date: 'd MMM' }} – {{ festival.fechaFin | date: 'd MMM y' }}
+            </dd>
+          </div>
+          <div>
+            <dt>Lugar</dt>
+            <dd>
+              {{ festival.ubicacionDireccion }}, {{ festival.ubicacionCiudad }},
+              {{ festival.ubicacionPais }}
+            </dd>
+          </div>
+        </dl>
+      </header>
+
+      @if (cargandoDetalle()) {
+        <div class="esqueleto" style="height: 220px"></div>
+      } @else if (errorDetalle()) {
+        <div class="aviso aviso-error" role="alert">
+          <strong>No pudimos cargar este festival</strong>
+          <button type="button" class="btn btn-ghost" (click)="seleccionar(festival)">
+            Reintentar
+          </button>
+        </div>
+      } @else {
+        <section aria-labelledby="titulo-entradas">
+          <h3 id="titulo-entradas">Entradas</h3>
+
+          @if (entradas().length) {
+            <table class="entradas">
+              <thead>
+                <tr>
+                  <th scope="col">Zona</th>
+                  <th scope="col">Categoría</th>
+                  <th scope="col" class="derecha">Aforo</th>
+                  <th scope="col" class="derecha">Precio base</th>
+                  <th scope="col" class="derecha">Tope de reventa</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (entrada of entradas(); track entrada.tipo.idTipoEntrada) {
+                  <tr>
+                    <td>{{ entrada.zona?.nombre }}</td>
+                    <td>{{ entrada.tipo.categoria }}</td>
+                    <td class="derecha">{{ entrada.zona?.aforoMaximo | number }}</td>
+                    <td class="derecha">
+                      {{ entrada.tipo.precioBase | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}
+                    </td>
+                    <td class="derecha">
+                      {{ entrada.tipo.precioTopeReventa | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          } @else {
+            <p class="vacio">Este festival aún no tiene entradas publicadas.</p>
+          }
+        </section>
+
+        <section aria-labelledby="titulo-cartel">
+          <h3 id="titulo-cartel">Cartel</h3>
+
+          @for (dia of cartel(); track dia.fecha) {
+            <div class="dia">
+              <h4>{{ dia.fecha | date: "EEEE d 'de' MMMM" }}</h4>
+              <ul>
+                @for (fila of dia.filas; track fila.id) {
+                  <li>
+                    <time>{{ fila.hora | date: 'HH:mm' }}</time>
+                    <span class="artista">
+                      {{ fila.artista }}
+                      @if (fila.pais) {
+                        <small>{{ fila.pais }}</small>
+                      }
+                    </span>
+                    <span class="escenario">Escenario {{ fila.escenario }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          } @empty {
+            <p class="vacio">El cartel todavía no está publicado.</p>
+          }
+        </section>
+      }
+    } @else if (!cargando()) {
+      <div class="aviso">Selecciona un festival para ver sus entradas y su cartel.</div>
+    }
+  </section>
+</div>

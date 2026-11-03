@@ -1,0 +1,58 @@
+.toast-stack {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(360px, calc(100vw - 32px));
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 8px 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 20px rgb(15 30 40 / 14%);
+}
+
+.toast.success strong {
+  color: var(--ok);
+}
+
+.toast.error strong {
+  color: var(--danger);
+}
+
+.toast-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+.toast-text strong {
+  font-weight: 600;
+}
+
+.toast-text span {
+  color: var(--text-2);
+}
+
+button {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 0;
+  border-radius: var(--radius);
+  color: var(--text-3);
+}
+
+button:hover {
+  background: var(--surface-2);
+}

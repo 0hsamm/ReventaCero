@@ -1,0 +1,61 @@
+<div class="sidebar">
+  <div class="logo">
+    <span class="logo-marca" aria-hidden="true">R</span>
+    ReventaCero
+  </div>
+
+  <nav class="menu" aria-label="Principal">
+    @for (opcion of opciones; track opcion.panel) {
+      <button
+        type="button"
+        class="menu-item"
+        [class.activo]="panelActivo() === opcion.panel"
+        [attr.aria-current]="panelActivo() === opcion.panel ? 'page' : null"
+        (click)="panelActivoChange.emit(opcion.panel)"
+      >
+        <i class="pi" [class]="opcion.icono" aria-hidden="true"></i>
+        {{ opcion.etiqueta }}
+      </button>
+    }
+  </nav>
+
+  <div class="pie">
+    <button
+      type="button"
+      class="pie-accion"
+      [attr.aria-label]="themeService.tema() === 'claro' ? 'Activar modo oscuro' : 'Activar modo claro'"
+      (click)="themeService.alternar()"
+    >
+      <i
+        class="pi"
+        [class.pi-moon]="themeService.tema() === 'claro'"
+        [class.pi-sun]="themeService.tema() === 'oscuro'"
+        aria-hidden="true"
+      ></i>
+      <span>{{ themeService.tema() === 'claro' ? 'Modo oscuro' : 'Modo claro' }}</span>
+    </button>
+
+    <div class="perfil">
+      <span class="avatar" aria-hidden="true">{{ iniciales() }}</span>
+      <span class="perfil-nombre" [title]="nombreUsuario()">{{ nombreUsuario() }}</span>
+      <button
+        type="button"
+        class="salir"
+        aria-label="Cerrar sesión"
+        title="Cerrar sesión"
+        (click)="confirmandoSalida.set(true)"
+      >
+        <i class="pi pi-sign-out" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-confirm-dialog
+  title="Cerrar sesión"
+  message="Tu sesión se cerrará en este dispositivo."
+  confirmLabel="Cerrar sesión"
+  [visible]="confirmandoSalida()"
+  (confirmed)="cerrarSesion()"
+  (cancelled)="confirmandoSalida.set(false)"
+></app-confirm-dialog>

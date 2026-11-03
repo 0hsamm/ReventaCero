@@ -1,0 +1,89 @@
+.boleta {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.cuerpo {
+  flex: 1;
+  min-width: 0;
+  padding: 20px;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+.lugar {
+  margin-top: 2px;
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 32px;
+  margin: 16px 0 0;
+}
+
+dt,
+.etiqueta {
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+dd {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.numero {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Talón separado con una línea perforada */
+.talon {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 176px;
+  padding: 20px;
+  border-left: 2px dashed var(--line-strong);
+}
+
+.talon::before,
+.talon::after {
+  content: '';
+  position: absolute;
+  left: -9px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+
+.talon::before {
+  top: -9px;
+  clip-path: inset(50% 0 0 0);
+}
+
+.talon::after {
+  bottom: -9px;
+  clip-path: inset(0 0 50% 0);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.emision {
+  margin-top: 8px;
+}

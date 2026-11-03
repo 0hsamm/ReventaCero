@@ -1,0 +1,262 @@
+<div class="pagina">
+  <section class="marca">
+    <div class="logo">
+      <span class="logo-marca" aria-hidden="true">R</span>
+      ReventaCero
+    </div>
+
+    <div class="marca-texto">
+      <h1>Boletas legítimas, con precio tope.</h1>
+      <p>
+        Compra y revende entradas de festivales con un código único. Cada reventa queda registrada
+        y nunca supera el tope del organizador.
+      </p>
+    </div>
+
+    <div class="muestra" aria-label="Ejemplo de una boleta">
+      <div class="muestra-cuerpo">
+        <span class="muestra-etiqueta">Ejemplo de boleta</span>
+        <strong>Abono completo · General</strong>
+        <dl>
+          <div>
+            <dt>Precio base</dt>
+            <dd>$ 280.000</dd>
+          </div>
+          <div>
+            <dt>Tope de reventa</dt>
+            <dd>$ 308.000</dd>
+          </div>
+        </dl>
+      </div>
+      <div class="muestra-talon">
+        <span class="muestra-etiqueta">Código</span>
+        <code>100245871</code>
+      </div>
+    </div>
+  </section>
+
+  <main class="acceso">
+    <button
+      type="button"
+      class="btn btn-ghost tema"
+      (click)="themeService.alternar()"
+    >
+      <i
+        class="pi"
+        [class.pi-moon]="themeService.tema() === 'claro'"
+        [class.pi-sun]="themeService.tema() === 'oscuro'"
+        aria-hidden="true"
+      ></i>
+      {{ themeService.tema() === 'claro' ? 'Modo oscuro' : 'Modo claro' }}
+    </button>
+
+    <div class="tarjeta">
+      <h2>{{ modoRegistro() ? 'Crea tu cuenta' : 'Inicia sesión' }}</h2>
+
+      <div class="modos">
+        <button
+          type="button"
+          [class.activo]="!modoRegistro()"
+          [attr.aria-pressed]="!modoRegistro()"
+          (click)="cambiarModo(false)"
+        >
+          Ingresar
+        </button>
+        <button
+          type="button"
+          [class.activo]="modoRegistro()"
+          [attr.aria-pressed]="modoRegistro()"
+          (click)="cambiarModo(true)"
+        >
+          Registrarme
+        </button>
+      </div>
+
+      @if (error()) {
+        <p class="error-general" role="alert">{{ error() }}</p>
+      }
+
+      @if (!modoRegistro()) {
+        <form class="formulario" novalidate (ngSubmit)="entrar()">
+          <div class="field">
+            <label for="usuario">Nombre de usuario</label>
+            <input
+              id="usuario"
+              name="usuario"
+              class="input"
+              autocomplete="username"
+              [class.invalido]="errores().nombreUsuario"
+              [attr.aria-invalid]="!!errores().nombreUsuario"
+              [(ngModel)]="nombreUsuario"
+            />
+            @if (errores().nombreUsuario) {
+              <span class="field-error">{{ errores().nombreUsuario }}</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="contrasenia">Contraseña</label>
+            <input
+              id="contrasenia"
+              name="contrasenia"
+              type="password"
+              class="input"
+              autocomplete="current-password"
+              [class.invalido]="errores().contrasenia"
+              [attr.aria-invalid]="!!errores().contrasenia"
+              [(ngModel)]="contrasenia"
+            />
+            @if (errores().contrasenia) {
+              <span class="field-error">{{ errores().contrasenia }}</span>
+            }
+          </div>
+
+          <button type="submit" class="btn btn-primary enviar" [disabled]="cargando()">
+            {{ cargando() ? 'Ingresando…' : 'Ingresar' }}
+          </button>
+        </form>
+      } @else {
+        <form class="formulario" novalidate (ngSubmit)="registrar()">
+          <div class="field">
+            <label for="documento">Número de documento</label>
+            <input
+              id="documento"
+              name="documento"
+              class="input"
+              inputmode="numeric"
+              autocomplete="off"
+              [class.invalido]="errores().documento"
+              [attr.aria-invalid]="!!errores().documento"
+              [(ngModel)]="documento"
+            />
+            @if (errores().documento) {
+              <span class="field-error">{{ errores().documento }}</span>
+            }
+          </div>
+
+          <div class="fila">
+            <div class="field">
+              <label for="nombre">Nombre</label>
+              <input
+                id="nombre"
+                name="nombre"
+                class="input"
+                autocomplete="given-name"
+                [class.invalido]="errores().nombre"
+                [attr.aria-invalid]="!!errores().nombre"
+                [(ngModel)]="nombre"
+              />
+              @if (errores().nombre) {
+                <span class="field-error">{{ errores().nombre }}</span>
+              }
+            </div>
+
+            <div class="field">
+              <label for="apellido">Apellido</label>
+              <input
+                id="apellido"
+                name="apellido"
+                class="input"
+                autocomplete="family-name"
+                [class.invalido]="errores().apellido"
+                [attr.aria-invalid]="!!errores().apellido"
+                [(ngModel)]="apellido"
+              />
+              @if (errores().apellido) {
+                <span class="field-error">{{ errores().apellido }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="correo">Correo</label>
+            <input
+              id="correo"
+              name="correo"
+              type="email"
+              class="input"
+              autocomplete="email"
+              [class.invalido]="errores().correo"
+              [attr.aria-invalid]="!!errores().correo"
+              [(ngModel)]="correo"
+            />
+            @if (errores().correo) {
+              <span class="field-error">{{ errores().correo }}</span>
+            }
+          </div>
+
+          <div class="fila">
+            <div class="field">
+              <label for="fechaNacimiento">Fecha de nacimiento</label>
+              <input
+                id="fechaNacimiento"
+                name="fechaNacimiento"
+                type="date"
+                class="input"
+                autocomplete="bday"
+                [max]="hoy"
+                [class.invalido]="errores().fechaNacimiento"
+                [attr.aria-invalid]="!!errores().fechaNacimiento"
+                [(ngModel)]="fechaNacimiento"
+              />
+              @if (errores().fechaNacimiento) {
+                <span class="field-error">{{ errores().fechaNacimiento }}</span>
+              }
+            </div>
+
+            <div class="field">
+              <label for="telefono">Teléfono (opcional)</label>
+              <input
+                id="telefono"
+                name="telefono"
+                type="tel"
+                class="input"
+                autocomplete="tel"
+                [(ngModel)]="telefono"
+              />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="nuevoUsuario">Nombre de usuario</label>
+            <input
+              id="nuevoUsuario"
+              name="nuevoUsuario"
+              class="input"
+              autocomplete="username"
+              [class.invalido]="errores().nombreUsuario"
+              [attr.aria-invalid]="!!errores().nombreUsuario"
+              [(ngModel)]="nombreUsuario"
+            />
+            @if (errores().nombreUsuario) {
+              <span class="field-error">{{ errores().nombreUsuario }}</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="nuevaContrasenia">Contraseña</label>
+            <input
+              id="nuevaContrasenia"
+              name="nuevaContrasenia"
+              type="password"
+              class="input"
+              autocomplete="new-password"
+              [class.invalido]="errores().contrasenia"
+              [attr.aria-invalid]="!!errores().contrasenia"
+              [(ngModel)]="contrasenia"
+            />
+            @if (errores().contrasenia) {
+              <span class="field-error">{{ errores().contrasenia }}</span>
+            } @else {
+              <span class="field-help">Mínimo {{ longitudMinima }} caracteres.</span>
+            }
+          </div>
+
+          <button type="submit" class="btn btn-primary enviar" [disabled]="cargando()">
+            {{ cargando() ? 'Creando cuenta…' : 'Crear cuenta' }}
+          </button>
+        </form>
+      }
+    </div>
+  </main>
+</div>
