@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import co.edu.unbosque.reventacero.entity.Usuario;
 import co.edu.unbosque.reventacero.enums.TipoUsuario;
 import co.edu.unbosque.reventacero.repository.UsuarioRepository;
+import co.edu.unbosque.reventacero.service.FestivalService;
 
 /**
  * Levanta la cadena completa de Spring Security sin Oracle:
@@ -52,6 +53,9 @@ class SeguridadIntegracionTest {
 
 	@MockitoBean
 	private JdbcClient jdbcClient;
+
+	@MockitoBean
+	private FestivalService festivalService;
 
 	private Usuario usuarioNormal;
 
@@ -123,10 +127,10 @@ class SeguridadIntegracionTest {
 	}
 
 	@Test
-	void rutaProtegidaConTokenValidoPasaLaSeguridad() throws Exception {
+	void listadoGlobalDeBoletasRequiereAdministrador() throws Exception {
 		// 404 = la seguridad dejó pasar; simplemente aún no existe el controlador
 		mockMvc.perform(get("/boletas").header("Authorization", bearer(usuarioNormal)))
-				.andExpect(status().isNotFound());
+				.andExpect(status().isForbidden());
 	}
 
 	@Test
@@ -152,7 +156,7 @@ class SeguridadIntegracionTest {
 	@Test
 	void consultarFestivalesEsPublico() throws Exception {
 		mockMvc.perform(get("/festivales"))
-				.andExpect(status().isNotFound());
+				.andExpect(status().isOk());
 	}
 
 	@Test
