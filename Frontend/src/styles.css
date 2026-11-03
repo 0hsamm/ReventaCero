@@ -1,44 +1,60 @@
+/*
+  Tema oscuro: el principal.
+  El neón se usa como relleno con texto negro (--neon / --on-neon). Como texto solo funciona
+  sobre oscuro: en claro daría 1,1:1, así que --accent cambia a negro y el neón pasa a ser fondo.
+*/
 :root {
-  --bg: #f3f5f6;
-  --surface: #ffffff;
-  --surface-2: #eaeef0;
-  --line: #d8dee2;
-  --line-strong: #aeb9c0;
-  --text-1: #18252e;
-  --text-2: #44545f;
-  --text-3: #5b6b76;
-  --accent: #25526b;
-  --accent-hover: #1c4258;
-  --accent-soft: #e3ecf1;
-  --on-accent: #ffffff;
-  --ok: #2f6b4f;
-  --ok-soft: #e4efe9;
-  --danger: #9c3b33;
-  --danger-soft: #f6e6e4;
-  --radius: 6px;
-  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+  --neon: #ccff00;
+  --on-neon: #050505;
+  --bg: #050505;
+  --surface: #121212;
+  --surface-2: #1f1f1f;
+  --line: #2e2e2e;
+  --line-strong: #f4f4f5;
+  --text-1: #f4f4f5;
+  --text-2: #c4c4c9;
+  --text-3: #a1a1aa;
+  --accent: #ccff00;
+  --accent-hover: #dcff4d;
+  --accent-soft: rgb(204 255 0 / 14%);
+  --on-accent: #050505;
+  --ok: #ccff00;
+  --ok-soft: rgb(204 255 0 / 14%);
+  --danger: #ff6b5e;
+  --danger-soft: rgb(255 107 94 / 14%);
+  --sello: #ff6b5e;
+  --radius: 2px;
+  /* Sombra brutalista: sin desenfoque. En oscuro el borde hace ese trabajo. */
+  --sombra: none;
+  --sombra-recorte: none;
+  --font-display: 'Anton', Impact, 'Arial Narrow', sans-serif;
+  --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
-  color-scheme: light;
+  color-scheme: dark;
 }
 
-:root[data-theme='dark'] {
-  --bg: #12191e;
-  --surface: #192228;
-  --surface-2: #222d34;
-  --line: #2e3a42;
-  --line-strong: #52626d;
-  --text-1: #e7ecef;
-  --text-2: #b4c0c8;
-  --text-3: #99a7b1;
-  --accent: #8fb8d0;
-  --accent-hover: #a6c8dc;
-  --accent-soft: #223643;
-  --on-accent: #10202b;
-  --ok: #86c4a3;
-  --ok-soft: #1d3229;
-  --danger: #e39a92;
-  --danger-soft: #3c2422;
-  color-scheme: dark;
+:root[data-theme='light'] {
+  --bg: #f9f9f9;
+  --surface: #ffffff;
+  --surface-2: #ececec;
+  --line: #0f0f0f;
+  --line-strong: #0f0f0f;
+  --text-1: #0f0f0f;
+  --text-2: #3a3a3f;
+  --text-3: #52525b;
+  --accent: #0f0f0f;
+  --accent-hover: #2a2a2a;
+  --accent-soft: #ccff00;
+  --on-accent: #ffffff;
+  --ok: #0f0f0f;
+  --ok-soft: #ccff00;
+  --danger: #b3261e;
+  --danger-soft: #fbe4e2;
+  --sello: #b3261e;
+  --sombra: 4px 4px 0 #000;
+  /* drop-shadow sigue la silueta de los boletos troquelados; box-shadow se recortaría */
+  --sombra-recorte: drop-shadow(4px 4px 0 #000);
+  color-scheme: light;
 }
 
 * {
@@ -51,6 +67,11 @@ body {
   height: 100%;
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 88px;
+}
+
 /* La aplicación es solo para PC: en ventanas más angostas aparece scroll horizontal */
 body {
   min-width: 1180px;
@@ -60,6 +81,17 @@ body {
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Ruido sobre toda la página para quitarle lo plano al fondo */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 h1,
@@ -89,8 +121,28 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* Tipografía de impacto */
+.titulo-seccion {
+  font-family: var(--font-display);
+  font-size: 112px;
+  font-weight: 400;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.contorno {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--text-1);
+}
+
+.resaltado {
+  padding: 0 0.14em;
+  background: var(--neon);
+  color: var(--on-neon);
 }
 
 /* Botones */
@@ -101,14 +153,16 @@ button {
   gap: 8px;
   min-height: 44px;
   padding: 0 16px;
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   border-radius: var(--radius);
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   text-decoration: none;
   transition:
     background-color 120ms ease,
-    border-color 120ms ease;
+    border-color 120ms ease,
+    transform 120ms ease,
+    box-shadow 120ms ease;
 }
 
 .btn:disabled {
@@ -117,12 +171,14 @@ button {
 }
 
 .btn-primary {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--neon);
+  border-color: var(--on-neon);
+  color: var(--on-neon);
+  box-shadow: var(--sombra);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--accent-hover);
+  background: #dcff4d;
 }
 
 .btn-ghost {
@@ -137,7 +193,7 @@ button {
 
 .btn-danger {
   background: var(--danger);
-  color: var(--surface);
+  color: var(--bg);
 }
 
 /* Formularios */
@@ -159,8 +215,12 @@ button {
   min-height: 44px;
   padding: 0 12px;
   background: var(--surface);
-  border: 1px solid var(--line-strong);
+  border: 2px solid var(--line);
   border-radius: var(--radius);
+}
+
+.input:focus {
+  border-color: var(--accent);
 }
 
 .input.invalido {
@@ -182,7 +242,7 @@ button {
   display: inline-flex;
   align-items: center;
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: var(--radius);
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
@@ -194,8 +254,8 @@ button {
 }
 
 .chip-en-curso {
-  background: var(--ok-soft);
-  color: var(--ok);
+  background: var(--neon);
+  color: var(--on-neon);
 }
 
 .chip-finalizado {
@@ -212,7 +272,11 @@ button {
 }
 
 .panel-header h1 {
-  font-size: 26px;
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 400;
+  line-height: 1.05;
+  text-transform: uppercase;
 }
 
 .panel-header p {
@@ -228,6 +292,7 @@ button {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
+  box-shadow: var(--sombra);
   color: var(--text-2);
 }
 
@@ -253,6 +318,10 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {

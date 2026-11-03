@@ -1,4 +1,5 @@
 .boleta {
+  box-shadow: var(--sombra);
   display: flex;
   background: var(--surface);
   border: 1px solid var(--line);

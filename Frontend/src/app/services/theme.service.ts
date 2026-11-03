@@ -8,7 +8,7 @@ export type Tema = 'claro' | 'oscuro';
 export class ThemeService {
   private readonly storageKey = 'tema';
 
-  readonly tema = signal<Tema>(localStorage.getItem(this.storageKey) === 'oscuro' ? 'oscuro' : 'claro');
+  readonly tema = signal<Tema>(localStorage.getItem(this.storageKey) === 'claro' ? 'claro' : 'oscuro');
 
   inicializar(): void {
     this.aplicar(this.tema());

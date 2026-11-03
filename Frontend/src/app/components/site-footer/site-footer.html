@@ -1,0 +1,23 @@
+<footer class="footer">
+  <p class="marca" aria-hidden="true">Reventa<span>Cero</span></p>
+
+  <div class="columnas">
+    <p class="nota">Boletas con código único y reventa con precio tope.</p>
+
+    <nav aria-label="Festival">
+      <h2>Festival</h2>
+      <a routerLink="/" fragment="lineup">Lineup</a>
+      <a routerLink="/" fragment="boleteria">Boletería</a>
+      <a routerLink="/acceso">Ingresar</a>
+    </nav>
+
+    <nav aria-label="Información legal">
+      <h2>Legal</h2>
+      @for (legal of legales; track legal.ruta) {
+        <a [routerLink]="['/legal', legal.ruta]">{{ legal.etiqueta }}</a>
+      }
+    </nav>
+  </div>
+
+  <p class="derechos">© {{ anio }} ReventaCero</p>
+</footer>

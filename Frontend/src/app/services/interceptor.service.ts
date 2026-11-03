@@ -18,7 +18,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       // En /auth un 401 son credenciales incorrectas, no una sesión vencida.
       if (err.status === 401 && !req.url.includes('/auth/')) {
         authService.cerrarSesion();
-        router.navigate(['']);
+        router.navigate(['/acceso']);
       }
 
       return throwError(() => err);

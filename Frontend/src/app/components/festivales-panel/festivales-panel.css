@@ -148,6 +148,7 @@ h3 {
 }
 
 .entradas {
+  box-shadow: var(--sombra);
   width: 100%;
   border-collapse: collapse;
   background: var(--surface);

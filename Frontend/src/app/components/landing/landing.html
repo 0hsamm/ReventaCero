@@ -1,0 +1,73 @@
+<header class="nav">
+  <a class="logo" routerLink="/">Reventa<span>Cero</span></a>
+
+  <nav aria-label="Principal">
+    <a href="#lineup">Lineup</a>
+    <a href="#boleteria">Boletería</a>
+  </nav>
+
+  <div class="acciones">
+    <button
+      type="button"
+      class="tema"
+      [attr.aria-label]="themeService.tema() === 'claro' ? 'Activar modo oscuro' : 'Activar modo claro'"
+      (click)="themeService.alternar()"
+    >
+      <i
+        class="pi"
+        [class.pi-moon]="themeService.tema() === 'claro'"
+        [class.pi-sun]="themeService.tema() === 'oscuro'"
+        aria-hidden="true"
+      ></i>
+    </button>
+
+    @if (logueado()) {
+      <a class="btn btn-ghost" routerLink="/app">Mi cuenta</a>
+    } @else {
+      <a class="btn btn-ghost" routerLink="/acceso">Ingresar</a>
+    }
+  </div>
+</header>
+
+<main>
+  <section class="hero" aria-labelledby="titulo-hero">
+    <img class="hero-fondo" src="img/hero-publico.svg" alt="" />
+
+    <div class="hero-contenido">
+      <p class="hero-datos">
+        <span>{{ festival.edicion }}</span>
+        <span>{{ festival.fechas }}</span>
+        <span>{{ festival.ciudad }}</span>
+      </p>
+
+      <h1 id="titulo-hero">
+        <span class="linea">Reventa</span>
+        <span class="linea cero">Cero</span>
+      </h1>
+
+      <div class="hero-pie">
+        <p class="hero-texto">
+          <span class="resaltado">Música sin sobreprecio.</span>
+          El festival donde tu boleta tiene código único y nadie la revende por encima del tope.
+        </p>
+
+        <a class="cta" href="#boleteria">
+          Comprar entradas
+          <svg viewBox="0 0 48 24" aria-hidden="true"><path d="M0 9h34V0l14 12-14 12v-9H0z" /></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <div class="cinta-inclinada">
+    <app-marquee [texto]="anuncios"></app-marquee>
+  </div>
+
+  <app-lineup-section></app-lineup-section>
+
+  <app-marquee variante="contorno" texto="Boletas • Boletas • "></app-marquee>
+
+  <app-boleteria-section></app-boleteria-section>
+</main>
+
+<app-site-footer></app-site-footer>

@@ -11,8 +11,8 @@
   justify-content: space-between;
   gap: 40px;
   padding: 40px 48px;
-  background: #1d3f53;
-  color: #eef3f6;
+  background: #050505;
+  color: #f4f4f5;
 }
 
 .logo {
@@ -20,6 +20,8 @@
   align-items: center;
   gap: 10px;
   font-weight: 600;
+  color: inherit;
+  text-decoration: none;
 }
 
 .logo-marca {
@@ -28,28 +30,31 @@
   width: 32px;
   height: 32px;
   border-radius: var(--radius);
-  background: #eef3f6;
-  color: #1d3f53;
+  background: #ccff00;
+  color: #050505;
 }
 
 .marca-texto h1 {
-  max-width: 14ch;
+  max-width: 18ch;
   font-size: clamp(32px, 3.4vw, 44px);
-  line-height: 1.12;
+  line-height: 1.02;
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
 }
 
 .marca-texto p {
   max-width: 44ch;
   margin-top: 16px;
-  color: #c6d4dc;
+  color: #a1a1aa;
 }
 
 .muestra {
   display: flex;
   max-width: 440px;
   border-radius: var(--radius);
-  background: #f7f9fa;
-  color: #18252e;
+  background: #ccff00;
+  color: #050505;
 }
 
 .muestra-cuerpo {
@@ -68,7 +73,7 @@
   justify-content: center;
   gap: 4px;
   padding: 16px;
-  border-left: 2px dashed #aeb9c0;
+  border-left: 2px dashed #050505;
 }
 
 .muestra-talon::before,
@@ -79,7 +84,7 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #1d3f53;
+  background: #050505;
 }
 
 .muestra-talon::before {
@@ -92,7 +97,7 @@
 
 .muestra-etiqueta {
   font-size: 13px;
-  color: #51616c;
+  color: #2b3300;
 }
 
 .muestra code {
@@ -109,7 +114,7 @@
 
 .muestra dt {
   font-size: 13px;
-  color: #51616c;
+  color: #2b3300;
 }
 
 .muestra dd {
