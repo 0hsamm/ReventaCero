@@ -23,4 +23,6 @@ import { RouterLink } from '@angular/router';
     }
   `,
 })
+// Angular requiere la clase; la página 404 no necesita estado ni lógica propios.
+// skipcq: JS-0327
 export class NoEncontradoComponent {}

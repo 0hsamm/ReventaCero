@@ -68,10 +68,10 @@ export class Login implements OnInit {
   }
 
   private irDespuesDeEntrar(): void {
-    const volver = this.route.snapshot.queryParamMap.get('volver');
+    const volver = this.route.snapshot.queryParamMap.get('volver') ?? '';
     // Solo rutas internas: "//sitio" se interpretaría como otro dominio
-    const interno = volver?.startsWith('/') && !volver.startsWith('//');
+    const interno = volver.startsWith('/') && !volver.startsWith('//');
 
-    this.router.navigateByUrl(interno ? volver! : this.authService.rutaInicio());
+    this.router.navigateByUrl(interno ? volver : this.authService.rutaInicio());
   }
 }

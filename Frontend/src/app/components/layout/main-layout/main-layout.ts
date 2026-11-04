@@ -9,4 +9,6 @@ import { SidebarComponent } from '../../sidebar/sidebar';
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css',
 })
+// Angular requiere la clase; este componente solo compone la plantilla y sus imports.
+// skipcq: JS-0327
 export class MainLayoutComponent {}

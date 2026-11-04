@@ -9,13 +9,31 @@ import { AuthService } from '../../../services/auth.service';
 import { BoletaService } from '../../../services/boleta.service';
 import { ToastService } from '../../../services/toast.service';
 import { subirPanel } from '../../../utils/panel';
-import { Errores, esDocumento, esVacio, hayErrores, mensajeError } from '../../../utils/validaciones';
+import {
+  Errores,
+  esDocumento,
+  esVacio,
+  hayErrores,
+  mensajeError,
+} from '../../../utils/validaciones';
 import { CampoComponent } from '../../campo/campo';
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog';
 
+// El backend solo permite devolver antes de que empiece el festival.
+function puedeDevolver(boleta: BoletaDetalle): boolean {
+  return estadoFestival(boleta.festival) === 'proximo';
+}
+
 @Component({
   selector: 'app-mis-boletas',
-  imports: [CurrencyPipe, DatePipe, FormsModule, RouterLink, CampoComponent, ConfirmDialogComponent],
+  imports: [
+    CurrencyPipe,
+    DatePipe,
+    FormsModule,
+    RouterLink,
+    CampoComponent,
+    ConfirmDialogComponent,
+  ],
   templateUrl: './mis-boletas.html',
   styleUrl: './mis-boletas.css',
 })
@@ -27,6 +45,7 @@ export class MisBoletasComponent implements OnInit {
   private documento = this.authService.sesion()?.documento ?? 0;
 
   protected readonly metodos = METODOS_PAGO;
+  protected readonly puedeDevolver = puedeDevolver;
 
   protected cargando = signal(true);
   protected error = signal('');
@@ -78,11 +97,6 @@ export class MisBoletasComponent implements OnInit {
         this.cargando.set(false);
       },
     });
-  }
-
-  // El backend solo permite devolver antes de que empiece el festival
-  protected puedeDevolver(boleta: BoletaDetalle): boolean {
-    return estadoFestival(boleta.festival) === 'proximo';
   }
 
   protected abrir(boleta: BoletaDetalle, accion: 'revender' | 'devolver'): void {

@@ -19,6 +19,7 @@ const CLAVES_SESION = ['token', 'tipoToken', 'documento', 'nombreUsuario', 'corr
 })
 export class AuthService {
   private http = inject(HttpClient);
+  private readonly almacenamiento = localStorage;
 
   private apiUrl = `${environment.apiUrl}/auth`;
 
@@ -35,7 +36,7 @@ export class AuthService {
   }
 
   obtenerToken(): string | null {
-    return localStorage.getItem('token');
+    return this.almacenamiento.getItem('token');
   }
 
   rutaInicio(): string {
@@ -43,38 +44,38 @@ export class AuthService {
   }
 
   cerrarSesion(): void {
-    CLAVES_SESION.forEach((clave) => localStorage.removeItem(clave));
+    CLAVES_SESION.forEach((clave) => this.almacenamiento.removeItem(clave));
     this.sesion.set(null);
   }
 
   private guardarSesion(respuesta: RespuestaAutenticacionDTO): void {
-    localStorage.setItem('token', respuesta.token);
-    localStorage.setItem('tipoToken', respuesta.tipoToken);
-    localStorage.setItem('documento', String(respuesta.documento));
-    localStorage.setItem('nombreUsuario', respuesta.nombreUsuario);
-    localStorage.setItem('correo', respuesta.correo);
-    localStorage.setItem('tipoUsuario', respuesta.tipoUsuario ?? '');
+    this.almacenamiento.setItem('token', respuesta.token);
+    this.almacenamiento.setItem('tipoToken', respuesta.tipoToken);
+    this.almacenamiento.setItem('documento', String(respuesta.documento));
+    this.almacenamiento.setItem('nombreUsuario', respuesta.nombreUsuario);
+    this.almacenamiento.setItem('correo', respuesta.correo);
+    this.almacenamiento.setItem('tipoUsuario', respuesta.tipoUsuario ?? '');
 
     this.sesion.set(this.leerSesion());
   }
 
   private leerSesion(): Sesion | null {
-    const token = localStorage.getItem('token');
+    const token = this.almacenamiento.getItem('token');
 
-    if (token == null || this.tokenVencido(token)) {
-      CLAVES_SESION.forEach((clave) => localStorage.removeItem(clave));
+    if (token == null || AuthService.tokenVencido(token)) {
+      CLAVES_SESION.forEach((clave) => this.almacenamiento.removeItem(clave));
       return null;
     }
 
     return {
-      documento: Number(localStorage.getItem('documento')),
-      nombreUsuario: localStorage.getItem('nombreUsuario') ?? '',
-      correo: localStorage.getItem('correo') ?? '',
-      tipoUsuario: (localStorage.getItem('tipoUsuario') || 'USUARIO') as TipoUsuario,
+      documento: Number(this.almacenamiento.getItem('documento')),
+      nombreUsuario: this.almacenamiento.getItem('nombreUsuario') ?? '',
+      correo: this.almacenamiento.getItem('correo') ?? '',
+      tipoUsuario: (this.almacenamiento.getItem('tipoUsuario') || 'USUARIO') as TipoUsuario,
     };
   }
 
-  private tokenVencido(token: string): boolean {
+  private static tokenVencido(token: string): boolean {
     try {
       const datos = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
 

@@ -28,7 +28,14 @@ const VACIO: Partial<Festival> = {
 
 @Component({
   selector: 'app-gestion-festivales',
-  imports: [DatePipe, FormsModule, RouterLink, CampoComponent, ConfirmDialogComponent, PaginacionComponent],
+  imports: [
+    DatePipe,
+    FormsModule,
+    RouterLink,
+    CampoComponent,
+    ConfirmDialogComponent,
+    PaginacionComponent,
+  ],
   templateUrl: './festivales.html',
 })
 export class GestionFestivalesComponent implements OnInit {
@@ -173,33 +180,40 @@ export class GestionFestivalesComponent implements OnInit {
 
   private validar(): Errores {
     const errores: Errores = {};
-    const f = this.form;
+    const formulario = this.form;
 
-    if (esVacio(f.nombre)) {
+    if (esVacio(formulario.nombre)) {
       errores['nombre'] = 'Escribe el nombre';
     }
 
-    if (f.edicion == null || f.edicion <= 0 || !Number.isInteger(f.edicion)) {
+    if (
+      formulario.edicion == null ||
+      formulario.edicion <= 0 ||
+      !Number.isInteger(formulario.edicion)
+    ) {
       errores['edicion'] = 'Escribe la edición como un número entero';
     }
 
-    if (esVacio(f.fechaInicio)) {
+    if (esVacio(formulario.fechaInicio)) {
       errores['fechaInicio'] = 'Selecciona la fecha de inicio';
     }
 
-    if (esVacio(f.fechaFin) || (f.fechaFin ?? '') < (f.fechaInicio ?? '')) {
+    if (
+      esVacio(formulario.fechaFin) ||
+      (formulario.fechaFin ?? '') < (formulario.fechaInicio ?? '')
+    ) {
       errores['fechaFin'] = 'Debe ser igual o posterior al inicio';
     }
 
-    if (esVacio(f.ubicacionPais)) {
+    if (esVacio(formulario.ubicacionPais)) {
       errores['ubicacionPais'] = 'Escribe el país';
     }
 
-    if (esVacio(f.ubicacionCiudad)) {
+    if (esVacio(formulario.ubicacionCiudad)) {
       errores['ubicacionCiudad'] = 'Escribe la ciudad';
     }
 
-    if (this.esAdmin() && !f.documentoOrganizador) {
+    if (this.esAdmin() && !formulario.documentoOrganizador) {
       errores['documentoOrganizador'] = 'Selecciona el organizador';
     }
 

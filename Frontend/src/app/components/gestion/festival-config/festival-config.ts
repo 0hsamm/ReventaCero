@@ -26,7 +26,14 @@ interface Eliminacion {
 
 @Component({
   selector: 'app-festival-config',
-  imports: [CurrencyPipe, DatePipe, FormsModule, RouterLink, CampoComponent, ConfirmDialogComponent],
+  imports: [
+    CurrencyPipe,
+    DatePipe,
+    FormsModule,
+    RouterLink,
+    CampoComponent,
+    ConfirmDialogComponent,
+  ],
   templateUrl: './festival-config.html',
 })
 export class FestivalConfigComponent implements OnInit {
@@ -34,7 +41,7 @@ export class FestivalConfigComponent implements OnInit {
   private toastService = inject(ToastService);
   private cambios = inject(ChangeDetectorRef);
 
-  private id =Number(inject(ActivatedRoute).snapshot.paramMap.get('id'));
+  private id = Number(inject(ActivatedRoute).snapshot.paramMap.get('id'));
 
   protected cargando = signal(true);
   protected error = signal('');
@@ -114,26 +121,36 @@ export class FestivalConfigComponent implements OnInit {
   }
 
   protected guardarZona(): void {
-    const f = this.zonaForm;
+    const formularioZona = this.zonaForm;
     const errores: Errores = {};
 
-    if (esVacio(f.nombre)) {
+    if (esVacio(formularioZona.nombre)) {
       errores['zonaNombre'] = 'Escribe el nombre';
     }
 
-    if (esVacio(f.tipoZona)) {
+    if (esVacio(formularioZona.tipoZona)) {
       errores['zonaTipo'] = 'Escribe el tipo de zona';
     }
 
-    if (f.aforoMaximo == null || f.aforoMaximo <= 0 || !Number.isInteger(f.aforoMaximo)) {
+    if (
+      formularioZona.aforoMaximo == null ||
+      formularioZona.aforoMaximo <= 0 ||
+      !Number.isInteger(formularioZona.aforoMaximo)
+    ) {
       errores['zonaAforo'] = 'Escribe el aforo como un número entero';
     }
 
     if (this.validar(errores)) {
-      const zona = { ...f, aforoMaximo: Number(f.aforoMaximo), idFestival: this.id };
+      const zona = {
+        ...formularioZona,
+        aforoMaximo: Number(formularioZona.aforoMaximo),
+        idFestival: this.id,
+      };
 
       this.ejecutar(
-        f.idZona ? this.festivalService.actualizarZona(f.idZona, zona) : this.festivalService.crearZona(zona),
+        formularioZona.idZona
+          ? this.festivalService.actualizarZona(formularioZona.idZona, zona)
+          : this.festivalService.crearZona(zona),
         'Zona guardada',
         () => (this.zonaForm = { idZona: 0, nombre: '', tipoZona: '', aforoMaximo: null }),
       );
@@ -145,31 +162,39 @@ export class FestivalConfigComponent implements OnInit {
   }
 
   protected guardarTipo(): void {
-    const f = this.tipoForm;
+    const formularioTipo = this.tipoForm;
     const errores: Errores = {};
 
-    if (esVacio(f.categoria)) {
+    if (esVacio(formularioTipo.categoria)) {
       errores['tipoCategoria'] = 'Escribe la categoría';
     }
 
-    if (!f.idZona) {
+    if (!formularioTipo.idZona) {
       errores['tipoZona'] = 'Selecciona la zona';
     }
 
-    if (f.precioBase == null || f.precioBase < 0) {
+    if (formularioTipo.precioBase == null || formularioTipo.precioBase < 0) {
       errores['tipoPrecio'] = 'Escribe el precio base';
     }
 
-    if (f.precioTopeReventa == null || f.precioBase == null || f.precioTopeReventa < f.precioBase) {
+    if (
+      formularioTipo.precioTopeReventa == null ||
+      formularioTipo.precioBase == null ||
+      formularioTipo.precioTopeReventa < formularioTipo.precioBase
+    ) {
       errores['tipoTope'] = 'Debe ser igual o mayor que el precio base';
     }
 
     if (this.validar(errores)) {
-      const tipo = { ...f, precioBase: Number(f.precioBase), precioTopeReventa: Number(f.precioTopeReventa) };
+      const tipo = {
+        ...formularioTipo,
+        precioBase: Number(formularioTipo.precioBase),
+        precioTopeReventa: Number(formularioTipo.precioTopeReventa),
+      };
 
       this.ejecutar(
-        f.idTipoEntrada
-          ? this.festivalService.actualizarTipo(f.idTipoEntrada, tipo)
+        formularioTipo.idTipoEntrada
+          ? this.festivalService.actualizarTipo(formularioTipo.idTipoEntrada, tipo)
           : this.festivalService.crearTipo(tipo),
         'Entrada guardada',
         () =>
@@ -189,14 +214,18 @@ export class FestivalConfigComponent implements OnInit {
   }
 
   protected guardarEscenario(): void {
-    const f = this.escenarioForm;
+    const formularioEscenario = this.escenarioForm;
     const errores: Errores = {};
 
-    if (esVacio(f.nombreEscenario)) {
+    if (esVacio(formularioEscenario.nombreEscenario)) {
       errores['escenarioNombre'] = 'Escribe el nombre';
     }
 
-    if (f.capacidad == null || f.capacidad <= 0 || !Number.isInteger(f.capacidad)) {
+    if (
+      formularioEscenario.capacidad == null ||
+      formularioEscenario.capacidad <= 0 ||
+      !Number.isInteger(formularioEscenario.capacidad)
+    ) {
       errores['escenarioCapacidad'] = 'Escribe la capacidad como un número entero';
     }
 
@@ -204,8 +233,8 @@ export class FestivalConfigComponent implements OnInit {
       this.ejecutar(
         this.festivalService.crearEscenario({
           idFestival: this.id,
-          nombreEscenario: f.nombreEscenario.trim(),
-          capacidad: Number(f.capacidad),
+          nombreEscenario: formularioEscenario.nombreEscenario.trim(),
+          capacidad: Number(formularioEscenario.capacidad),
         }),
         'Escenario guardado',
         () => (this.escenarioForm = { nombreEscenario: '', capacidad: null }),
@@ -214,45 +243,58 @@ export class FestivalConfigComponent implements OnInit {
   }
 
   protected guardarPresentacion(): void {
-    const f = this.presentacionForm;
+    const formularioPresentacion = this.presentacionForm;
     const errores: Errores = {};
     const festival = this.festival();
 
-    if (esVacio(f.fecha)) {
+    if (esVacio(formularioPresentacion.fecha)) {
       errores['presFecha'] = 'Selecciona la fecha';
-    } else if (festival && (f.fecha < festival.fechaInicio || f.fecha > festival.fechaFin)) {
+    } else if (
+      festival &&
+      (formularioPresentacion.fecha < festival.fechaInicio ||
+        formularioPresentacion.fecha > festival.fechaFin)
+    ) {
       errores['presFecha'] = 'Debe estar dentro de las fechas del festival';
     }
 
-    if (esVacio(f.inicio)) {
+    if (esVacio(formularioPresentacion.inicio)) {
       errores['presInicio'] = 'Selecciona la hora de inicio';
     }
 
-    if (esVacio(f.fin) || f.fin <= f.inicio) {
+    if (
+      esVacio(formularioPresentacion.fin) ||
+      formularioPresentacion.fin <= formularioPresentacion.inicio
+    ) {
       errores['presFin'] = 'Debe ser posterior a la hora de inicio';
     }
 
-    if (esVacio(f.nombreEscenario)) {
+    if (esVacio(formularioPresentacion.nombreEscenario)) {
       errores['presEscenario'] = 'Selecciona el escenario';
     }
 
-    if (!f.idArtista) {
+    if (!formularioPresentacion.idArtista) {
       errores['presArtista'] = 'Selecciona el artista';
     }
 
     if (this.validar(errores)) {
       this.ejecutar(
         this.festivalService.crearPresentacion({
-          fecha: f.fecha,
-          horaInicio: `${f.fecha}T${f.inicio}:00`,
-          horaFin: `${f.fecha}T${f.fin}:00`,
+          fecha: formularioPresentacion.fecha,
+          horaInicio: `${formularioPresentacion.fecha}T${formularioPresentacion.inicio}:00`,
+          horaFin: `${formularioPresentacion.fecha}T${formularioPresentacion.fin}:00`,
           idFestival: this.id,
-          nombreEscenario: f.nombreEscenario,
-          idArtista: f.idArtista,
+          nombreEscenario: formularioPresentacion.nombreEscenario,
+          idArtista: formularioPresentacion.idArtista,
         }),
         'Presentación agregada',
         () =>
-          (this.presentacionForm = { fecha: '', inicio: '', fin: '', nombreEscenario: '', idArtista: 0 }),
+          (this.presentacionForm = {
+            fecha: '',
+            inicio: '',
+            fin: '',
+            nombreEscenario: '',
+            idArtista: 0,
+          }),
       );
     }
   }

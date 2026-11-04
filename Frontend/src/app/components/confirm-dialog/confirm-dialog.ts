@@ -12,8 +12,8 @@ export class ConfirmDialogComponent {
   readonly confirmLabel = input('Aceptar');
   readonly cancelLabel = input('Cancelar');
 
-  readonly confirmed = output<void>();
-  readonly cancelled = output<void>();
+  readonly confirmed = output();
+  readonly cancelled = output();
 
   private dialogo = viewChild.required<ElementRef<HTMLDialogElement>>('dialogo');
 

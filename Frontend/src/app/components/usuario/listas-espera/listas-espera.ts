@@ -17,12 +17,22 @@ interface Fila extends Inscripcion {
   posicion: number | null;
 }
 
+function claseEstado(estado: string): string {
+  if (estado === 'NOTIFICADA') {
+    return 'chip-ok';
+  }
+
+  return estado === 'CANCELADA' ? 'chip-neutro' : 'chip-alerta';
+}
+
 @Component({
   selector: 'app-listas-espera',
   imports: [DatePipe, RouterLink, ConfirmDialogComponent],
   templateUrl: './listas-espera.html',
 })
 export class ListasEsperaComponent implements OnInit {
+  protected readonly claseEstado = claseEstado;
+
   private listaService = inject(ListaEsperaService);
   private festivalService = inject(FestivalService);
   private authService = inject(AuthService);
@@ -65,7 +75,9 @@ export class ListasEsperaComponent implements OnInit {
             } as Fila;
           }),
         ),
-        switchMap((filas) => (filas.length ? forkJoin(filas.map((f) => this.conPosicion(f))) : of([]))),
+        switchMap((filas) =>
+          filas.length ? forkJoin(filas.map((f) => this.conPosicion(f))) : of([]),
+        ),
       )
       .subscribe({
         next: (filas) => {
@@ -96,14 +108,6 @@ export class ListasEsperaComponent implements OnInit {
       error: (err: HttpErrorResponse) =>
         this.toastService.error('No se pudo cancelar', mensajeError(err, 'Inténtalo de nuevo.')),
     });
-  }
-
-  protected claseEstado(estado: string): string {
-    if (estado === 'NOTIFICADA') {
-      return 'chip-ok';
-    }
-
-    return estado === 'CANCELADA' ? 'chip-neutro' : 'chip-alerta';
   }
 
   // Solo las inscripciones pendientes tienen posición en la cola

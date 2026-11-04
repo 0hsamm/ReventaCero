@@ -50,19 +50,22 @@ export class HistorialComponent implements OnInit {
       boletas: this.boletaService.boletasDetalle(this.documento),
       vendidas: this.boletaService.reventasComoVendedor(this.documento),
       compradas: this.boletaService.reventasComoComprador(this.documento),
-    })
-      .subscribe({
-        next: ({ boletas, vendidas, compradas }) => {
-          this.transacciones.set(
-            this.unir([...boletas.flatMap((b) => b.transacciones), ...vendidas, ...compradas]),
-          );
-          this.cargando.set(false);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.error.set(mensajeError(err, 'No pudimos cargar tu historial'));
-          this.cargando.set(false);
-        },
-      });
+    }).subscribe({
+      next: ({ boletas, vendidas, compradas }) => {
+        this.transacciones.set(
+          HistorialComponent.unir([
+            ...boletas.flatMap((b) => b.transacciones),
+            ...vendidas,
+            ...compradas,
+          ]),
+        );
+        this.cargando.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.error.set(mensajeError(err, 'No pudimos cargar tu historial'));
+        this.cargando.set(false);
+      },
+    });
   }
 
   protected etiqueta(transaccion: Transaccion): string {
@@ -80,7 +83,7 @@ export class HistorialComponent implements OnInit {
   }
 
   // Una reventa puede llegar por la boleta y por la lista de reventas: gana la más completa
-  private unir(transacciones: Transaccion[]): Transaccion[] {
+  private static unir(transacciones: Transaccion[]): Transaccion[] {
     const unicas = new Map<number, Transaccion>();
 
     transacciones.forEach((t) =>

@@ -8,10 +8,12 @@ export type Tema = 'claro' | 'oscuro';
 export class ThemeService {
   private readonly storageKey = 'tema';
 
-  readonly tema = signal<Tema>(localStorage.getItem(this.storageKey) === 'claro' ? 'claro' : 'oscuro');
+  readonly tema = signal<Tema>(
+    localStorage.getItem(this.storageKey) === 'claro' ? 'claro' : 'oscuro',
+  );
 
   inicializar(): void {
-    this.aplicar(this.tema());
+    ThemeService.aplicar(this.tema());
   }
 
   alternar(): void {
@@ -19,10 +21,10 @@ export class ThemeService {
 
     localStorage.setItem(this.storageKey, tema);
     this.tema.set(tema);
-    this.aplicar(tema);
+    ThemeService.aplicar(tema);
   }
 
-  private aplicar(tema: Tema): void {
+  private static aplicar(tema: Tema): void {
     document.documentElement.setAttribute('data-theme', tema === 'claro' ? 'light' : 'dark');
   }
 }

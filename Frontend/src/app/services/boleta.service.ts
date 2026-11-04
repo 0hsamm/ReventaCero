@@ -116,15 +116,21 @@ export class BoletaService {
   }
 
   reventasComoVendedor(documento: number): Observable<ReventaAutorizada[]> {
-    return this.http.get<ReventaAutorizada[]>(`${this.api}/reventas-autorizadas/vendedor/${documento}`);
+    return this.http.get<ReventaAutorizada[]>(
+      `${this.api}/reventas-autorizadas/vendedor/${documento}`,
+    );
   }
 
   reventasComoComprador(documento: number): Observable<ReventaAutorizada[]> {
-    return this.http.get<ReventaAutorizada[]>(`${this.api}/reventas-autorizadas/comprador/${documento}`);
+    return this.http.get<ReventaAutorizada[]>(
+      `${this.api}/reventas-autorizadas/comprador/${documento}`,
+    );
   }
 
   dispositivos(): Observable<Dispositivo[]> {
-    return this.http.get<Dispositivo[]>(`${this.api}/dispositivos/usuario/${this.documento()}`);
+    return this.http.get<Dispositivo[]>(
+      `${this.api}/dispositivos/usuario/${BoletaService.documento()}`,
+    );
   }
 
   cambiarEstadoDispositivo(id: number, activo: boolean): Observable<Dispositivo> {
@@ -142,13 +148,13 @@ export class BoletaService {
           : this.http.post<Dispositivo>(`${this.api}/dispositivos`, {
               identificadorUnico: `web-${crypto.randomUUID()}`,
               tipo: 'WEB',
-              documentoUsuario: this.documento(),
+              documentoUsuario: BoletaService.documento(),
             });
       }),
     );
   }
 
-  private documento(): number {
+  private static documento(): number {
     return Number(localStorage.getItem('documento'));
   }
 }

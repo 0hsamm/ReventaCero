@@ -37,6 +37,14 @@ const VACIO = {
   cargo: '',
 };
 
+function claseEstado(estado?: string): string {
+  if (estado === 'ACTIVA') {
+    return 'chip-ok';
+  }
+
+  return estado === 'BLOQUEADA' ? 'chip-alerta' : 'chip-neutro';
+}
+
 @Component({
   selector: 'app-admin-usuarios',
   imports: [FormsModule, CampoComponent, ConfirmDialogComponent, PaginacionComponent],
@@ -50,6 +58,7 @@ export class AdminUsuariosComponent implements OnInit {
   protected readonly estados = ['ACTIVA', 'SUSPENDIDA', 'BLOQUEADA'];
   protected readonly roles = ['USUARIO', 'ORGANIZADOR', 'ADMINISTRADOR'];
   protected readonly hoy = hoyIso();
+  protected readonly claseEstado = claseEstado;
 
   protected yo = computed(() => this.authService.sesion()?.documento);
 
@@ -106,14 +115,6 @@ export class AdminUsuariosComponent implements OnInit {
   protected filtrar(campo: 'busqueda' | 'rol', valor: string): void {
     (campo === 'busqueda' ? this.busqueda : this.filtroRol).set(valor);
     this.pagina.set(1);
-  }
-
-  protected claseEstado(estado?: string): string {
-    if (estado === 'ACTIVA') {
-      return 'chip-ok';
-    }
-
-    return estado === 'BLOQUEADA' ? 'chip-alerta' : 'chip-neutro';
   }
 
   protected confirmarCambio(): void {
@@ -178,37 +179,40 @@ export class AdminUsuariosComponent implements OnInit {
 
   private validar(): Errores {
     const errores: Errores = {};
-    const f = this.form;
+    const formulario = this.form;
 
-    if (!esDocumento(f.documento)) {
+    if (!esDocumento(formulario.documento)) {
       errores['documento'] = 'Escribe de 5 a 15 dígitos';
     }
 
-    if (!tieneLetras(f.nombre)) {
+    if (!tieneLetras(formulario.nombre)) {
       errores['nombre'] = 'Escribe el nombre';
     }
 
-    if (!tieneLetras(f.apellido)) {
+    if (!tieneLetras(formulario.apellido)) {
       errores['apellido'] = 'Escribe el apellido';
     }
 
-    if (!esCorreo(f.correo)) {
+    if (!esCorreo(formulario.correo)) {
       errores['correo'] = 'Escribe un correo válido';
     }
 
-    if (esVacio(f.fechaNacimiento) || f.fechaNacimiento >= this.hoy) {
+    if (esVacio(formulario.fechaNacimiento) || formulario.fechaNacimiento >= this.hoy) {
       errores['fechaNacimiento'] = 'Selecciona una fecha anterior a hoy';
     }
 
-    if (esVacio(f.nombreUsuario)) {
+    if (esVacio(formulario.nombreUsuario)) {
       errores['nombreUsuario'] = 'Elige un nombre de usuario';
     }
 
-    if (esVacio(f.contrasenia) || f.contrasenia.length < LONGITUD_MINIMA_CONTRASENIA) {
+    if (
+      esVacio(formulario.contrasenia) ||
+      formulario.contrasenia.length < LONGITUD_MINIMA_CONTRASENIA
+    ) {
       errores['contrasenia'] = `Usa al menos ${LONGITUD_MINIMA_CONTRASENIA} caracteres`;
     }
 
-    if (esVacio(f.cargo)) {
+    if (esVacio(formulario.cargo)) {
       errores['cargo'] = 'Escribe el cargo';
     }
 
