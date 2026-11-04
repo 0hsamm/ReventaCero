@@ -1,0 +1,37 @@
+<section class="tarjeta-panel">
+  <header>
+    <h2>{{ titulo() }}</h2>
+    @if (datos().length) {
+      <button type="button" class="btn btn-ghost btn-sm" (click)="verTabla.set(!verTabla())">
+        {{ verTabla() ? 'Ver gráfico' : 'Ver tabla' }}
+      </button>
+    }
+  </header>
+
+  @if (datos().length === 0) {
+    <p class="nota">Todavía no hay datos para mostrar.</p>
+  } @else if (verTabla()) {
+    <table class="tabla">
+      <tbody>
+        @for (dato of datos(); track dato.etiqueta) {
+          <tr>
+            <td>{{ dato.etiqueta }}</td>
+            <td class="numero">{{ dato.texto }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <div class="grafica" [class]="orientacion()" role="group" [attr.aria-label]="titulo()">
+      @for (dato of datos(); track dato.etiqueta) {
+        <div class="grupo" tabindex="0" [attr.aria-label]="dato.etiqueta + ': ' + dato.texto">
+          <span class="etiqueta">{{ dato.etiqueta }}</span>
+          <div class="pista">
+            <div class="barra" [style.--proporcion]="(dato.valor / maximo()) * 100 + '%'"></div>
+          </div>
+          <span class="burbuja">{{ dato.etiqueta }}: {{ dato.texto }}</span>
+        </div>
+      }
+    </div>
+  }
+</section>

@@ -1,0 +1,75 @@
+<div class="pagina">
+  <section class="marca">
+    <a class="logo" routerLink="/">
+      <span class="logo-marca" aria-hidden="true">R</span>
+      ReventaCero
+    </a>
+
+    <div class="marca-texto">
+      <h1>Boletas legítimas, con precio tope.</h1>
+      <p>
+        Compra y revende entradas de festivales con un código único. Cada reventa queda registrada
+        y nunca supera el tope del organizador.
+      </p>
+    </div>
+
+    <span></span>
+  </section>
+
+  <main class="acceso">
+    <button type="button" class="btn btn-ghost tema" (click)="themeService.alternar()">
+      <i
+        class="pi"
+        [class.pi-moon]="themeService.tema() === 'claro'"
+        [class.pi-sun]="themeService.tema() === 'oscuro'"
+        aria-hidden="true"
+      ></i>
+      {{ themeService.tema() === 'claro' ? 'Modo oscuro' : 'Modo claro' }}
+    </button>
+
+    <div class="tarjeta">
+      <h2>Inicia sesión</h2>
+
+      @if (error()) {
+        <p class="error-general" role="alert">{{ error() }}</p>
+      }
+
+      <form class="formulario" novalidate (ngSubmit)="entrar()">
+        <app-campo
+          etiqueta="Nombre de usuario"
+          para="nombreUsuario"
+          [error]="errores()['nombreUsuario']"
+        >
+          <input
+            id="nombreUsuario"
+            name="nombreUsuario"
+            class="input"
+            autocomplete="username"
+            [class.invalido]="errores()['nombreUsuario']"
+            [attr.aria-invalid]="!!errores()['nombreUsuario']"
+            [(ngModel)]="nombreUsuario"
+          />
+        </app-campo>
+
+        <app-campo etiqueta="Contraseña" para="contrasenia" [error]="errores()['contrasenia']">
+          <input
+            id="contrasenia"
+            name="contrasenia"
+            type="password"
+            class="input"
+            autocomplete="current-password"
+            [class.invalido]="errores()['contrasenia']"
+            [attr.aria-invalid]="!!errores()['contrasenia']"
+            [(ngModel)]="contrasenia"
+          />
+        </app-campo>
+
+        <button type="submit" class="btn btn-primary enviar" [disabled]="cargando()">
+          {{ cargando() ? 'Ingresando…' : 'Ingresar' }}
+        </button>
+      </form>
+
+      <p class="pie-registro">¿No tienes cuenta? <a routerLink="/registro">Regístrate</a></p>
+    </div>
+  </main>
+</div>

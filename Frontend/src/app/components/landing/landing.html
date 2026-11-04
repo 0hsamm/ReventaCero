@@ -1,0 +1,75 @@
+<main>
+  <section class="hero" aria-labelledby="titulo-hero">
+    <img class="hero-fondo" src="img/hero-publico.svg" alt="" />
+
+    <div class="hero-contenido">
+      <p class="hero-datos">
+        <span>Código único</span>
+        <span>Precio tope</span>
+        <span>Reventa registrada</span>
+      </p>
+
+      <h1 id="titulo-hero">
+        <span class="linea">Reventa</span>
+        <span class="linea cero">Cero</span>
+      </h1>
+
+      <div class="hero-pie">
+        <p class="hero-texto">
+          <span class="resaltado">Música sin sobreprecio.</span>
+          Compra directo. Si no puedes ir, tu boleta se revende por máximo el tope indicado.
+        </p>
+
+        <a class="cta" routerLink="/eventos">
+          Comprar entradas
+          <svg viewBox="0 0 48 24" aria-hidden="true"><path d="M0 9h34V0l14 12-14 12v-9H0z" /></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <div class="cinta-inclinada">
+    <app-marquee [texto]="anuncios"></app-marquee>
+  </div>
+
+  <form class="buscador" role="search" (ngSubmit)="buscar()">
+    <label for="busqueda" class="titulo-seccion">Busca tu <span class="contorno">festival</span></label>
+    <div class="buscador-fila">
+      <input
+        id="busqueda"
+        name="busqueda"
+        type="search"
+        class="input"
+        placeholder="Festival o ciudad"
+        [(ngModel)]="busqueda"
+      />
+      <button type="submit" class="btn btn-primary">Buscar</button>
+    </div>
+  </form>
+
+  <section class="destacados" aria-labelledby="titulo-destacados">
+    <header class="encabezado">
+      <h2 id="titulo-destacados" class="titulo-seccion">
+        <span class="resaltado">Próximos</span>
+      </h2>
+      <a routerLink="/eventos">Ver todos los festivales</a>
+    </header>
+
+    @if (cargando()) {
+      <div class="esqueleto" style="height: 320px"></div>
+    } @else if (error()) {
+      <div class="aviso aviso-error" role="alert">
+        <strong>No pudimos cargar los festivales</strong>
+        <span>Inténtalo de nuevo en unos minutos.</span>
+      </div>
+    } @else if (destacados().length === 0) {
+      <div class="aviso"><strong>Por ahora no hay festivales programados</strong></div>
+    } @else {
+      <ul class="grilla">
+        @for (festival of destacados(); track festival.idFestival) {
+          <li><app-evento-card [festival]="festival"></app-evento-card></li>
+        }
+      </ul>
+    }
+  </section>
+</main>

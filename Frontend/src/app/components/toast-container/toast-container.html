@@ -1,0 +1,16 @@
+<div class="toast-stack" role="status" aria-live="polite">
+  @for (toast of toastService.messages(); track toast.id) {
+    <div class="toast" [class]="toast.type">
+      <div class="toast-text">
+        <strong>{{ toast.title }}</strong>
+        @if (toast.message) {
+          <span>{{ toast.message }}</span>
+        }
+      </div>
+
+      <button type="button" aria-label="Cerrar aviso" (click)="toastService.remove(toast.id)">
+        <i class="pi pi-times" aria-hidden="true"></i>
+      </button>
+    </div>
+  }
+</div>

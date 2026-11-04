@@ -1,0 +1,42 @@
+<div class="pagina-panel">
+  <header class="panel-header">
+    <h1>Dashboard</h1>
+    <p>Estadísticas globales de la plataforma.</p>
+  </header>
+
+  @if (cargando()) {
+    <div class="esqueleto" style="height: 320px"></div>
+  } @else if (error()) {
+    <div class="aviso aviso-error" role="alert">
+      <strong>{{ error() }}</strong>
+      <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else {
+    <div class="metricas">
+      <div class="metrica">
+        <span>Volumen de ventas (COP)</span>
+        <strong>{{ volumen() | number: '1.0-0' }}</strong>
+      </div>
+      <div class="metrica">
+        <span>Boletas emitidas</span>
+        <strong>{{ totalBoletas() | number }}</strong>
+      </div>
+      <div class="metrica">
+        <span>Festivales vigentes</span>
+        <strong>{{ festivalesVigentes() }}</strong>
+      </div>
+      <div class="metrica">
+        <span>Usuarios activos</span>
+        <strong>{{ usuariosActivos() }}</strong>
+      </div>
+    </div>
+
+    <app-grafica-barras titulo="Ventas por mes (COP)" [datos]="ventasPorMes()"></app-grafica-barras>
+
+    <app-grafica-barras
+      titulo="Boletas por festival"
+      orientacion="horizontal"
+      [datos]="boletasPorFestival()"
+    ></app-grafica-barras>
+  }
+</div>

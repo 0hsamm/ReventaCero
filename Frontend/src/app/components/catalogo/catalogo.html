@@ -1,0 +1,60 @@
+<main class="catalogo">
+  <h1 class="titulo-seccion">Festivales</h1>
+
+  <div class="filtros">
+    <div class="field">
+      <label for="q">Buscar</label>
+      <input
+        id="q"
+        type="search"
+        class="input"
+        placeholder="Festival o ciudad"
+        [ngModel]="busqueda()"
+        (ngModelChange)="busqueda.set($event)"
+      />
+    </div>
+    <div class="field">
+      <label for="ciudad">Ciudad</label>
+      <select id="ciudad" class="input" [ngModel]="ciudad()" (ngModelChange)="ciudad.set($event)">
+        <option value="">Todas</option>
+        @for (item of ciudades(); track item) {
+          <option>{{ item }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="desde">Desde la fecha</label>
+      <input
+        id="desde"
+        type="date"
+        class="input"
+        [ngModel]="desde()"
+        (ngModelChange)="desde.set($event)"
+      />
+    </div>
+    <button type="button" class="btn btn-ghost" (click)="limpiar()">Limpiar</button>
+  </div>
+
+  @if (cargando()) {
+    <div class="esqueleto" style="height: 320px"></div>
+  } @else if (error()) {
+    <div class="aviso aviso-error" role="alert">
+      <strong>No pudimos cargar los festivales</strong>
+      <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (resultados().length === 0) {
+    <div class="aviso">
+      <strong>Ningún festival coincide con tu búsqueda</strong>
+      <button type="button" class="btn btn-ghost" (click)="limpiar()">Quitar filtros</button>
+    </div>
+  } @else {
+    <p class="resultados" role="status">
+      {{ resultados().length }} {{ resultados().length === 1 ? 'festival' : 'festivales' }}
+    </p>
+    <ul class="grilla">
+      @for (festival of resultados(); track festival.idFestival) {
+        <li><app-evento-card [festival]="festival"></app-evento-card></li>
+      }
+    </ul>
+  }
+</main>
