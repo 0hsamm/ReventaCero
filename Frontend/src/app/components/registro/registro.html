@@ -1,0 +1,178 @@
+<div class="pagina">
+  <section class="marca">
+    <a class="logo" routerLink="/">
+      <span class="logo-marca" aria-hidden="true">R</span>
+      ReventaCero
+    </a>
+
+    <div class="marca-texto">
+      <h1>Crea tu cuenta.</h1>
+      <p>Compra boletas con código único y revéndelas sin superar el tope del organizador.</p>
+    </div>
+
+    <span></span>
+  </section>
+
+  <main class="acceso">
+    <button type="button" class="btn btn-ghost tema" (click)="themeService.alternar()">
+      <i
+        class="pi"
+        [class.pi-moon]="themeService.tema() === 'claro'"
+        [class.pi-sun]="themeService.tema() === 'oscuro'"
+        aria-hidden="true"
+      ></i>
+      {{ themeService.tema() === 'claro' ? 'Modo oscuro' : 'Modo claro' }}
+    </button>
+
+    <div class="tarjeta">
+      <h2>Registro</h2>
+
+      @if (error()) {
+        <p class="error-general" role="alert">{{ error() }}</p>
+      }
+
+      <form class="formulario" novalidate (ngSubmit)="registrar()">
+        <app-campo etiqueta="Número de documento" para="documento" [error]="errores()['documento']">
+          <input
+            id="documento"
+            name="documento"
+            class="input"
+            inputmode="numeric"
+            autocomplete="off"
+            [class.invalido]="errores()['documento']"
+            [attr.aria-invalid]="!!errores()['documento']"
+            [(ngModel)]="documento"
+          />
+        </app-campo>
+
+        <div class="fila">
+          <app-campo etiqueta="Nombre" para="nombre" [error]="errores()['nombre']">
+            <input
+              id="nombre"
+              name="nombre"
+              class="input"
+              autocomplete="given-name"
+              [class.invalido]="errores()['nombre']"
+              [attr.aria-invalid]="!!errores()['nombre']"
+              [(ngModel)]="nombre"
+            />
+          </app-campo>
+          <app-campo etiqueta="Apellido" para="apellido" [error]="errores()['apellido']">
+            <input
+              id="apellido"
+              name="apellido"
+              class="input"
+              autocomplete="family-name"
+              [class.invalido]="errores()['apellido']"
+              [attr.aria-invalid]="!!errores()['apellido']"
+              [(ngModel)]="apellido"
+            />
+          </app-campo>
+        </div>
+
+        <app-campo etiqueta="Correo" para="correo" [error]="errores()['correo']">
+          <input
+            id="correo"
+            name="correo"
+            type="email"
+            class="input"
+            autocomplete="email"
+            [class.invalido]="errores()['correo']"
+            [attr.aria-invalid]="!!errores()['correo']"
+            [(ngModel)]="correo"
+          />
+        </app-campo>
+
+        <div class="fila">
+          <app-campo
+            etiqueta="Fecha de nacimiento"
+            para="fechaNacimiento"
+            [error]="errores()['fechaNacimiento']"
+          >
+            <input
+              id="fechaNacimiento"
+              name="fechaNacimiento"
+              type="date"
+              class="input"
+              autocomplete="bday"
+              [max]="hoy"
+              [class.invalido]="errores()['fechaNacimiento']"
+              [attr.aria-invalid]="!!errores()['fechaNacimiento']"
+              [(ngModel)]="fechaNacimiento"
+            />
+          </app-campo>
+          <app-campo etiqueta="Teléfono (opcional)" para="telefono" [error]="errores()['telefono']">
+            <input
+              id="telefono"
+              name="telefono"
+              type="tel"
+              class="input"
+              autocomplete="tel"
+              [class.invalido]="errores()['telefono']"
+              [attr.aria-invalid]="!!errores()['telefono']"
+              [(ngModel)]="telefono"
+            />
+          </app-campo>
+        </div>
+
+        <app-campo
+          etiqueta="Nombre de usuario"
+          para="nombreUsuario"
+          [error]="errores()['nombreUsuario']"
+        >
+          <input
+            id="nombreUsuario"
+            name="nombreUsuario"
+            class="input"
+            autocomplete="username"
+            [class.invalido]="errores()['nombreUsuario']"
+            [attr.aria-invalid]="!!errores()['nombreUsuario']"
+            [(ngModel)]="nombreUsuario"
+          />
+        </app-campo>
+
+        <div class="fila">
+          <app-campo
+            etiqueta="Contraseña"
+            para="contrasenia"
+            [error]="errores()['contrasenia']"
+            [ayuda]="'Mínimo ' + longitudMinima + ' caracteres.'"
+          >
+            <input
+              id="contrasenia"
+              name="contrasenia"
+              type="password"
+              class="input"
+              autocomplete="new-password"
+              [class.invalido]="errores()['contrasenia']"
+              [attr.aria-invalid]="!!errores()['contrasenia']"
+              [(ngModel)]="contrasenia"
+            />
+          </app-campo>
+          <app-campo
+            etiqueta="Confirmar contraseña"
+            para="confirmacion"
+            [error]="errores()['confirmacion']"
+          >
+            <input
+              id="confirmacion"
+              name="confirmacion"
+              type="password"
+              class="input"
+              autocomplete="new-password"
+              [class.invalido]="errores()['confirmacion']"
+              [attr.aria-invalid]="!!errores()['confirmacion']"
+              [(ngModel)]="confirmacion"
+            />
+          </app-campo>
+        </div>
+
+        <button type="submit" class="btn btn-primary enviar" [disabled]="cargando()">
+          {{ cargando() ? 'Creando cuenta…' : 'Crear cuenta' }}
+        </button>
+      </form>
+
+      <p class="pie-registro">¿Ya tienes cuenta? <a routerLink="/acceso">Inicia sesión</a></p>
+    </div>
+  </main>
+</div>

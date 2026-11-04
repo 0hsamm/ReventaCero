@@ -1,22 +1,43 @@
-<div class="sidebar">
-  <div class="logo">
+<div class="sidebar no-imprimir">
+  <a class="logo" routerLink="/">
     <span class="logo-marca" aria-hidden="true">R</span>
     ReventaCero
-  </div>
+  </a>
+
+  <p class="rol">Panel de {{ rol() }}</p>
 
   <nav class="menu" aria-label="Principal">
-    @for (opcion of opciones; track opcion.panel) {
-      <button
-        type="button"
+    @for (opcion of opciones(); track opcion.ruta) {
+      <a
         class="menu-item"
-        [class.activo]="panelActivo() === opcion.panel"
-        [attr.aria-current]="panelActivo() === opcion.panel ? 'page' : null"
-        (click)="panelActivoChange.emit(opcion.panel)"
+        [routerLink]="opcion.ruta"
+        routerLinkActive="activo"
+        ariaCurrentWhenActive="page"
       >
         <i class="pi" [class]="opcion.icono" aria-hidden="true"></i>
         {{ opcion.etiqueta }}
-      </button>
+      </a>
     }
+    <a
+      class="menu-item"
+      routerLink="/app/notificaciones"
+      routerLinkActive="activo"
+      ariaCurrentWhenActive="page"
+    >
+      <i class="pi pi-bell" aria-hidden="true"></i>
+      Notificaciones
+      @if (totalNotificaciones() > 0) {
+        <span class="contador">{{ totalNotificaciones() }}</span>
+      }
+    </a>
+    <a class="menu-item" routerLink="/app/perfil" routerLinkActive="activo" ariaCurrentWhenActive="page">
+      <i class="pi pi-user" aria-hidden="true"></i>
+      Mi perfil
+    </a>
+    <a class="menu-item" routerLink="/eventos">
+      <i class="pi pi-search" aria-hidden="true"></i>
+      Ver festivales
+    </a>
   </nav>
 
   <div class="pie">

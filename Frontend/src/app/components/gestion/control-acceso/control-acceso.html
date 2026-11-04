@@ -1,0 +1,60 @@
+<div class="pagina-panel">
+  <header class="panel-header">
+    <h1>Control de acceso</h1>
+    <p>Valida el código de una boleta para registrar el ingreso al festival.</p>
+  </header>
+
+  <section class="tarjeta-panel">
+    <h2>Validar boleta</h2>
+    <form class="form-grid" novalidate (ngSubmit)="validar()">
+      <app-campo etiqueta="Código de la boleta" para="codigo" [error]="errorCodigo()">
+        <input
+          id="codigo"
+          name="codigo"
+          class="input"
+          inputmode="numeric"
+          autocomplete="off"
+          [class.invalido]="errorCodigo()"
+          [attr.aria-invalid]="!!errorCodigo()"
+          [(ngModel)]="codigo"
+        />
+      </app-campo>
+      <div class="completo">
+        <button type="submit" class="btn btn-primary" [disabled]="enviando()">
+          {{ enviando() ? 'Validando…' : 'Registrar ingreso' }}
+        </button>
+      </div>
+    </form>
+  </section>
+
+  @if (error()) {
+    <p class="error-general" role="alert">{{ error() }}</p>
+  }
+
+  @if (resultado(); as acceso) {
+    <section class="tarjeta-panel" role="status">
+      <h2>Boleta {{ acceso.codigoBoleta }}</h2>
+      <span class="chip" [class]="acceso.resultado === 'PERMITIDO' ? 'chip-ok' : 'chip-alerta'">
+        {{ acceso.resultado }}
+      </span>
+      <p class="nota">{{ acceso.motivo }}</p>
+    </section>
+  }
+
+  @if (historial().length) {
+    <section class="tarjeta-panel">
+      <h2>Intentos de esta boleta</h2>
+      <table class="tabla">
+        <tbody>
+          @for (item of historial(); track item.idAcceso) {
+            <tr>
+              <td class="sin-salto">{{ item.fechaHoraIngreso | date: 'd MMM y, HH:mm' }}</td>
+              <td>{{ item.resultado }}</td>
+              <td>{{ item.motivo }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+</div>

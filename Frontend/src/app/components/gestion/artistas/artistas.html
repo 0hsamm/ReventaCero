@@ -1,0 +1,123 @@
+<div class="pagina-panel">
+  <header class="panel-header">
+    <h1>Artistas</h1>
+    <p>Los artistas disponibles para armar el cartel de cada festival.</p>
+  </header>
+
+  <section class="tarjeta-panel">
+    <h2>{{ editando() ? 'Editar ' + editando()!.nombreArtistico : 'Nuevo artista' }}</h2>
+    @if (errorForm()) {
+      <p class="error-general" role="alert">{{ errorForm() }}</p>
+    }
+    <form class="form-grid" novalidate (ngSubmit)="guardar()">
+      <app-campo etiqueta="Nombre artístico" para="nombreArtistico" [error]="errores()['nombreArtistico']">
+        <input
+          id="nombreArtistico"
+          name="nombreArtistico"
+          class="input"
+          [class.invalido]="errores()['nombreArtistico']"
+          [attr.aria-invalid]="!!errores()['nombreArtistico']"
+          [(ngModel)]="nombreArtistico"
+        />
+      </app-campo>
+      <app-campo etiqueta="País" para="paisArtista">
+        <input id="paisArtista" name="pais" class="input" [(ngModel)]="pais" />
+      </app-campo>
+      <app-campo etiqueta="Género" para="idGenero" [error]="errores()['idGenero']">
+        <select
+          id="idGenero"
+          name="idGenero"
+          class="input"
+          [class.invalido]="errores()['idGenero']"
+          [attr.aria-invalid]="!!errores()['idGenero']"
+          [(ngModel)]="idGenero"
+        >
+          <option [ngValue]="0">Selecciona</option>
+          @for (genero of generos(); track genero.idGenero) {
+            <option [ngValue]="genero.idGenero">{{ genero.nombre }}</option>
+          }
+        </select>
+      </app-campo>
+      <app-campo etiqueta="Redes sociales (separadas por coma)" para="redes">
+        <input id="redes" name="redes" class="input" [(ngModel)]="redes" />
+      </app-campo>
+      <div class="completo acciones-fila">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        @if (editando()) {
+          <button type="button" class="btn btn-ghost" (click)="limpiar()">Cancelar</button>
+        }
+      </div>
+    </form>
+
+    <form class="form-grid agregar" novalidate (ngSubmit)="agregarGenero()">
+      <app-campo etiqueta="¿Falta un género?" para="nuevoGenero" [error]="errores()['nuevoGenero']">
+        <input id="nuevoGenero" name="nuevoGenero" class="input" [(ngModel)]="nuevoGenero" />
+      </app-campo>
+      <div class="completo">
+        <button type="submit" class="btn btn-ghost">Agregar género</button>
+      </div>
+    </form>
+  </section>
+
+  <div class="field filtro">
+    <label for="busqueda">Buscar</label>
+    <input
+      id="busqueda"
+      type="search"
+      class="input"
+      [ngModel]="busqueda()"
+      (ngModelChange)="buscar($event)"
+    />
+  </div>
+
+  @if (cargando()) {
+    <div class="esqueleto" style="height: 200px"></div>
+  } @else if (error()) {
+    <div class="aviso aviso-error" role="alert">
+      <strong>{{ error() }}</strong>
+      <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (total() === 0) {
+    <div class="aviso"><strong>No hay artistas para mostrar</strong></div>
+  } @else {
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th scope="col">Nombre</th>
+          <th scope="col">País</th>
+          <th scope="col">Género</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (artista of filas(); track artista.idArtista) {
+          <tr>
+            <td>{{ artista.nombreArtistico }}</td>
+            <td>{{ artista.pais }}</td>
+            <td>{{ nombreGenero(artista.idGenero) }}</td>
+            <td>
+              <div class="acciones-fila">
+                <button type="button" class="btn btn-ghost btn-sm" (click)="editar(artista)">
+                  Editar
+                </button>
+                <button type="button" class="btn btn-ghost btn-sm" (click)="eliminando.set(artista)">
+                  Eliminar
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <app-paginacion [total]="total()" [(pagina)]="pagina"></app-paginacion>
+  }
+</div>
+
+<app-confirm-dialog
+  title="Eliminar artista"
+  [message]="'Se eliminará ' + (eliminando()?.nombreArtistico ?? '') + '.'"
+  confirmLabel="Eliminar"
+  [visible]="eliminando() != null"
+  (confirmed)="confirmarEliminacion()"
+  (cancelled)="eliminando.set(null)"
+></app-confirm-dialog>

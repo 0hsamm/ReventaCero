@@ -1,0 +1,184 @@
+@if (cargando()) {
+  <main class="detalle"><div class="esqueleto" style="height: 400px"></div></main>
+} @else if (festival(); as f) {
+  <main class="detalle">
+    <div>
+      <a class="volver" routerLink="/eventos">← Todos los festivales</a>
+
+      <div class="portada"><img [src]="cartelFestival(f.idFestival)" alt="" /></div>
+
+      <span class="chip chip-neutro">{{ etiquetaEstado[estadoFestival(f)] }}</span>
+      <h1 class="titulo-seccion">{{ f.nombre }}</h1>
+
+      <div class="datos">
+        <span>Edición {{ f.edicion }}</span>
+        <span>{{ f.fechaInicio | date: 'd MMM y' }} – {{ f.fechaFin | date: 'd MMM y' }}</span>
+        <span>
+          @if (f.ubicacionDireccion) {
+            {{ f.ubicacionDireccion }},
+          }
+          {{ f.ubicacionCiudad }}, {{ f.ubicacionPais }}
+        </span>
+      </div>
+
+      @if (sesion()) {
+        <h2>Boletas</h2>
+
+        @if (errorDetalle()) {
+          <p class="error-general" role="alert">{{ errorDetalle() }}</p>
+        } @else if (opciones().length === 0) {
+          <p class="nota">Este festival todavía no tiene boletas publicadas.</p>
+        } @else {
+          <div class="zonas" role="group" aria-label="Boleta">
+            @for (opcion of opciones(); track opcion.tipo.idTipoEntrada) {
+              <button
+                type="button"
+                class="zona"
+                [class.elegida]="elegida()?.tipo?.idTipoEntrada === opcion.tipo.idTipoEntrada"
+                [attr.aria-pressed]="elegida()?.tipo?.idTipoEntrada === opcion.tipo.idTipoEntrada"
+                [disabled]="opcion.disponibles === 0"
+                (click)="elegir(opcion)"
+              >
+                <span>
+                  <strong>{{ opcion.zona.nombre }} · {{ opcion.tipo.categoria }}</strong>
+                  <small>
+                    Tope de reventa:
+                    {{ opcion.tipo.precioTopeReventa | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}
+                    ·
+                    @if (opcion.disponibles === 0) {
+                      Agotada
+                    } @else {
+                      {{ opcion.disponibles | number }} disponibles
+                    }
+                  </small>
+                </span>
+                <span class="precio">
+                  {{ opcion.tipo.precioBase | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}
+                </span>
+              </button>
+              @if (opcion.disponibles === 0 && esUsuario() && !finalizado()) {
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-sm lista"
+                  (click)="unirseALista(opcion)"
+                >
+                  Unirme a la lista de espera
+                </button>
+              }
+            }
+          </div>
+          @if (errorOpcion()) {
+            <p class="field-error" role="alert">{{ errorOpcion() }}</p>
+          }
+        }
+
+        <h2>Cartel</h2>
+        @if (cartel().length) {
+          <table class="tabla">
+            <tbody>
+              @for (item of cartel(); track item.idPresentacion) {
+                <tr>
+                  <td class="sin-salto">{{ item.horaInicio | date: 'd MMM, HH:mm' }}</td>
+                  <td>{{ item.artista }}</td>
+                  <td>Escenario {{ item.nombreEscenario }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="nota">El cartel todavía no está publicado.</p>
+        }
+      }
+    </div>
+
+    <aside class="resumen" aria-labelledby="titulo-resumen">
+      <h2 id="titulo-resumen">Resumen de la orden</h2>
+
+      @if (sesion() == null) {
+        <p class="nota">Inicia sesión para ver las boletas, sus precios y el cartel.</p>
+        <button type="button" class="btn btn-primary comprar" (click)="irAIngresar()">
+          Iniciar sesión
+        </button>
+      } @else if (finalizado()) {
+        <p class="error-general" role="status">Este festival ya finalizó.</p>
+      } @else if (!esUsuario()) {
+        <p class="nota">Solo una cuenta de usuario puede comprar boletas.</p>
+      } @else if (opciones().length === 0) {
+        <p class="nota">Podrás comprar cuando este festival publique sus boletas.</p>
+      } @else {
+        <form novalidate (ngSubmit)="comprar()">
+          <div class="field">
+            <span class="field-label" id="etiqueta-cantidad">Cantidad</span>
+            <div class="cantidad" role="group" aria-labelledby="etiqueta-cantidad">
+              <button
+                type="button"
+                class="btn btn-ghost"
+                aria-label="Quitar una boleta"
+                (click)="cambiarCantidad(-1)"
+              >
+                −
+              </button>
+              <output>{{ cantidad() }}</output>
+              <button
+                type="button"
+                class="btn btn-ghost"
+                aria-label="Agregar una boleta"
+                (click)="cambiarCantidad(1)"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <app-campo etiqueta="Método de pago" para="metodo" [error]="errorMetodo()">
+            <select
+              id="metodo"
+              name="metodo"
+              class="input"
+              [class.invalido]="errorMetodo()"
+              [attr.aria-invalid]="!!errorMetodo()"
+              [(ngModel)]="metodo"
+            >
+              <option value="">Selecciona</option>
+              @for (item of metodos; track item) {
+                <option>{{ item }}</option>
+              }
+            </select>
+          </app-campo>
+
+          <dl class="lineas">
+            <div>
+              <dt>Boleta</dt>
+              <dd>
+                @if (elegida(); as opcion) {
+                  {{ opcion.zona.nombre }} · {{ opcion.tipo.categoria }}
+                } @else {
+                  Sin seleccionar
+                }
+              </dd>
+            </div>
+            <div class="total">
+              <dt>Total</dt>
+              <dd>{{ total() | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</dd>
+            </div>
+          </dl>
+
+          @if (error()) {
+            <p class="field-error" role="alert">{{ error() }}</p>
+          }
+
+          <button type="submit" class="btn btn-primary comprar" [disabled]="comprando()">
+            {{ comprando() ? 'Registrando…' : 'Confirmar compra' }}
+          </button>
+        </form>
+      }
+    </aside>
+  </main>
+} @else {
+  <main class="detalle">
+    <div class="aviso" [class.aviso-error]="!noExiste()">
+      <strong>{{ noExiste() ? 'Este festival no existe' : errorCarga() }}</strong>
+      <a class="btn btn-ghost" routerLink="/eventos">Ver festivales</a>
+    </div>
+  </main>
+}

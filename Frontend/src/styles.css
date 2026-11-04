@@ -329,3 +329,198 @@ button {
     transition: none !important;
   }
 }
+
+/* Componentes compartidos por los paneles de cada rol */
+.pagina-panel {
+  max-width: 1240px;
+  margin-inline: auto;
+  padding: 32px;
+}
+
+.metricas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metrica,
+.tarjeta-panel {
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--sombra);
+}
+
+.metrica span {
+  display: block;
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.metrica strong {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.tarjeta-panel {
+  margin-bottom: 24px;
+}
+
+.tarjeta-panel > h2 {
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  font-size: 15px;
+}
+
+.tabla th {
+  padding: 10px 12px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+}
+
+/* Correos y nombres largos no deben empujar la tabla fuera del panel */
+.tabla td {
+  padding: 12px;
+  border-top: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+
+.tabla .numero {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabla .sin-salto {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.tabla select.input {
+  min-width: 156px;
+  min-height: 36px;
+}
+
+.acciones-fila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-sm {
+  min-height: 36px;
+  padding: 0 10px;
+  font-size: 14px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.form-grid .completo {
+  grid-column: 1 / -1;
+}
+
+.chip-ok {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.chip-alerta {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.chip-neutro {
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+.nota {
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.barra {
+  margin-bottom: 16px;
+}
+
+.filtro {
+  max-width: 320px;
+  margin-bottom: 16px;
+}
+
+.error-general {
+  padding: 12px;
+  margin-bottom: 16px;
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 14px;
+}
+
+.field-label {
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Al imprimir una boleta solo sale esa boleta */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .boleta-imprimir,
+  .boleta-imprimir * {
+    visibility: visible;
+    color: #000 !important;
+  }
+
+  .boleta-imprimir {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-shadow: none !important;
+  }
+
+  .no-imprimir {
+    display: none !important;
+  }
+}
+
+.agregar {
+  margin-top: 20px;
+}
+
+.volver {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--text-1);
+  text-decoration-color: var(--neon);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.filtros-usuarios {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}

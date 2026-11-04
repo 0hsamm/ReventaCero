@@ -1,23 +1,7 @@
 <div class="main-layout">
-  <app-sidebar
-    [panelActivo]="panelActivo()"
-    (panelActivoChange)="cambiarPanel($event)"
-  ></app-sidebar>
+  <app-sidebar></app-sidebar>
 
-  <main class="panel-pane">
-    @switch (panelActivo()) {
-      @case ('inicio') {
-        <app-inicio-panel
-          (abrirPanel)="cambiarPanel($event)"
-          (abrirFestival)="abrirFestival($event)"
-        ></app-inicio-panel>
-      }
-      @case ('festivales') {
-        <app-festivales-panel [festivalInicial]="festivalSeleccionado()"></app-festivales-panel>
-      }
-      @case ('boletas') {
-        <app-boletas-panel (abrirFestivales)="cambiarPanel('festivales')"></app-boletas-panel>
-      }
-    }
+  <main class="panel-pane" #panel>
+    <router-outlet (activate)="panel.scrollTop = 0"></router-outlet>
   </main>
 </div>

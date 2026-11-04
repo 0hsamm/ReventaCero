@@ -1,0 +1,99 @@
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+h2 {
+  font-size: 18px;
+}
+
+.grupo {
+  position: relative;
+}
+
+.etiqueta {
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.barra {
+  background: var(--accent);
+  transition: opacity 120ms ease;
+}
+
+.grupo:hover .barra,
+.grupo:focus-visible .barra {
+  opacity: 0.75;
+}
+
+.burbuja {
+  position: absolute;
+  z-index: 3;
+  bottom: 100%;
+  left: 50%;
+  display: none;
+  padding: 4px 8px;
+  transform: translateX(-50%);
+  background: var(--text-1);
+  color: var(--bg);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.grupo:hover .burbuja,
+.grupo:focus-visible .burbuja {
+  display: block;
+}
+
+.columnas {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  height: 220px;
+}
+
+.columnas .grupo {
+  flex: 1;
+  display: flex;
+  flex-direction: column-reverse;
+  height: 100%;
+  gap: 8px;
+  text-align: center;
+}
+
+.columnas .pista {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.columnas .barra {
+  width: 100%;
+  height: var(--proporcion);
+}
+
+.horizontal {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.horizontal .grupo {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.horizontal .pista {
+  border-left: 1px solid var(--line-strong);
+}
+
+.horizontal .barra {
+  width: var(--proporcion);
+  height: 18px;
+}

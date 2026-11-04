@@ -1,0 +1,8 @@
+<a class="tarjeta" [routerLink]="['/eventos', festival().idFestival]">
+  <img [src]="imagen()" alt="" loading="lazy" />
+  <div class="datos">
+    <span class="fecha">{{ festival().fechaInicio | date: 'd MMM y' }}</span>
+    <h3>{{ festival().nombre }}</h3>
+    <p class="lugar">Edición {{ festival().edicion }} · {{ festival().ubicacionCiudad }}</p>
+  </div>
+</a>

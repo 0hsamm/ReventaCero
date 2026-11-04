@@ -1,8 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
-import { SiteFooterComponent } from '../site-footer/site-footer';
-
 const TITULOS: Record<string, string> = {
   terminos: 'Términos y condiciones',
   privacidad: 'Tratamiento de datos',
@@ -12,7 +10,7 @@ const TITULOS: Record<string, string> = {
 
 @Component({
   selector: 'app-legal',
-  imports: [RouterLink, SiteFooterComponent],
+  imports: [RouterLink],
   templateUrl: './legal.html',
   styleUrl: './legal.css',
 })

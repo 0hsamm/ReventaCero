@@ -1,0 +1,147 @@
+<div class="pagina-panel">
+  <header class="panel-header">
+    <h1>Auditoría</h1>
+    <p>Ingresos, reventas y devoluciones registrados en la plataforma.</p>
+  </header>
+
+  @if (cargando()) {
+    <div class="esqueleto" style="height: 280px"></div>
+  } @else if (error()) {
+    <div class="aviso aviso-error" role="alert">
+      <strong>{{ error() }}</strong>
+      <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else {
+    <div class="metricas">
+      <div class="metrica">
+        <span>Ingresos denegados</span>
+        <strong>{{ denegados() }}</strong>
+      </div>
+      <div class="metrica">
+        <span>Reventas</span>
+        <strong>{{ totalReventas() }}</strong>
+      </div>
+      <div class="metrica">
+        <span>Devoluciones</span>
+        <strong>{{ totalDevoluciones() }}</strong>
+      </div>
+    </div>
+
+    <div class="acciones-fila barra" role="group" aria-label="Registros">
+      <button
+        type="button"
+        class="btn btn-sm"
+        [class.btn-primary]="pestana() === 'accesos'"
+        [class.btn-ghost]="pestana() !== 'accesos'"
+        [attr.aria-pressed]="pestana() === 'accesos'"
+        (click)="cambiarPestana('accesos')"
+      >
+        Control de acceso
+      </button>
+      <button
+        type="button"
+        class="btn btn-sm"
+        [class.btn-primary]="pestana() === 'reventas'"
+        [class.btn-ghost]="pestana() !== 'reventas'"
+        [attr.aria-pressed]="pestana() === 'reventas'"
+        (click)="cambiarPestana('reventas')"
+      >
+        Reventas
+      </button>
+      <button
+        type="button"
+        class="btn btn-sm"
+        [class.btn-primary]="pestana() === 'devoluciones'"
+        [class.btn-ghost]="pestana() !== 'devoluciones'"
+        [attr.aria-pressed]="pestana() === 'devoluciones'"
+        (click)="cambiarPestana('devoluciones')"
+      >
+        Devoluciones
+      </button>
+    </div>
+
+    @if (total() === 0) {
+      <div class="aviso"><strong>Todavía no hay registros</strong></div>
+    } @else {
+      @switch (pestana()) {
+        @case ('accesos') {
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th scope="col">Fecha</th>
+                <th scope="col">Boleta</th>
+                <th scope="col">Resultado</th>
+                <th scope="col">Motivo</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (fila of filasAccesos(); track fila.idAcceso) {
+                <tr>
+                  <td class="sin-salto">{{ fila.fechaHoraIngreso | date: 'd MMM y, HH:mm' }}</td>
+                  <td>{{ fila.codigoBoleta }}</td>
+                  <td>
+                    <span class="chip" [class]="fila.resultado === 'DENEGADO' ? 'chip-alerta' : 'chip-ok'">
+                      {{ fila.resultado }}
+                    </span>
+                  </td>
+                  <td>{{ fila.motivo }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+        @case ('reventas') {
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th scope="col">Fecha</th>
+                <th scope="col">Boleta</th>
+                <th scope="col">Vendedor</th>
+                <th scope="col">Comprador</th>
+                <th scope="col" class="numero">Precio</th>
+                <th scope="col" class="numero">Comisión</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (fila of filasReventas(); track fila.idTransaccion) {
+                <tr>
+                  <td class="sin-salto">{{ fila.fechaHora | date: 'd MMM y, HH:mm' }}</td>
+                  <td>{{ fila.codigoBoleta }}</td>
+                  <td>{{ fila.vendedorDocumento }}</td>
+                  <td>{{ fila.compradorDocumento }}</td>
+                  <td class="numero">{{ fila.precio | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</td>
+                  <td class="numero">
+                    {{ fila.comisionOrganizador | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+        @case ('devoluciones') {
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th scope="col">Fecha</th>
+                <th scope="col">Boleta</th>
+                <th scope="col">Motivo</th>
+                <th scope="col" class="numero">Reembolso</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (fila of filasDevoluciones(); track fila.idTransaccion) {
+                <tr>
+                  <td class="sin-salto">{{ fila.fechaHora | date: 'd MMM y, HH:mm' }}</td>
+                  <td>{{ fila.codigoBoleta }}</td>
+                  <td>{{ fila.motivo }}</td>
+                  <td class="numero">{{ fila.precio | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      }
+      <app-paginacion [total]="total()" [(pagina)]="pagina"></app-paginacion>
+    }
+  }
+</div>

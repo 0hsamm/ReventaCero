@@ -4,12 +4,13 @@ import { Observable, tap } from 'rxjs';
 
 import { environment } from '../../environment/environment';
 import {
+  INICIO_ROL,
   LoginDTO,
   RegistroDTO,
   RespuestaAutenticacionDTO,
   Sesion,
   TipoUsuario,
-} from '../models/usuario';
+} from '../models/modelos';
 
 const CLAVES_SESION = ['token', 'tipoToken', 'documento', 'nombreUsuario', 'correo', 'tipoUsuario'];
 
@@ -37,8 +38,8 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
-  estaLogueado(): boolean {
-    return this.obtenerToken() != null;
+  rutaInicio(): string {
+    return INICIO_ROL[this.sesion()?.tipoUsuario ?? 'USUARIO'];
   }
 
   cerrarSesion(): void {
@@ -58,7 +59,10 @@ export class AuthService {
   }
 
   private leerSesion(): Sesion | null {
-    if (localStorage.getItem('token') == null) {
+    const token = localStorage.getItem('token');
+
+    if (token == null || this.tokenVencido(token)) {
+      CLAVES_SESION.forEach((clave) => localStorage.removeItem(clave));
       return null;
     }
 
@@ -66,7 +70,17 @@ export class AuthService {
       documento: Number(localStorage.getItem('documento')),
       nombreUsuario: localStorage.getItem('nombreUsuario') ?? '',
       correo: localStorage.getItem('correo') ?? '',
-      tipoUsuario: (localStorage.getItem('tipoUsuario') || null) as TipoUsuario | null,
+      tipoUsuario: (localStorage.getItem('tipoUsuario') || 'USUARIO') as TipoUsuario,
     };
+  }
+
+  private tokenVencido(token: string): boolean {
+    try {
+      const datos = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+
+      return typeof datos.exp === 'number' && datos.exp * 1000 < Date.now();
+    } catch {
+      return true;
+    }
   }
 }

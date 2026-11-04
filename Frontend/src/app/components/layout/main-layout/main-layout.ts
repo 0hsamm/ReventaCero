@@ -1,33 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
-import { BoletasPanelComponent } from '../../boletas-panel/boletas-panel';
-import { FestivalesPanelComponent } from '../../festivales-panel/festivales-panel';
-import { InicioPanelComponent } from '../../inicio-panel/inicio-panel';
-import { Panel, SidebarComponent } from '../../sidebar/sidebar';
+import { SidebarComponent } from '../../sidebar/sidebar';
 
 @Component({
   selector: 'app-main-layout',
-  imports: [
-    SidebarComponent,
-    InicioPanelComponent,
-    FestivalesPanelComponent,
-    BoletasPanelComponent,
-  ],
+  imports: [RouterOutlet, SidebarComponent],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css',
 })
-export class MainLayoutComponent {
-  protected panelActivo = signal<Panel>('inicio');
-
-  protected festivalSeleccionado = signal<number | null>(null);
-
-  protected cambiarPanel(panel: Panel): void {
-    this.festivalSeleccionado.set(null);
-    this.panelActivo.set(panel);
-  }
-
-  protected abrirFestival(idFestival: number): void {
-    this.festivalSeleccionado.set(idFestival);
-    this.panelActivo.set('festivales');
-  }
-}
+export class MainLayoutComponent {}

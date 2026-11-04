@@ -49,80 +49,6 @@
   color: #a1a1aa;
 }
 
-.muestra {
-  display: flex;
-  max-width: 440px;
-  border-radius: var(--radius);
-  background: #ccff00;
-  color: #050505;
-}
-
-.muestra-cuerpo {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 16px;
-}
-
-.muestra-talon {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-  padding: 16px;
-  border-left: 2px dashed #050505;
-}
-
-.muestra-talon::before,
-.muestra-talon::after {
-  content: '';
-  position: absolute;
-  left: -9px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #050505;
-}
-
-.muestra-talon::before {
-  top: -8px;
-}
-
-.muestra-talon::after {
-  bottom: -8px;
-}
-
-.muestra-etiqueta {
-  font-size: 13px;
-  color: #2b3300;
-}
-
-.muestra code {
-  font-family: var(--font-mono);
-  font-size: 15px;
-}
-
-.muestra dl {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 24px;
-  margin: 8px 0 0;
-}
-
-.muestra dt {
-  font-size: 13px;
-  color: #2b3300;
-}
-
-.muestra dd {
-  margin: 0;
-  font-variant-numeric: tabular-nums;
-  font-weight: 500;
-}
-
 /* Formulario */
 .acceso {
   display: flex;
@@ -201,3 +127,16 @@
   font-size: 14px;
 }
 
+
+.pie-registro {
+  margin-top: 16px;
+  color: var(--text-2);
+}
+
+.pie-registro a {
+  color: var(--text-1);
+  font-weight: 600;
+  text-decoration-color: var(--neon);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
