@@ -75,18 +75,26 @@ public class ReventaAutorizadaService {
 		this.comisionPorcentaje = comisionPorcentaje;
 	}
 
-	/** Reglas de una reventa: se revisan al ofrecer la boleta y otra vez cuando el receptor acepta. */
+	/** Reglas de una reventa con comprador conocido: oferta directa y momento de cerrar la venta. */
 	public Boleta validarCondiciones(long codigoBoleta, long compradorDocumento, BigDecimal precio) {
 
-		Boleta boleta = boletaService.bloquearYBuscar(codigoBoleta);
-		long documentoVendedor = boleta.getComprador().getDocumento();
+		Boleta boleta = validarBoletaRevendible(codigoBoleta, precio);
 
-		if (documentoVendedor == compradorDocumento) {
+		if (boleta.getComprador().getDocumento() == compradorDocumento) {
 			throw new ReglaNegocioException("El comprador no puede ser el mismo vendedor de la boleta");
 		}
 
-		usuarioService.validarCuentaActiva(documentoVendedor);
 		usuarioService.validarCuentaActiva(compradorDocumento);
+
+		return boleta;
+	}
+
+	/** Reglas que no dependen del comprador: bastan para publicar una boleta. */
+	public Boleta validarBoletaRevendible(long codigoBoleta, BigDecimal precio) {
+
+		Boleta boleta = boletaService.bloquearYBuscar(codigoBoleta);
+
+		usuarioService.validarCuentaActiva(boleta.getComprador().getDocumento());
 		boletaService.validarDisponible(boleta.getCodigoBoleta());
 
 		TipoEntrada tipoEntrada = tipoEntradaRepo.findById(boleta.getTipoEntrada().getIdTipoEntrada()).orElseThrow(

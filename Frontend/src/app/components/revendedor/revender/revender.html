@@ -1,38 +1,49 @@
 <div class="pagina-panel">
   <header class="panel-header">
     <h1>Revender boletas</h1>
-    <p>Ofrécele una de tus boletas a otra persona con cuenta, sin superar el tope del organizador.</p>
+    <p>Publica tus boletas para que cualquier usuario las compre, u ofrécelas a una persona concreta.</p>
   </header>
 
   @if (seleccionada(); as boleta) {
     <section class="tarjeta-panel">
-      <h2>Ofrecer boleta {{ boleta.codigoBoleta }}</h2>
-      <p class="nota aviso-tope">
-        {{ boleta.festival.nombre }} · {{ boleta.tipoEntrada.categoria }}. La persona recibirá la oferta
-        en sus notificaciones y la boleta seguirá siendo tuya hasta que la acepte. Tope de reventa:
-        {{ boleta.tipoEntrada.precioTopeReventa | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}.
-      </p>
+      @if (modo() === 'publicar') {
+        <h2>Publicar boleta {{ boleta.codigoBoleta }}</h2>
+        <p class="nota aviso-tope">
+          {{ boleta.festival.nombre }} · {{ boleta.tipoEntrada.categoria }}. Aparecerá en Boletas en reventa
+          y seguirá siendo tuya hasta que alguien la compre. Tope de reventa:
+          {{ boleta.tipoEntrada.precioTopeReventa | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}.
+        </p>
+      } @else {
+        <h2>Ofrecer boleta {{ boleta.codigoBoleta }}</h2>
+        <p class="nota aviso-tope">
+          {{ boleta.festival.nombre }} · {{ boleta.tipoEntrada.categoria }}. La persona recibirá la oferta
+          en sus notificaciones y la boleta seguirá siendo tuya hasta que la acepte. Tope de reventa:
+          {{ boleta.tipoEntrada.precioTopeReventa | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}.
+        </p>
+      }
       @if (errorAccion()) {
         <p class="error-general" role="alert">{{ errorAccion() }}</p>
       }
-      <form class="form-grid" novalidate (ngSubmit)="ofrecer()">
-        <app-campo
-          etiqueta="Documento del comprador"
-          para="comprador"
-          [error]="errores()['comprador']"
-          ayuda="El comprador debe tener una cuenta activa."
-        >
-          <input
-            id="comprador"
-            name="comprador"
-            class="input"
-            inputmode="numeric"
-            autocomplete="off"
-            [class.invalido]="errores()['comprador']"
-            [attr.aria-invalid]="!!errores()['comprador']"
-            [(ngModel)]="comprador"
-          />
-        </app-campo>
+      <form class="form-grid" novalidate (ngSubmit)="modo() === 'publicar' ? publicar() : ofrecer()">
+        @if (modo() === 'ofrecer') {
+          <app-campo
+            etiqueta="Documento del comprador"
+            para="comprador"
+            [error]="errores()['comprador']"
+            ayuda="El comprador debe tener una cuenta activa."
+          >
+            <input
+              id="comprador"
+              name="comprador"
+              class="input"
+              inputmode="numeric"
+              autocomplete="off"
+              [class.invalido]="errores()['comprador']"
+              [attr.aria-invalid]="!!errores()['comprador']"
+              [(ngModel)]="comprador"
+            />
+          </app-campo>
+        }
         <app-campo etiqueta="Precio de venta" para="precio" [error]="errores()['precio']">
           <input
             id="precio"
@@ -45,24 +56,30 @@
             [(ngModel)]="precio"
           />
         </app-campo>
-        <app-campo etiqueta="Método de pago" para="metodoReventa" [error]="errores()['metodo']">
-          <select
-            id="metodoReventa"
-            name="metodo"
-            class="input"
-            [class.invalido]="errores()['metodo']"
-            [attr.aria-invalid]="!!errores()['metodo']"
-            [(ngModel)]="metodo"
-          >
-            <option value="">Selecciona</option>
-            @for (item of metodos; track item) {
-              <option>{{ item }}</option>
-            }
-          </select>
-        </app-campo>
+        @if (modo() === 'ofrecer') {
+          <app-campo etiqueta="Método de pago" para="metodoReventa" [error]="errores()['metodo']">
+            <select
+              id="metodoReventa"
+              name="metodo"
+              class="input"
+              [class.invalido]="errores()['metodo']"
+              [attr.aria-invalid]="!!errores()['metodo']"
+              [(ngModel)]="metodo"
+            >
+              <option value="">Selecciona</option>
+              @for (item of metodos; track item) {
+                <option>{{ item }}</option>
+              }
+            </select>
+          </app-campo>
+        }
         <div class="completo acciones-fila">
           <button type="submit" class="btn btn-primary" [disabled]="enviando()">
-            {{ enviando() ? 'Enviando…' : 'Enviar oferta' }}
+            @if (enviando()) {
+              Enviando…
+            } @else {
+              {{ modo() === 'publicar' ? 'Publicar boleta' : 'Enviar oferta' }}
+            }
           </button>
           <button type="button" class="btn btn-ghost" (click)="cerrar()">Cancelar</button>
         </div>
@@ -109,11 +126,56 @@
                 {{ boleta.tipoEntrada.precioTopeReventa | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}
               </td>
               <td>
-                @if (tieneOfertaPendiente(boleta)) {
+                @if (publicacionDe(boleta)) {
+                  <span class="chip chip-alerta">Publicada</span>
+                } @else if (tieneOfertaPendiente(boleta)) {
                   <span class="chip chip-neutro">Oferta enviada</span>
                 } @else {
-                  <button type="button" class="btn btn-primary btn-sm" (click)="abrir(boleta)">
-                    Revender
+                  <div class="acciones-fila">
+                    <button type="button" class="btn btn-primary btn-sm" (click)="abrir(boleta, 'publicar')">
+                      Publicar
+                    </button>
+                    <button type="button" class="btn btn-ghost btn-sm" (click)="abrir(boleta, 'ofrecer')">
+                      Ofrecer
+                    </button>
+                  </div>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+
+    @if (publicaciones().length) {
+      <h2 class="subtitulo">Mis publicaciones</h2>
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th scope="col">Publicada</th>
+            <th scope="col">Boleta</th>
+            <th scope="col">Festival</th>
+            <th scope="col" class="numero">Precio</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (publicacion of publicaciones(); track publicacion.idPublicacion) {
+            <tr>
+              <td class="sin-salto">{{ publicacion.fechaPublicacion | date: 'd MMM y, HH:mm' }}</td>
+              <td>{{ publicacion.codigoBoleta }}</td>
+              <td>{{ publicacion.nombreFestival }}</td>
+              <td class="numero">{{ publicacion.precio | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</td>
+              <td>
+                <span class="chip" [class]="clasePublicacion[publicacion.estado]">
+                  {{ etiquetaPublicacion[publicacion.estado] }}
+                </span>
+              </td>
+              <td>
+                @if (publicacion.estado === 'DISPONIBLE') {
+                  <button type="button" class="btn btn-ghost btn-sm" (click)="retirando.set(publicacion)">
+                    Retirar
                   </button>
                 }
               </td>
@@ -124,7 +186,7 @@
     }
 
     @if (enviadas().length) {
-      <h2 class="enviadas">Ofertas enviadas</h2>
+      <h2 class="subtitulo">Ofertas enviadas</h2>
       <table class="tabla">
         <thead>
           <tr>
@@ -170,4 +232,13 @@
   [visible]="cancelando() != null"
   (confirmed)="confirmarCancelacion()"
   (cancelled)="cancelando.set(null)"
+></app-confirm-dialog>
+
+<app-confirm-dialog
+  title="Retirar publicación"
+  [message]="'La boleta ' + (retirando()?.codigoBoleta ?? '') + ' dejará de aparecer en Boletas en reventa.'"
+  confirmLabel="Retirar"
+  [visible]="retirando() != null"
+  (confirmed)="confirmarRetiro()"
+  (cancelled)="retirando.set(null)"
 ></app-confirm-dialog>

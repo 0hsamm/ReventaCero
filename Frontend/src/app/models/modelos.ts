@@ -207,6 +207,38 @@ export interface SolicitudReventa {
   nombreZona: string;
 }
 
+export type EstadoPublicacion = 'DISPONIBLE' | 'VENDIDA' | 'RETIRADA';
+
+export const ETIQUETA_ESTADO_PUBLICACION: Record<EstadoPublicacion, string> = {
+  DISPONIBLE: 'Publicada',
+  VENDIDA: 'Vendida',
+  RETIRADA: 'Retirada',
+};
+
+export const CLASE_ESTADO_PUBLICACION: Record<EstadoPublicacion, string> = {
+  DISPONIBLE: 'chip-alerta',
+  VENDIDA: 'chip-ok',
+  RETIRADA: 'chip-neutro',
+};
+
+export interface PublicacionReventa {
+  idPublicacion: number;
+  fechaPublicacion: string;
+  precio: number;
+  estado: EstadoPublicacion;
+  fechaCierre: string | null;
+  codigoBoleta: number;
+  vendedorDocumento: number;
+  compradorDocumento: number;
+  idFestival: number;
+  nombreFestival: string;
+  ciudad: string;
+  fechaInicio: string;
+  fechaFin: string;
+  categoriaEntrada: string;
+  nombreZona: string;
+}
+
 export interface Devolucion extends Transaccion {
   motivo: string;
   porcentajeReembolso: number;

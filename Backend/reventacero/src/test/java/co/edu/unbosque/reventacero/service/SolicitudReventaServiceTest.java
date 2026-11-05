@@ -23,6 +23,7 @@ import co.edu.unbosque.reventacero.dto.SolicitudReventaDTO;
 import co.edu.unbosque.reventacero.entity.Boleta;
 import co.edu.unbosque.reventacero.entity.Usuario;
 import co.edu.unbosque.reventacero.exception.ReglaNegocioException;
+import co.edu.unbosque.reventacero.repository.PublicacionReventaRepository;
 import co.edu.unbosque.reventacero.repository.SolicitudReventaRepository;
 
 class SolicitudReventaServiceTest {
@@ -34,8 +35,9 @@ class SolicitudReventaServiceTest {
 	private final ReventaAutorizadaService reventaService = mock(ReventaAutorizadaService.class);
 	private final BoletaService boletaService = mock(BoletaService.class);
 	private final DispositivoService dispositivoService = mock(DispositivoService.class);
-	private final SolicitudReventaService service = new SolicitudReventaService(repo, reventaService, boletaService,
-			dispositivoService);
+	private final PublicacionReventaRepository publicacionRepo = mock(PublicacionReventaRepository.class);
+	private final SolicitudReventaService service = new SolicitudReventaService(repo, publicacionRepo, reventaService,
+			boletaService, dispositivoService);
 
 	private SolicitudReventaDTO solicitud;
 
@@ -76,6 +78,19 @@ class SolicitudReventaServiceTest {
 	@Test
 	void unaBoletaConOfertaPendienteNoSePuedeOfrecerDeNuevo() {
 		when(repo.existePendiente(17)).thenReturn(true);
+		var oferta = new SolicitudReventaDTO();
+		oferta.setCodigoBoleta(17);
+		oferta.setCompradorDocumento(RECEPTOR);
+		oferta.setPrecio(BigDecimal.ONE);
+		oferta.setMetodoPago("PSE");
+
+		assertThrows(ReglaNegocioException.class, () -> service.crear(oferta, VENDEDOR));
+		verify(repo, never()).save(any());
+	}
+
+	@Test
+	void unaBoletaPublicadaNoSePuedeOfrecer() {
+		when(publicacionRepo.existeDisponible(17)).thenReturn(true);
 		var oferta = new SolicitudReventaDTO();
 		oferta.setCodigoBoleta(17);
 		oferta.setCompradorDocumento(RECEPTOR);

@@ -10,13 +10,6 @@
       <a routerLink="/registro">Registrarme</a>
       <a routerLink="/acceso">Ingresar</a>
     </nav>
-
-    <nav aria-label="Información legal">
-      <h2>Legal</h2>
-      @for (legal of legales; track legal.ruta) {
-        <a [routerLink]="['/legal', legal.ruta]">{{ legal.etiqueta }}</a>
-      }
-    </nav>
   </div>
 
   <p class="derechos">© {{ anio }} ReventaCero</p>

@@ -1,0 +1,86 @@
+<div class="pagina-panel">
+  <header class="panel-header">
+    <h1>Boletas en reventa</h1>
+    <p>Boletas que otros usuarios publicaron, siempre dentro del tope del organizador.</p>
+  </header>
+
+  @if (seleccionada(); as boleta) {
+    <section class="tarjeta-panel">
+      <h2>Comprar boleta de {{ boleta.nombreFestival }}</h2>
+      <p class="nota aviso-compra">
+        {{ boleta.categoriaEntrada }} · {{ boleta.nombreZona }}. Al confirmar, la boleta pasa a tu cuenta
+        por {{ boleta.precio | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}.
+      </p>
+      @if (errorCompra()) {
+        <p class="error-general" role="alert">{{ errorCompra() }}</p>
+      }
+      <form class="form-grid" novalidate (ngSubmit)="comprar()">
+        <app-campo etiqueta="Método de pago" para="metodoCompra" [error]="errores()['metodo']">
+          <select
+            id="metodoCompra"
+            name="metodo"
+            class="input"
+            [class.invalido]="errores()['metodo']"
+            [attr.aria-invalid]="!!errores()['metodo']"
+            [(ngModel)]="metodo"
+          >
+            <option value="">Selecciona</option>
+            @for (item of metodos; track item) {
+              <option>{{ item }}</option>
+            }
+          </select>
+        </app-campo>
+        <div class="completo acciones-fila">
+          <button type="submit" class="btn btn-primary" [disabled]="enviando()">
+            {{ enviando() ? 'Comprando…' : 'Confirmar compra' }}
+          </button>
+          <button type="button" class="btn btn-ghost" (click)="cerrar()">Cancelar</button>
+        </div>
+      </form>
+    </section>
+  }
+
+  @if (cargando()) {
+    <div class="esqueleto" style="height: 240px"></div>
+  } @else if (error()) {
+    <div class="aviso aviso-error" role="alert">
+      <strong>{{ error() }}</strong>
+      <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (total() === 0) {
+    <div class="aviso">
+      <strong>No hay boletas en reventa por ahora</strong>
+      <a class="btn btn-primary" routerLink="/eventos">Ver festivales</a>
+    </div>
+  } @else {
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th scope="col">Festival</th>
+          <th scope="col">Fechas</th>
+          <th scope="col">Ciudad</th>
+          <th scope="col">Entrada</th>
+          <th scope="col" class="numero">Precio</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (boleta of filas(); track boleta.idPublicacion) {
+          <tr>
+            <td>{{ boleta.nombreFestival }}</td>
+            <td class="sin-salto">
+              {{ boleta.fechaInicio | date: 'd MMM' }} – {{ boleta.fechaFin | date: 'd MMM y' }}
+            </td>
+            <td>{{ boleta.ciudad }}</td>
+            <td>{{ boleta.categoriaEntrada }} · {{ boleta.nombreZona }}</td>
+            <td class="numero">{{ boleta.precio | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</td>
+            <td>
+              <button type="button" class="btn btn-primary btn-sm" (click)="abrir(boleta)">Comprar</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <app-paginacion [total]="total()" [(pagina)]="pagina"></app-paginacion>
+  }
+</div>

@@ -1,11 +1,12 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, formatCurrency } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, LOCALE_ID, OnInit, computed, inject, signal } from '@angular/core';
 import { forkJoin } from 'rxjs';
 
-import { Notificacion, SolicitudReventa } from '../../models/modelos';
+import { SolicitudReventa } from '../../models/modelos';
 import { AuthService } from '../../services/auth.service';
 import { ListaEsperaService } from '../../services/lista-espera.service';
+import { PublicacionReventaService } from '../../services/publicacion-reventa.service';
 import { SolicitudReventaService } from '../../services/solicitud-reventa.service';
 import { ToastService } from '../../services/toast.service';
 import { mensajeError } from '../../utils/validaciones';
@@ -16,6 +17,13 @@ interface Respuesta {
   aceptar: boolean;
 }
 
+interface Aviso {
+  id: string;
+  fechaHora: string;
+  mensaje: string;
+  canal: string;
+}
+
 @Component({
   selector: 'app-notificaciones',
   imports: [ConfirmDialogComponent, CurrencyPipe, DatePipe],
@@ -23,7 +31,7 @@ interface Respuesta {
     <div class="pagina-panel">
       <header class="panel-header">
         <h1>Notificaciones</h1>
-        <p>Ofertas de reventa que te hicieron y avisos de tus listas de espera.</p>
+        <p>Ofertas de reventa, boletas que vendiste y avisos de tus listas de espera.</p>
       </header>
 
       @if (cargando()) {
@@ -33,7 +41,7 @@ interface Respuesta {
           <strong>{{ error() }}</strong>
           <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
         </div>
-      } @else if (notificaciones().length === 0 && pendientes().length === 0) {
+      } @else if (avisos().length === 0 && pendientes().length === 0) {
         <div class="aviso"><strong>No tienes notificaciones</strong></div>
       } @else {
         @for (oferta of pendientes(); track oferta.idSolicitud) {
@@ -82,10 +90,10 @@ interface Respuesta {
           </section>
         }
 
-        @if (notificaciones().length) {
+        @if (avisos().length) {
           <table class="tabla">
             <tbody>
-              @for (item of notificaciones(); track item.idNotificacion) {
+              @for (item of avisos(); track item.id) {
                 <tr>
                   <td class="sin-salto">{{ item.fechaHora | date: 'd MMM y, HH:mm' }}</td>
                   <td>{{ item.mensaje }}</td>
@@ -129,13 +137,15 @@ interface Respuesta {
 export class NotificacionesComponent implements OnInit {
   private listaService = inject(ListaEsperaService);
   private solicitudService = inject(SolicitudReventaService);
+  private publicacionService = inject(PublicacionReventaService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
+  private locale = inject(LOCALE_ID);
 
   protected cargando = signal(true);
   protected error = signal('');
   protected enviando = signal(false);
-  protected notificaciones = signal<Notificacion[]>([]);
+  protected avisos = signal<Aviso[]>([]);
   protected pendientes = signal<SolicitudReventa[]>([]);
   protected respuesta = signal<Respuesta | null>(null);
 
@@ -162,10 +172,26 @@ export class NotificacionesComponent implements OnInit {
     forkJoin({
       notificaciones: this.listaService.notificaciones(this.authService.sesion()?.documento ?? 0),
       solicitudes: this.solicitudService.recibidas(),
+      publicaciones: this.publicacionService.mias(),
     }).subscribe({
-      next: ({ notificaciones, solicitudes }) => {
-        this.notificaciones.set(
-          [...notificaciones].sort((a, b) => b.fechaHora.localeCompare(a.fechaHora)),
+      next: ({ notificaciones, solicitudes, publicaciones }) => {
+        const deListas: Aviso[] = notificaciones.map((n) => ({
+          id: `n-${n.idNotificacion}`,
+          fechaHora: n.fechaHora,
+          mensaje: n.mensaje,
+          canal: n.canal,
+        }));
+        const ventas: Aviso[] = publicaciones
+          .filter((p) => p.estado === 'VENDIDA')
+          .map((p) => ({
+            id: `v-${p.idPublicacion}`,
+            fechaHora: p.fechaCierre ?? p.fechaPublicacion,
+            mensaje: `Vendiste tu boleta ${p.codigoBoleta} de ${p.nombreFestival} por ${formatCurrency(p.precio, this.locale, '$', 'COP', '1.0-0')}.`,
+            canal: 'APP',
+          }));
+
+        this.avisos.set(
+          [...deListas, ...ventas].sort((a, b) => b.fechaHora.localeCompare(a.fechaHora)),
         );
         this.pendientes.set(solicitudes.filter((s) => s.estado === 'PENDIENTE'));
         this.cargando.set(false);

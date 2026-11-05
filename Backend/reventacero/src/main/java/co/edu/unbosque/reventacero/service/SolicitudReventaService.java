@@ -12,6 +12,7 @@ import co.edu.unbosque.reventacero.dto.SolicitudReventaDTO;
 import co.edu.unbosque.reventacero.entity.Boleta;
 import co.edu.unbosque.reventacero.exception.RecursoNoEncontradoException;
 import co.edu.unbosque.reventacero.exception.ReglaNegocioException;
+import co.edu.unbosque.reventacero.repository.PublicacionReventaRepository;
 import co.edu.unbosque.reventacero.repository.SolicitudReventaRepository;
 import co.edu.unbosque.reventacero.util.Validaciones;
 
@@ -28,15 +29,19 @@ public class SolicitudReventaService {
 
 	private final SolicitudReventaRepository solicitudRepo;
 
+	private final PublicacionReventaRepository publicacionRepo;
+
 	private final ReventaAutorizadaService reventaService;
 
 	private final BoletaService boletaService;
 
 	private final DispositivoService dispositivoService;
 
-	public SolicitudReventaService(SolicitudReventaRepository solicitudRepo, ReventaAutorizadaService reventaService,
+	public SolicitudReventaService(SolicitudReventaRepository solicitudRepo,
+			PublicacionReventaRepository publicacionRepo, ReventaAutorizadaService reventaService,
 			BoletaService boletaService, DispositivoService dispositivoService) {
 		this.solicitudRepo = solicitudRepo;
+		this.publicacionRepo = publicacionRepo;
 		this.reventaService = reventaService;
 		this.boletaService = boletaService;
 		this.dispositivoService = dispositivoService;
@@ -54,6 +59,10 @@ public class SolicitudReventaService {
 
 		if (solicitudRepo.existePendiente(dto.getCodigoBoleta())) {
 			throw new ReglaNegocioException(BOLETA_PENDIENTE);
+		}
+
+		if (publicacionRepo.existeDisponible(dto.getCodigoBoleta())) {
+			throw new ReglaNegocioException("Esta boleta está publicada; retírala antes de ofrecerla a alguien");
 		}
 
 		dto.setVendedorDocumento(vendedorDocumento);

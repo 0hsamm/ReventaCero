@@ -35,6 +35,7 @@ const { AuthService } = await import('../src/app/services/auth.service.ts');
 const { ThemeService } = await import('../src/app/services/theme.service.ts');
 const { ListaEsperaService } = await import('../src/app/services/lista-espera.service.ts');
 const { SolicitudReventaService } = await import('../src/app/services/solicitud-reventa.service.ts');
+const { PublicacionReventaService } = await import('../src/app/services/publicacion-reventa.service.ts');
 const { SidebarComponent } = await import('../src/app/components/sidebar/sidebar.ts');
 const { routes } = await import('../src/app/app.routes.ts');
 const { sesionDesdeToken } = await import('../src/app/utils/sesion.ts');
@@ -81,6 +82,7 @@ function preparar(jwt, metadatos = {}, respuesta = {}, volver = null) {
     { provide: ThemeService, useValue: {} },
     { provide: ListaEsperaService, useValue: {} },
     { provide: SolicitudReventaService, useValue: {} },
+    { provide: PublicacionReventaService, useValue: {} },
   ]);
   return {
     auth: injector.get(AuthService),
@@ -117,7 +119,7 @@ test('el retorno de login rechaza direcciones externas', () => {
 for (const [rol, inicio, secciones, cantidadOpciones] of [
   ['ADMINISTRADOR', '/app/admin/dashboard', ['admin', 'gestion'], 7],
   ['ORGANIZADOR', '/app/gestion/festivales', ['gestion'], 4],
-  ['USUARIO', '/app/usuario/boletas', ['usuario', 'revendedor'], 3],
+  ['USUARIO', '/app/usuario/boletas', ['usuario', 'revendedor'], 4],
 ]) {
   test(`${rol}: inicio, menú y permisos de cada sección`, () => {
     const contexto = preparar(token(rol));

@@ -13,7 +13,6 @@ import { GestionFestivalesComponent } from './components/gestion/festivales/fest
 import { GestionPatrocinadoresComponent } from './components/gestion/patrocinadores/patrocinadores';
 import { LandingComponent } from './components/landing/landing';
 import { MainLayoutComponent } from './components/layout/main-layout/main-layout';
-import { LegalComponent } from './components/legal/legal';
 import { Login } from './components/login/login';
 import { NoEncontradoComponent } from './components/no-encontrado/no-encontrado';
 import { NotificacionesComponent } from './components/notificaciones/notificaciones';
@@ -22,6 +21,7 @@ import { PublicLayoutComponent } from './components/public-layout/public-layout'
 import { RegistroComponent } from './components/registro/registro';
 import { RevenderComponent } from './components/revendedor/revender/revender';
 import { VentasRevendedorComponent } from './components/revendedor/ventas/ventas';
+import { BoletasReventaComponent } from './components/usuario/boletas-reventa/boletas-reventa';
 import { HistorialComponent } from './components/usuario/historial/historial';
 import { ListasEsperaComponent } from './components/usuario/listas-espera/listas-espera';
 import { MisBoletasComponent } from './components/usuario/mis-boletas/mis-boletas';
@@ -45,6 +45,7 @@ export const routes: Routes = [
         canActivateChild: [rolGuard('USUARIO')],
         children: [
           { path: 'boletas', component: MisBoletasComponent },
+          { path: 'reventas', component: BoletasReventaComponent },
           { path: 'historial', component: HistorialComponent },
           { path: 'listas', component: ListasEsperaComponent },
           { path: '', redirectTo: 'boletas', pathMatch: 'full' },
@@ -95,7 +96,6 @@ export const routes: Routes = [
       { path: '', component: LandingComponent, pathMatch: 'full' },
       { path: 'eventos', component: CatalogoComponent },
       { path: 'eventos/:id', component: EventoDetalleComponent },
-      { path: 'legal/:documento', component: LegalComponent },
       { path: '**', component: NoEncontradoComponent },
     ],
   },
