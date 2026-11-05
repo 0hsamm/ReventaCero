@@ -28,7 +28,7 @@ export class Login implements OnInit {
   protected contrasenia = '';
 
   ngOnInit(): void {
-    if (this.authService.sesion()) {
+    if (this.authService.validarSesion()) {
       this.router.navigateByUrl(this.authService.rutaInicio());
     }
   }
@@ -60,9 +60,15 @@ export class Login implements OnInit {
           this.cargando.set(false);
           this.irDespuesDeEntrar();
         },
-        error: (err: HttpErrorResponse) => {
+        error: (err: unknown) => {
           this.cargando.set(false);
-          this.error.set(mensajeError(err, 'Usuario o contraseña incorrectos'));
+          this.error.set(
+            err instanceof HttpErrorResponse
+              ? mensajeError(err, 'Usuario o contraseña incorrectos')
+              : err instanceof Error
+                ? err.message
+                : 'No pudimos iniciar sesión. Inténtalo de nuevo.',
+          );
         },
       });
   }
@@ -71,7 +77,9 @@ export class Login implements OnInit {
     const volver = this.route.snapshot.queryParamMap.get('volver') ?? '';
     // Solo rutas internas: "//sitio" se interpretaría como otro dominio
     const interno = volver.startsWith('/') && !volver.startsWith('//');
+    // El retorno a la compra corresponde al usuario; gestión inicia en su propio panel.
+    const volverComoUsuario = this.authService.sesion()?.tipoUsuario === 'USUARIO' && interno;
 
-    this.router.navigateByUrl(interno ? volver : this.authService.rutaInicio());
+    this.router.navigateByUrl(volverComoUsuario ? volver : this.authService.rutaInicio());
   }
 }

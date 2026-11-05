@@ -9,8 +9,8 @@ import {
   RegistroDTO,
   RespuestaAutenticacionDTO,
   Sesion,
-  TipoUsuario,
 } from '../models/modelos';
+import { sesionDesdeToken } from '../utils/sesion';
 
 const CLAVES_SESION = ['token', 'tipoToken', 'documento', 'nombreUsuario', 'correo', 'tipoUsuario'];
 
@@ -40,7 +40,16 @@ export class AuthService {
   }
 
   rutaInicio(): string {
-    return INICIO_ROL[this.sesion()?.tipoUsuario ?? 'USUARIO'];
+    const sesion = this.sesion();
+
+    return sesion ? INICIO_ROL[sesion.tipoUsuario] : '/acceso';
+  }
+
+  validarSesion(): Sesion | null {
+    const sesion = this.leerSesion();
+
+    this.sesion.set(sesion);
+    return sesion;
   }
 
   cerrarSesion(): void {
@@ -49,39 +58,37 @@ export class AuthService {
   }
 
   private guardarSesion(respuesta: RespuestaAutenticacionDTO): void {
+    const sesion = sesionDesdeToken(respuesta.token);
+
+    if (sesion === null) {
+      this.cerrarSesion();
+      throw new Error('La sesión recibida no tiene un rol válido o ha vencido. Vuelve a ingresar.');
+    }
+
     this.almacenamiento.setItem('token', respuesta.token);
     this.almacenamiento.setItem('tipoToken', respuesta.tipoToken);
-    this.almacenamiento.setItem('documento', String(respuesta.documento));
-    this.almacenamiento.setItem('nombreUsuario', respuesta.nombreUsuario);
-    this.almacenamiento.setItem('correo', respuesta.correo);
-    this.almacenamiento.setItem('tipoUsuario', respuesta.tipoUsuario ?? '');
+    this.guardarDatosSesion(sesion);
 
-    this.sesion.set(this.leerSesion());
+    this.sesion.set(sesion);
+  }
+
+  private guardarDatosSesion(sesion: Sesion): void {
+    this.almacenamiento.setItem('documento', String(sesion.documento));
+    this.almacenamiento.setItem('nombreUsuario', sesion.nombreUsuario);
+    this.almacenamiento.setItem('correo', sesion.correo);
+    this.almacenamiento.setItem('tipoUsuario', sesion.tipoUsuario);
   }
 
   private leerSesion(): Sesion | null {
     const token = this.almacenamiento.getItem('token');
+    const sesion = token ? sesionDesdeToken(token) : null;
 
-    if (token == null || AuthService.tokenVencido(token)) {
+    if (sesion === null) {
       CLAVES_SESION.forEach((clave) => this.almacenamiento.removeItem(clave));
-      return null;
+    } else {
+      this.guardarDatosSesion(sesion);
     }
 
-    return {
-      documento: Number(this.almacenamiento.getItem('documento')),
-      nombreUsuario: this.almacenamiento.getItem('nombreUsuario') ?? '',
-      correo: this.almacenamiento.getItem('correo') ?? '',
-      tipoUsuario: (this.almacenamiento.getItem('tipoUsuario') || 'USUARIO') as TipoUsuario,
-    };
-  }
-
-  private static tokenVencido(token: string): boolean {
-    try {
-      const datos = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-
-      return typeof datos.exp === 'number' && datos.exp * 1000 < Date.now();
-    } catch {
-      return true;
-    }
+    return sesion;
   }
 }

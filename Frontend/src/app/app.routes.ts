@@ -1,3 +1,4 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 
 import { AdminAuditoriaComponent } from './components/admin/auditoria/auditoria';
@@ -22,6 +23,7 @@ import { HistorialComponent } from './components/usuario/historial/historial';
 import { ListasEsperaComponent } from './components/usuario/listas-espera/listas-espera';
 import { MisBoletasComponent } from './components/usuario/mis-boletas/mis-boletas';
 import { authGuard, rolGuard } from './guards/auth-guard-guard';
+import { AuthService } from './services/auth.service';
 
 export const routes: Routes = [
   { path: 'acceso', component: Login },
@@ -30,12 +32,14 @@ export const routes: Routes = [
     path: 'app',
     component: MainLayoutComponent,
     canActivate: [authGuard],
+    canActivateChild: [authGuard],
     children: [
       { path: 'notificaciones', component: NotificacionesComponent },
       { path: 'perfil', component: PerfilComponent },
       {
         path: 'usuario',
         canActivate: [rolGuard('USUARIO')],
+        canActivateChild: [rolGuard('USUARIO')],
         children: [
           { path: 'boletas', component: MisBoletasComponent },
           { path: 'historial', component: HistorialComponent },
@@ -46,6 +50,7 @@ export const routes: Routes = [
       {
         path: 'gestion',
         canActivate: [rolGuard('ADMINISTRADOR', 'ORGANIZADOR')],
+        canActivateChild: [rolGuard('ADMINISTRADOR', 'ORGANIZADOR')],
         children: [
           { path: 'festivales', component: GestionFestivalesComponent },
           { path: 'festivales/:id', component: FestivalConfigComponent },
@@ -57,6 +62,7 @@ export const routes: Routes = [
       {
         path: 'admin',
         canActivate: [rolGuard('ADMINISTRADOR')],
+        canActivateChild: [rolGuard('ADMINISTRADOR')],
         children: [
           { path: 'dashboard', component: AdminDashboardComponent },
           { path: 'usuarios', component: AdminUsuariosComponent },
@@ -64,7 +70,7 @@ export const routes: Routes = [
           { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
         ],
       },
-      { path: '', redirectTo: 'usuario', pathMatch: 'full' },
+      { path: '', redirectTo: () => inject(AuthService).rutaInicio(), pathMatch: 'full' },
     ],
   },
   {
