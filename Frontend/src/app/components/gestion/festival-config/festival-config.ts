@@ -18,6 +18,7 @@ import { ToastService } from '../../../services/toast.service';
 import { Errores, esVacio, hayErrores, mensajeError } from '../../../utils/validaciones';
 import { CampoComponent } from '../../campo/campo';
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog';
+import { PatrociniosFestivalComponent } from '../patrocinios-festival/patrocinios-festival';
 
 interface Eliminacion {
   mensaje: string;
@@ -33,6 +34,7 @@ interface Eliminacion {
     RouterLink,
     CampoComponent,
     ConfirmDialogComponent,
+    PatrociniosFestivalComponent,
   ],
   templateUrl: './festival-config.html',
 })

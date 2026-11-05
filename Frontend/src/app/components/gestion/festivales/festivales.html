@@ -107,9 +107,39 @@
             </select>
           </app-campo>
         }
+        @if (!editando()) {
+          <fieldset class="completo pregunta">
+            <legend class="field-label">¿Este festival tiene patrocinadores?</legend>
+            <div class="opciones-radio">
+              <label>
+                <input
+                  type="radio"
+                  name="tienePatrocinadores"
+                  [value]="true"
+                  [(ngModel)]="tienePatrocinadores"
+                />
+                Sí
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="tienePatrocinadores"
+                  [value]="false"
+                  [(ngModel)]="tienePatrocinadores"
+                />
+                No
+              </label>
+            </div>
+            @if (errores()['tienePatrocinadores'] && tienePatrocinadores == null) {
+              <span class="field-error" role="alert">{{ errores()['tienePatrocinadores'] }}</span>
+            } @else if (tienePatrocinadores) {
+              <span class="field-help">Al guardar el festival podrás registrar sus patrocinadores y aportes.</span>
+            }
+          </fieldset>
+        }
         <div class="completo acciones-fila">
           <button type="submit" class="btn btn-primary" [disabled]="enviando()">
-            {{ enviando() ? 'Guardando…' : 'Guardar' }}
+            {{ enviando() ? 'Guardando…' : tienePatrocinadores && !editando() ? 'Guardar y agregar patrocinadores' : 'Guardar' }}
           </button>
           <button type="button" class="btn btn-ghost" (click)="formularioAbierto.set(false)">
             Cancelar
@@ -117,6 +147,15 @@
         </div>
       </form>
     </section>
+  }
+
+  @if (festivalNuevo(); as nuevo) {
+    <app-patrocinios-festival
+      [idFestival]="nuevo.idFestival"
+      [titulo]="'Patrocinadores de ' + nuevo.nombre"
+    >
+      <button type="button" class="btn btn-ghost" (click)="festivalNuevo.set(null)">Terminar</button>
+    </app-patrocinios-festival>
   }
 
   <div class="field filtro">

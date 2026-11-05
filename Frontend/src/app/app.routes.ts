@@ -10,6 +10,7 @@ import { GestionArtistasComponent } from './components/gestion/artistas/artistas
 import { ControlAccesoComponent } from './components/gestion/control-acceso/control-acceso';
 import { FestivalConfigComponent } from './components/gestion/festival-config/festival-config';
 import { GestionFestivalesComponent } from './components/gestion/festivales/festivales';
+import { GestionPatrocinadoresComponent } from './components/gestion/patrocinadores/patrocinadores';
 import { LandingComponent } from './components/landing/landing';
 import { MainLayoutComponent } from './components/layout/main-layout/main-layout';
 import { LegalComponent } from './components/legal/legal';
@@ -19,6 +20,8 @@ import { NotificacionesComponent } from './components/notificaciones/notificacio
 import { PerfilComponent } from './components/perfil/perfil';
 import { PublicLayoutComponent } from './components/public-layout/public-layout';
 import { RegistroComponent } from './components/registro/registro';
+import { RevenderComponent } from './components/revendedor/revender/revender';
+import { VentasRevendedorComponent } from './components/revendedor/ventas/ventas';
 import { HistorialComponent } from './components/usuario/historial/historial';
 import { ListasEsperaComponent } from './components/usuario/listas-espera/listas-espera';
 import { MisBoletasComponent } from './components/usuario/mis-boletas/mis-boletas';
@@ -47,6 +50,17 @@ export const routes: Routes = [
           { path: '', redirectTo: 'boletas', pathMatch: 'full' },
         ],
       },
+      // El backend no tiene un rol revendedor: es otra vista de la misma cuenta de usuario
+      {
+        path: 'revendedor',
+        canActivate: [rolGuard('USUARIO')],
+        canActivateChild: [rolGuard('USUARIO')],
+        children: [
+          { path: 'boletas', component: RevenderComponent },
+          { path: 'ventas', component: VentasRevendedorComponent },
+          { path: '', redirectTo: 'boletas', pathMatch: 'full' },
+        ],
+      },
       {
         path: 'gestion',
         canActivate: [rolGuard('ADMINISTRADOR', 'ORGANIZADOR')],
@@ -55,6 +69,7 @@ export const routes: Routes = [
           { path: 'festivales', component: GestionFestivalesComponent },
           { path: 'festivales/:id', component: FestivalConfigComponent },
           { path: 'artistas', component: GestionArtistasComponent },
+          { path: 'patrocinadores', component: GestionPatrocinadoresComponent },
           { path: 'acceso', component: ControlAccesoComponent },
           { path: '', redirectTo: 'festivales', pathMatch: 'full' },
         ],

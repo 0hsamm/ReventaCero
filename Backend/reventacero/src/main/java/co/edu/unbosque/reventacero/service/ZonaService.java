@@ -26,13 +26,16 @@ public class ZonaService {
 
 	private final TipoEntradaRepository tipoEntradaRepo;
 
+	private final NotificacionService notificacionService;
+
 	private final ModelMapper modelMapper;
 
 	public ZonaService(ZonaRepository zonaRepo, FestivalRepository festivalRepo,
-			TipoEntradaRepository tipoEntradaRepo, ModelMapper modelMapper) {
+			TipoEntradaRepository tipoEntradaRepo, NotificacionService notificacionService, ModelMapper modelMapper) {
 		this.zonaRepo = zonaRepo;
 		this.festivalRepo = festivalRepo;
 		this.tipoEntradaRepo = tipoEntradaRepo;
+		this.notificacionService = notificacionService;
 		this.modelMapper = modelMapper;
 	}
 
@@ -67,9 +70,15 @@ public class ZonaService {
 					+ ") no puede ser menor que las boletas ya emitidas (" + emitidas + ")");
 		}
 
+		int cuposNuevos = dto.getAforoMaximo() - existente.getAforoMaximo();
+
 		dto.setIdZona(id);
 		Zona zona = aEntidad(dto);
 		zonaRepo.update(zona);
+
+		if (cuposNuevos > 0) {
+			notificacionService.notificarCuposNuevos(id, zona.getNombre(), cuposNuevos);
+		}
 
 		return aDTO(zona);
 	}

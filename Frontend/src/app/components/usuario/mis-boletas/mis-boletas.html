@@ -6,107 +6,44 @@
 
   @if (seleccionada(); as boleta) {
     <section class="tarjeta-panel no-imprimir">
-      @if (accion() === 'revender') {
-        <h2>Revender boleta {{ boleta.codigoBoleta }}</h2>
-        <p class="nota aviso-tope">
-          La boleta pasará a la cuenta del comprador. Tope de reventa:
-          {{ boleta.tipoEntrada.precioTopeReventa | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}.
-        </p>
-        @if (errorAccion()) {
-          <p class="error-general" role="alert">{{ errorAccion() }}</p>
-        }
-        <form class="form-grid" novalidate (ngSubmit)="revender()">
-          <app-campo
-            etiqueta="Documento del comprador"
-            para="comprador"
-            [error]="errores()['comprador']"
-            ayuda="El comprador debe tener una cuenta activa."
-          >
-            <input
-              id="comprador"
-              name="comprador"
-              class="input"
-              inputmode="numeric"
-              autocomplete="off"
-              [class.invalido]="errores()['comprador']"
-              [attr.aria-invalid]="!!errores()['comprador']"
-              [(ngModel)]="comprador"
-            />
-          </app-campo>
-          <app-campo etiqueta="Precio de venta" para="precio" [error]="errores()['precio']">
-            <input
-              id="precio"
-              name="precio"
-              type="number"
-              min="0"
-              class="input"
-              [class.invalido]="errores()['precio']"
-              [attr.aria-invalid]="!!errores()['precio']"
-              [(ngModel)]="precio"
-            />
-          </app-campo>
-          <app-campo etiqueta="Método de pago" para="metodoReventa" [error]="errores()['metodo']">
-            <select
-              id="metodoReventa"
-              name="metodo"
-              class="input"
-              [class.invalido]="errores()['metodo']"
-              [attr.aria-invalid]="!!errores()['metodo']"
-              [(ngModel)]="metodo"
-            >
-              <option value="">Selecciona</option>
-              @for (item of metodos; track item) {
-                <option>{{ item }}</option>
-              }
-            </select>
-          </app-campo>
-          <div class="completo acciones-fila">
-            <button type="submit" class="btn btn-primary" [disabled]="enviando()">
-              {{ enviando() ? 'Registrando…' : 'Confirmar reventa' }}
-            </button>
-            <button type="button" class="btn btn-ghost" (click)="cerrar()">Cancelar</button>
-          </div>
-        </form>
-      } @else {
-        <h2>Devolver boleta {{ boleta.codigoBoleta }}</h2>
-        <p class="nota aviso-tope">Se reembolsará el valor pagado por esta boleta.</p>
-        @if (errorAccion()) {
-          <p class="error-general" role="alert">{{ errorAccion() }}</p>
-        }
-        <form class="form-grid" novalidate (ngSubmit)="pedirDevolucion()">
-          <app-campo etiqueta="Motivo" para="motivo" [error]="errores()['motivo']">
-            <input
-              id="motivo"
-              name="motivo"
-              class="input"
-              [class.invalido]="errores()['motivo']"
-              [attr.aria-invalid]="!!errores()['motivo']"
-              [(ngModel)]="motivo"
-            />
-          </app-campo>
-          <app-campo etiqueta="Reembolsar por" para="metodoDevolucion" [error]="errores()['metodo']">
-            <select
-              id="metodoDevolucion"
-              name="metodo"
-              class="input"
-              [class.invalido]="errores()['metodo']"
-              [attr.aria-invalid]="!!errores()['metodo']"
-              [(ngModel)]="metodo"
-            >
-              <option value="">Selecciona</option>
-              @for (item of metodos; track item) {
-                <option>{{ item }}</option>
-              }
-            </select>
-          </app-campo>
-          <div class="completo acciones-fila">
-            <button type="submit" class="btn btn-primary" [disabled]="enviando()">
-              Solicitar devolución
-            </button>
-            <button type="button" class="btn btn-ghost" (click)="cerrar()">Cancelar</button>
-          </div>
-        </form>
+      <h2>Devolver boleta {{ boleta.codigoBoleta }}</h2>
+      <p class="nota aviso-tope">Se reembolsará el valor pagado por esta boleta.</p>
+      @if (errorAccion()) {
+        <p class="error-general" role="alert">{{ errorAccion() }}</p>
       }
+      <form class="form-grid" novalidate (ngSubmit)="pedirDevolucion()">
+        <app-campo etiqueta="Motivo" para="motivo" [error]="errores()['motivo']">
+          <input
+            id="motivo"
+            name="motivo"
+            class="input"
+            [class.invalido]="errores()['motivo']"
+            [attr.aria-invalid]="!!errores()['motivo']"
+            [(ngModel)]="motivo"
+          />
+        </app-campo>
+        <app-campo etiqueta="Reembolsar por" para="metodoDevolucion" [error]="errores()['metodo']">
+          <select
+            id="metodoDevolucion"
+            name="metodo"
+            class="input"
+            [class.invalido]="errores()['metodo']"
+            [attr.aria-invalid]="!!errores()['metodo']"
+            [(ngModel)]="metodo"
+          >
+            <option value="">Selecciona</option>
+            @for (item of metodos; track item) {
+              <option>{{ item }}</option>
+            }
+          </select>
+        </app-campo>
+        <div class="completo acciones-fila">
+          <button type="submit" class="btn btn-primary" [disabled]="enviando()">
+            Solicitar devolución
+          </button>
+          <button type="button" class="btn btn-ghost" (click)="cerrar()">Cancelar</button>
+        </div>
+      </form>
     </section>
   }
 
@@ -174,15 +111,15 @@
                 Imprimir
               </button>
               @if (pestana() === 'vigentes') {
-                <button type="button" class="btn btn-ghost btn-sm" (click)="abrir(boleta, 'revender')">
+                <a
+                  class="btn btn-ghost btn-sm"
+                  routerLink="/app/revendedor/boletas"
+                  [queryParams]="{ boleta: boleta.codigoBoleta }"
+                >
                   Revender
-                </button>
+                </a>
                 @if (puedeDevolver(boleta)) {
-                  <button
-                    type="button"
-                    class="btn btn-ghost btn-sm"
-                    (click)="abrir(boleta, 'devolver')"
-                  >
+                  <button type="button" class="btn btn-ghost btn-sm" (click)="abrir(boleta)">
                     Devolver
                   </button>
                 }
@@ -212,7 +149,7 @@
 
 <app-confirm-dialog
   title="Devolver boleta"
-  message="La boleta dejará de ser válida y esto no se puede deshacer."
+  message="La boleta dejará de ser válida y esto no se puede deshacer. Si tiene una oferta de reventa pendiente, se cancelará."
   confirmLabel="Devolver"
   [visible]="confirmandoDevolucion()"
   (confirmed)="devolver()"

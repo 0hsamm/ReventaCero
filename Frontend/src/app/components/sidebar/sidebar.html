@@ -6,6 +6,25 @@
 
   <p class="rol">Panel de {{ rol() }}</p>
 
+  @if (esUsuario()) {
+    <nav class="cambio-panel" aria-label="Cambiar de panel">
+      <a
+        routerLink="/app/usuario/boletas"
+        [class.activa]="vista() === 'usuario'"
+        [attr.aria-current]="vista() === 'usuario' ? 'true' : null"
+      >
+        Usuario
+      </a>
+      <a
+        routerLink="/app/revendedor/boletas"
+        [class.activa]="vista() === 'revendedor'"
+        [attr.aria-current]="vista() === 'revendedor' ? 'true' : null"
+      >
+        Revendedor
+      </a>
+    </nav>
+  }
+
   <nav class="menu" aria-label="Principal">
     @for (opcion of opciones(); track opcion.ruta) {
       <a

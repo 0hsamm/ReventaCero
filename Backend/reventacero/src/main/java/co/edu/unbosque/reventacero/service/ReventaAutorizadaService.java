@@ -75,24 +75,18 @@ public class ReventaAutorizadaService {
 		this.comisionPorcentaje = comisionPorcentaje;
 	}
 
-	@Transactional
-	public ReventaAutorizadaDTO revender(ReventaAutorizadaDTO dto) {
+	/** Reglas de una reventa: se revisan al ofrecer la boleta y otra vez cuando el receptor acepta. */
+	public Boleta validarCondiciones(long codigoBoleta, long compradorDocumento, BigDecimal precio) {
 
-		Validaciones.requerirPositivo(dto.getCodigoBoleta(), "codigoBoleta");
-		Validaciones.requerirPositivo(dto.getCompradorDocumento(), "compradorDocumento");
-		Validaciones.requerirPositivo(dto.getIdDispositivo(), "idDispositivo");
-		Validaciones.requerirNoNegativo(dto.getPrecio(), "precio");
-		Validaciones.requerirTexto(dto.getMetodoPago(), "metodoPago");
-
-		Boleta boleta = boletaService.bloquearYBuscar(dto.getCodigoBoleta());
+		Boleta boleta = boletaService.bloquearYBuscar(codigoBoleta);
 		long documentoVendedor = boleta.getComprador().getDocumento();
 
-		if (documentoVendedor == dto.getCompradorDocumento()) {
+		if (documentoVendedor == compradorDocumento) {
 			throw new ReglaNegocioException("El comprador no puede ser el mismo vendedor de la boleta");
 		}
 
 		usuarioService.validarCuentaActiva(documentoVendedor);
-		usuarioService.validarCuentaActiva(dto.getCompradorDocumento());
+		usuarioService.validarCuentaActiva(compradorDocumento);
 		boletaService.validarDisponible(boleta.getCodigoBoleta());
 
 		TipoEntrada tipoEntrada = tipoEntradaRepo.findById(boleta.getTipoEntrada().getIdTipoEntrada()).orElseThrow(
@@ -105,9 +99,24 @@ public class ReventaAutorizadaService {
 		if (tope == null) {
 			throw new ReglaNegocioException("El tipo de entrada no tiene un tope de reventa definido");
 		}
-		if (dto.getPrecio().compareTo(tope) > 0) {
+		if (precio.compareTo(tope) > 0) {
 			throw new ReglaNegocioException("El precio supera el tope de reventa permitido (" + tope + ")");
 		}
+
+		return boleta;
+	}
+
+	@Transactional
+	public ReventaAutorizadaDTO revender(ReventaAutorizadaDTO dto) {
+
+		Validaciones.requerirPositivo(dto.getCodigoBoleta(), "codigoBoleta");
+		Validaciones.requerirPositivo(dto.getCompradorDocumento(), "compradorDocumento");
+		Validaciones.requerirPositivo(dto.getIdDispositivo(), "idDispositivo");
+		Validaciones.requerirNoNegativo(dto.getPrecio(), "precio");
+		Validaciones.requerirTexto(dto.getMetodoPago(), "metodoPago");
+
+		Boleta boleta = validarCondiciones(dto.getCodigoBoleta(), dto.getCompradorDocumento(), dto.getPrecio());
+		long documentoVendedor = boleta.getComprador().getDocumento();
 
 		Dispositivo dispositivo = dispositivoService.validarDispositivoActivo(dto.getIdDispositivo());
 		long propietarioDispositivo = dispositivo.getUsuario().getDocumento();

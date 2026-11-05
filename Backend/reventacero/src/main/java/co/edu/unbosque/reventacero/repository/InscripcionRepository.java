@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import co.edu.unbosque.reventacero.entity.Inscripcion;
 import co.edu.unbosque.reventacero.entity.ListaEspera;
+import co.edu.unbosque.reventacero.entity.TipoEntrada;
 import co.edu.unbosque.reventacero.entity.Usuario;
 
 /**
@@ -67,6 +68,26 @@ public class InscripcionRepository {
         return jdbcClient.sql(SELECT_INSCRIPCION + "WHERE i.ID_LISTA = :idLista" + " ORDER BY i.FECHA_SOLICITUD, i.DOCUMENTO, i.ID_LISTA")
                 .param("idLista", idLista)
                 .query(this::mapRow)
+                .list();
+    }
+
+    /** Inscripciones pendientes de los tipos de entrada de una zona, de la más antigua a la más reciente. */
+    public List<Inscripcion> findPendientesPorZona(long idZona) {
+        return jdbcClient.sql("SELECT i.DOCUMENTO, i.ID_LISTA, i.FECHA_SOLICITUD, i.ESTADO, l.ID_TIPO_ENTRADA"
+                + " FROM INSCRIPCION i"
+                + " JOIN LISTA_ESPERA l ON l.ID_LISTA = i.ID_LISTA"
+                + " JOIN TIPO_ENTRADA te ON te.ID_TIPO_ENTRADA = l.ID_TIPO_ENTRADA"
+                + " WHERE te.ID_ZONA = :idZona AND i.ESTADO = :estado"
+                + " ORDER BY i.FECHA_SOLICITUD, i.DOCUMENTO, i.ID_LISTA")
+                .param("idZona", idZona)
+                .param("estado", "PENDIENTE")
+                .query((rs, fila) -> {
+                    var inscripcion = mapRow(rs, fila);
+                    var tipoEntrada = new TipoEntrada();
+                    tipoEntrada.setIdTipoEntrada(rs.getLong("ID_TIPO_ENTRADA"));
+                    inscripcion.getListaEspera().setTipoEntrada(tipoEntrada);
+                    return inscripcion;
+                })
                 .list();
     }
 

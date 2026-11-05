@@ -1,0 +1,152 @@
+<section class="tarjeta-panel">
+  <h2>{{ titulo() }}</h2>
+
+  @if (cargando()) {
+    <div class="esqueleto" style="height: 120px"></div>
+  } @else if (error()) {
+    <div class="aviso aviso-error" role="alert">
+      <strong>{{ error() }}</strong>
+      <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else {
+    @if (patrocinios().length) {
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th scope="col">Patrocinador</th>
+            <th scope="col">Tipo de aporte</th>
+            <th scope="col" class="numero">Monto</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (patrocinio of patrocinios(); track patrocinio.idPatrocinio) {
+            <tr>
+              <td>{{ nombrePatrocinador(patrocinio.idPatrocinador) }}</td>
+              <td>{{ patrocinio.tipoAporte }}</td>
+              <td class="numero">{{ patrocinio.monto | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</td>
+              <td>
+                <div class="acciones-fila">
+                  <button type="button" class="btn btn-ghost btn-sm" (click)="editar(patrocinio)">
+                    Editar
+                  </button>
+                  <button type="button" class="btn btn-ghost btn-sm" (click)="eliminando.set(patrocinio)">
+                    Eliminar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row" colspan="2">Total aportado</th>
+            <th class="numero">{{ total() | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</th>
+            <th></th>
+          </tr>
+        </tfoot>
+      </table>
+    } @else {
+      <p class="nota">Este festival todavía no tiene patrocinios.</p>
+    }
+
+    @if (errorForm()) {
+      <p class="error-general agregar" role="alert">{{ errorForm() }}</p>
+    }
+
+    <form class="form-grid agregar" novalidate (ngSubmit)="guardar()">
+      <app-campo
+        class="completo"
+        etiqueta="Patrocinador"
+        para="patrocinador"
+        [error]="errores()['patrocinador']"
+      >
+        <select
+          id="patrocinador"
+          name="patrocinador"
+          class="input"
+          [class.invalido]="errores()['patrocinador']"
+          [attr.aria-invalid]="!!errores()['patrocinador']"
+          [(ngModel)]="form.idPatrocinador"
+        >
+          <option [ngValue]="SIN_ELEGIR">Selecciona</option>
+          @for (patrocinador of patrocinadores(); track patrocinador.idPatrocinador) {
+            <option [ngValue]="patrocinador.idPatrocinador">{{ patrocinador.nombre }}</option>
+          }
+          <option [ngValue]="NUEVO">Nuevo patrocinador…</option>
+        </select>
+      </app-campo>
+
+      @if (form.idPatrocinador === NUEVO) {
+        <app-campo etiqueta="Nombre del patrocinador" para="patrocinadorNombre" [error]="errores()['nombre']">
+          <input
+            id="patrocinadorNombre"
+            name="patrocinadorNombre"
+            class="input"
+            [class.invalido]="errores()['nombre']"
+            [attr.aria-invalid]="!!errores()['nombre']"
+            [(ngModel)]="form.nombre"
+          />
+        </app-campo>
+        <app-campo etiqueta="Tipo de patrocinador (opcional)" para="patrocinadorTipo">
+          <input id="patrocinadorTipo" name="patrocinadorTipo" class="input" [(ngModel)]="form.tipo" />
+        </app-campo>
+        <app-campo class="completo" etiqueta="Contacto (opcional)" para="patrocinadorContacto">
+          <input
+            id="patrocinadorContacto"
+            name="patrocinadorContacto"
+            class="input"
+            [(ngModel)]="form.contacto"
+          />
+        </app-campo>
+      }
+
+      <app-campo etiqueta="Tipo de aporte" para="tipoAporte" [error]="errores()['tipoAporte']">
+        <input
+          id="tipoAporte"
+          name="tipoAporte"
+          class="input"
+          [class.invalido]="errores()['tipoAporte']"
+          [attr.aria-invalid]="!!errores()['tipoAporte']"
+          [(ngModel)]="form.tipoAporte"
+        />
+      </app-campo>
+      <app-campo
+        etiqueta="Monto (COP)"
+        para="monto"
+        [error]="errores()['monto']"
+        ayuda="Si el aporte es en especie, escribe su valor estimado."
+      >
+        <input
+          id="monto"
+          name="monto"
+          type="number"
+          min="1"
+          class="input"
+          [class.invalido]="errores()['monto']"
+          [attr.aria-invalid]="!!errores()['monto']"
+          [(ngModel)]="form.monto"
+        />
+      </app-campo>
+
+      <div class="completo acciones-fila">
+        <button type="submit" class="btn btn-primary" [disabled]="enviando()">
+          {{ enviando() ? 'Guardando…' : form.idPatrocinio ? 'Guardar patrocinio' : 'Agregar patrocinio' }}
+        </button>
+        @if (form.idPatrocinio) {
+          <button type="button" class="btn btn-ghost" (click)="cancelarEdicion()">Cancelar</button>
+        }
+        <ng-content></ng-content>
+      </div>
+    </form>
+  }
+</section>
+
+<app-confirm-dialog
+  title="Eliminar patrocinio"
+  [message]="'Se eliminará el patrocinio de ' + nombrePatrocinador(eliminando()?.idPatrocinador ?? 0) + '.'"
+  confirmLabel="Eliminar"
+  [visible]="eliminando() != null"
+  (confirmed)="confirmarEliminacion()"
+  (cancelled)="eliminando.set(null)"
+></app-confirm-dialog>

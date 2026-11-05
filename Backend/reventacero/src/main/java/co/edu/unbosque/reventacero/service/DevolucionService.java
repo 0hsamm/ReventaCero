@@ -22,6 +22,7 @@ import co.edu.unbosque.reventacero.exception.RecursoNoEncontradoException;
 import co.edu.unbosque.reventacero.exception.ReglaNegocioException;
 import co.edu.unbosque.reventacero.repository.BoletaRepository;
 import co.edu.unbosque.reventacero.repository.DevolucionRepository;
+import co.edu.unbosque.reventacero.repository.SolicitudReventaRepository;
 import co.edu.unbosque.reventacero.repository.TipoEntradaRepository;
 import co.edu.unbosque.reventacero.repository.TransaccionRepository;
 import co.edu.unbosque.reventacero.util.Validaciones;
@@ -49,13 +50,16 @@ public class DevolucionService {
 	
 	private final NotificacionService notificacionService;
 
+	private final SolicitudReventaRepository solicitudRepo;
+
 	private final ModelMapper modelMapper;
-	
+
 
 	public DevolucionService(DevolucionRepository devolucionRepo, TransaccionRepository transaccionRepo,
 			BoletaRepository boletaRepo, TipoEntradaRepository tipoEntradaRepo, BoletaService boletaService,
 			UsuarioService usuarioService, DispositivoService dispositivoService,
-			TransaccionService transaccionService, NotificacionService notificacionService, ModelMapper modelMapper) {
+			TransaccionService transaccionService, NotificacionService notificacionService,
+			SolicitudReventaRepository solicitudRepo, ModelMapper modelMapper) {
 		this.devolucionRepo = devolucionRepo;
 		this.transaccionRepo = transaccionRepo;
 		this.boletaRepo = boletaRepo;
@@ -65,6 +69,7 @@ public class DevolucionService {
 		this.dispositivoService = dispositivoService;
 		this.transaccionService = transaccionService;
 		this.notificacionService = notificacionService;
+		this.solicitudRepo = solicitudRepo;
 		this.modelMapper = modelMapper;
 	}
 
@@ -121,6 +126,9 @@ public class DevolucionService {
 
 		transaccionRepo.save(devolucion);
 		devolucionRepo.save(devolucion);
+		// Una boleta devuelta ya no se puede transferir: su oferta pendiente deja de tener sentido
+		solicitudRepo.cancelarPendientesDeBoleta(boleta.getCodigoBoleta(), SolicitudReventaService.CANCELADA,
+				LocalDateTime.now());
 		notificacionService.notificarCupoLiberado(tipoEntrada.getIdTipoEntrada());
 
 		return aDTO(devolucion);

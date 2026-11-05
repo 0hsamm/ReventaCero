@@ -115,6 +115,23 @@ class RepositoriosJdbcTest {
     }
 
     @Test
+    void solicitudDeReventaTraeLosDatosQueVeElReceptor() throws Exception {
+        var precio = new BigDecimal("25000.50");
+        resultados.add(filas(List.of(Map.of("ID_SOLICITUD", 3L, "PRECIO", precio, "ESTADO", "PENDIENTE",
+                "CODIGO_BOLETA", 17L, "VENDEDOR_DOCUMENTO", 1001L, "COMPRADOR_DOCUMENTO", 1002L,
+                "NOMBRE_VENDEDOR", "Ana Prueba", "NOMBRE_FESTIVAL", "Fiesta",
+                "CATEGORIA_ENTRADA", "VIP", "NOMBRE_ZONA", "Sofa"))));
+        var solicitud = new SolicitudReventaRepository(jdbc).findById(3).orElseThrow();
+        assertEquals(precio, solicitud.getPrecio());
+        assertEquals("PENDIENTE", solicitud.getEstado());
+        assertEquals(1002, solicitud.getCompradorDocumento());
+        assertEquals("Ana Prueba", solicitud.getNombreVendedor());
+        assertEquals("Fiesta", solicitud.getNombreFestival());
+        assertEquals("VIP", solicitud.getCategoriaEntrada());
+        assertEquals("Sofa", solicitud.getNombreZona());
+    }
+
+    @Test
     void administradorCargaUsuarioTelefonosYRelacionOpcionalNula() throws Exception {
         resultados.add(filas(List.of(Map.of("DOCUMENTO", 1001L, "NOMBRE_USUARIO", "admin-ficticio",
                 "NOMBRES", "Ana", "APELLIDOS", "Prueba", "CORREO", "admin@example.test",

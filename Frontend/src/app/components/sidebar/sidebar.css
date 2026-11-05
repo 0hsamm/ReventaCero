@@ -144,6 +144,32 @@
   text-transform: uppercase;
 }
 
+.cambio-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-top: -12px;
+  padding: 4px;
+  background: var(--surface-2);
+  border-radius: var(--radius);
+}
+
+.cambio-panel a {
+  display: grid;
+  place-items: center;
+  min-height: 36px;
+  border-radius: var(--radius);
+  color: var(--text-2);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.cambio-panel a.activa {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 500;
+}
+
 .contador {
   margin-left: auto;
   padding: 0 7px;

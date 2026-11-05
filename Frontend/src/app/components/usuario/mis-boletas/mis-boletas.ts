@@ -9,13 +9,7 @@ import { AuthService } from '../../../services/auth.service';
 import { BoletaService } from '../../../services/boleta.service';
 import { ToastService } from '../../../services/toast.service';
 import { subirPanel } from '../../../utils/panel';
-import {
-  Errores,
-  esDocumento,
-  esVacio,
-  hayErrores,
-  mensajeError,
-} from '../../../utils/validaciones';
+import { Errores, esVacio, hayErrores, mensajeError } from '../../../utils/validaciones';
 import { CampoComponent } from '../../campo/campo';
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog';
 
@@ -52,7 +46,6 @@ export class MisBoletasComponent implements OnInit {
   protected pestana = signal<'vigentes' | 'pasadas'>('vigentes');
   private boletas = signal<BoletaDetalle[]>([]);
 
-  protected accion = signal<'revender' | 'devolver' | null>(null);
   protected seleccionada = signal<BoletaDetalle | null>(null);
   protected confirmandoDevolucion = signal(false);
   protected enviando = signal(false);
@@ -60,8 +53,6 @@ export class MisBoletasComponent implements OnInit {
   protected errores = signal<Errores>({});
   protected imprimiendo = signal<number | null>(null);
 
-  protected comprador = '';
-  protected precio: number | null = null;
   protected metodo = '';
   protected motivo = '';
 
@@ -99,13 +90,10 @@ export class MisBoletasComponent implements OnInit {
     });
   }
 
-  protected abrir(boleta: BoletaDetalle, accion: 'revender' | 'devolver'): void {
+  protected abrir(boleta: BoletaDetalle): void {
     this.seleccionada.set(boleta);
-    this.accion.set(accion);
     this.errores.set({});
     this.errorAccion.set('');
-    this.comprador = '';
-    this.precio = accion === 'revender' ? boleta.tipoEntrada.precioBase : null;
     this.metodo = '';
     this.motivo = '';
     subirPanel();
@@ -113,47 +101,6 @@ export class MisBoletasComponent implements OnInit {
 
   protected cerrar(): void {
     this.seleccionada.set(null);
-    this.accion.set(null);
-  }
-
-  protected revender(): void {
-    const boleta = this.seleccionada();
-    const errores: Errores = {};
-
-    if (boleta == null) {
-      return;
-    }
-
-    if (!esDocumento(this.comprador)) {
-      errores['comprador'] = 'Escribe el documento del comprador: de 5 a 15 dígitos';
-    } else if (Number(this.comprador) === this.documento) {
-      errores['comprador'] = 'No puedes revenderte la boleta a ti mismo';
-    }
-
-    if (this.precio == null || this.precio < 0) {
-      errores['precio'] = 'Escribe el precio de venta';
-    } else if (this.precio > boleta.tipoEntrada.precioTopeReventa) {
-      errores['precio'] = 'El precio no puede superar el tope de reventa';
-    }
-
-    if (esVacio(this.metodo)) {
-      errores['metodo'] = 'Selecciona un método de pago';
-    }
-
-    this.errores.set(errores);
-
-    if (hayErrores(errores) || this.enviando()) {
-      return;
-    }
-
-    this.enviando.set(true);
-
-    this.boletaService
-      .revender(boleta.codigoBoleta, Number(this.comprador), Number(this.precio), this.metodo)
-      .subscribe({
-        next: () => this.terminar('Boleta revendida'),
-        error: (err: HttpErrorResponse) => this.fallar(err, 'No se pudo revender la boleta'),
-      });
   }
 
   protected pedirDevolucion(): void {

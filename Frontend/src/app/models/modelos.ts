@@ -121,6 +121,21 @@ export interface Genero {
   idGeneroPrincipal: number | null;
 }
 
+export interface Patrocinador {
+  idPatrocinador: number;
+  nombre: string;
+  tipo: string;
+  contacto: string;
+}
+
+export interface Patrocinio {
+  idPatrocinio: number;
+  monto: number;
+  tipoAporte: string;
+  idFestival: number;
+  idPatrocinador: number;
+}
+
 export interface Boleta {
   codigoBoleta: number;
   fechaEmision: string;
@@ -158,6 +173,38 @@ export interface Transaccion {
 export interface ReventaAutorizada extends Transaccion {
   vendedorDocumento: number;
   compradorDocumento: number;
+}
+
+export type EstadoSolicitudReventa = 'PENDIENTE' | 'ACEPTADA' | 'RECHAZADA' | 'CANCELADA';
+
+export const ETIQUETA_ESTADO_SOLICITUD: Record<EstadoSolicitudReventa, string> = {
+  PENDIENTE: 'Esperando respuesta',
+  ACEPTADA: 'Aceptada',
+  RECHAZADA: 'Rechazada',
+  CANCELADA: 'Cancelada',
+};
+
+export const CLASE_ESTADO_SOLICITUD: Record<EstadoSolicitudReventa, string> = {
+  PENDIENTE: 'chip-neutro',
+  ACEPTADA: 'chip-ok',
+  RECHAZADA: 'chip-alerta',
+  CANCELADA: 'chip-neutro',
+};
+
+export interface SolicitudReventa {
+  idSolicitud: number;
+  fechaHora: string;
+  precio: number;
+  metodoPago: string;
+  estado: EstadoSolicitudReventa;
+  fechaRespuesta: string | null;
+  codigoBoleta: number;
+  vendedorDocumento: number;
+  compradorDocumento: number;
+  nombreVendedor: string;
+  nombreFestival: string;
+  categoriaEntrada: string;
+  nombreZona: string;
 }
 
 export interface Devolucion extends Transaccion {

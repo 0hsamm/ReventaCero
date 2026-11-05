@@ -8,8 +8,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,7 +18,10 @@ import co.edu.unbosque.reventacero.service.BoletaService;
 import co.edu.unbosque.reventacero.service.FestivalService;
 import co.edu.unbosque.reventacero.service.ReventaAutorizadaService;
 
-/** RF-15, RF-21; controlador de ReventaAutorizada de Fase 2, semana 12. */
+/**
+ * RF-15, RF-21; controlador de ReventaAutorizada de Fase 2, semana 12. Solo consulta: una reventa nace
+ * cuando el receptor acepta en SolicitudReventaController.
+ */
 @RestController
 @RequestMapping("/reventas-autorizadas")
 public class ReventaAutorizadaController {
@@ -83,14 +84,6 @@ public class ReventaAutorizadaController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No eres el organizador de este festival");
         }
         return ResponseEntity.ok(reventaAutorizadaService.listarPorFestival(idFestival));
-    }
-
-    @PostMapping
-    public ResponseEntity<?> revender(@RequestBody ReventaAutorizadaDTO dto, @AuthenticationPrincipal Usuario actual) {
-        if (!(puedeConsultarBoleta(dto.getCodigoBoleta(), actual))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("La boleta no pertenece a tu cuenta");
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(reventaAutorizadaService.revender(dto));
     }
 
     private boolean esAdministrador(Usuario actual) {

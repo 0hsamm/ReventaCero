@@ -53,6 +53,7 @@ import co.edu.unbosque.reventacero.service.*;
         VentaPrimariaController.class,
         DevolucionController.class,
         ReventaAutorizadaController.class,
+        SolicitudReventaController.class,
         ListaEsperaController.class,
         InscripcionController.class,
         NotificacionController.class,
@@ -85,6 +86,7 @@ class ControladoresIntegracionTest {
     @MockitoBean private VentaPrimariaService ventaPrimariaService;
     @MockitoBean private DevolucionService devolucionService;
     @MockitoBean private ReventaAutorizadaService reventaAutorizadaService;
+    @MockitoBean private SolicitudReventaService solicitudReventaService;
     @MockitoBean private ListaEsperaService listaEsperaService;
     @MockitoBean private InscripcionService inscripcionService;
     @MockitoBean private NotificacionService notificacionService;
@@ -117,7 +119,7 @@ class ControladoresIntegracionTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/administradores", "/organizadores", "/generos", "/artistas", "/patrocinadores", "/festivales", "/zonas", "/patrocinios", "/tipos-entrada", "/escenarios", "/presentaciones", "/dispositivos", "/ventas-primarias", "/devoluciones", "/reventas-autorizadas", "/listas-espera", "/inscripciones", "/controles-acceso/boleta/1"})
+    @ValueSource(strings = {"/administradores", "/organizadores", "/generos", "/artistas", "/patrocinadores", "/festivales", "/zonas", "/patrocinios", "/tipos-entrada", "/escenarios", "/presentaciones", "/dispositivos", "/ventas-primarias", "/devoluciones", "/listas-espera", "/inscripciones", "/controles-acceso/boleta/1"})
     void operacionesDeCreacionResponden201(String ruta) throws Exception {
         mvc.perform(post(ruta).with(user(administrador))
                 .contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isCreated());
@@ -204,9 +206,63 @@ class ControladoresIntegracionTest {
         var boleta = new BoletaDTO();
         boleta.setDocumentoComprador(99);
         when(boletaService.buscarPorCodigo(1)).thenReturn(boleta);
-        mvc.perform(post("/reventas-autorizadas").with(user(asistente)).contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/solicitudes-reventa").with(user(asistente)).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"codigoBoleta\":1}")).andExpect(status().isForbidden());
+        verify(solicitudReventaService, never()).crear(any(), anyLong());
+    }
+
+    @Test
+    void ofrecerUsaAlDuenoAutenticadoComoVendedor() throws Exception {
+        var boleta = new BoletaDTO();
+        boleta.setDocumentoComprador(asistente.getDocumento());
+        when(boletaService.buscarPorCodigo(1)).thenReturn(boleta);
+        mvc.perform(post("/solicitudes-reventa").with(user(asistente)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"codigoBoleta\":1,\"vendedorDocumento\":999}")).andExpect(status().isCreated());
+        verify(solicitudReventaService).crear(any(), org.mockito.ArgumentMatchers.eq(asistente.getDocumento()));
+    }
+
+    @Test
+    void noExisteLaReventaDirectaSinAceptacionDelReceptor() throws Exception {
+        mvc.perform(post("/reventas-autorizadas").with(user(administrador)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"codigoBoleta\":1}")).andExpect(status().is4xxClientError());
         verify(reventaAutorizadaService, never()).revender(any());
+    }
+
+    @Test
+    void soloElReceptorResponde() throws Exception {
+        var solicitud = new SolicitudReventaDTO();
+        solicitud.setCompradorDocumento(99);
+        solicitud.setVendedorDocumento(asistente.getDocumento());
+        when(solicitudReventaService.buscarPorId(1)).thenReturn(solicitud);
+        // Ni el vendedor ni un administrador pueden aceptar en nombre del receptor
+        for (var quien : List.of(asistente, administrador)) {
+            mvc.perform(put("/solicitudes-reventa/1/aceptar").with(user(quien)).contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"idDispositivo\":1}")).andExpect(status().isForbidden());
+            mvc.perform(put("/solicitudes-reventa/1/rechazar").with(user(quien))).andExpect(status().isForbidden());
+        }
+        verify(solicitudReventaService, never()).aceptar(anyLong(), anyLong());
+        verify(solicitudReventaService, never()).rechazar(anyLong());
+    }
+
+    @Test
+    void elReceptorAceptaYRechaza() throws Exception {
+        var solicitud = new SolicitudReventaDTO();
+        solicitud.setCompradorDocumento(asistente.getDocumento());
+        when(solicitudReventaService.buscarPorId(1)).thenReturn(solicitud);
+        mvc.perform(put("/solicitudes-reventa/1/aceptar").with(user(asistente)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"idDispositivo\":7}")).andExpect(status().isOk());
+        verify(solicitudReventaService).aceptar(1, 7);
+        mvc.perform(put("/solicitudes-reventa/1/rechazar").with(user(asistente))).andExpect(status().isOk());
+        verify(solicitudReventaService).rechazar(1);
+    }
+
+    @Test
+    void soloQuienOfrecioCancela() throws Exception {
+        var solicitud = new SolicitudReventaDTO();
+        solicitud.setVendedorDocumento(99);
+        when(solicitudReventaService.buscarPorId(1)).thenReturn(solicitud);
+        mvc.perform(put("/solicitudes-reventa/1/cancelar").with(user(asistente))).andExpect(status().isForbidden());
+        verify(solicitudReventaService, never()).cancelar(anyLong());
     }
 
     @Test

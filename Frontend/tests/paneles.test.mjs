@@ -6,8 +6,8 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { createEnvironmentInjector, runInInjectionContext } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
-import { firstValueFrom, of } from 'rxjs';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { Subject, firstValueFrom, of } from 'rxjs';
 import ts from 'typescript';
 
 // Transpila los módulos del frontend con sus dependencias reales de Angular.
@@ -34,6 +34,7 @@ registerHooks({
 const { AuthService } = await import('../src/app/services/auth.service.ts');
 const { ThemeService } = await import('../src/app/services/theme.service.ts');
 const { ListaEsperaService } = await import('../src/app/services/lista-espera.service.ts');
+const { SolicitudReventaService } = await import('../src/app/services/solicitud-reventa.service.ts');
 const { SidebarComponent } = await import('../src/app/components/sidebar/sidebar.ts');
 const { routes } = await import('../src/app/app.routes.ts');
 const { sesionDesdeToken } = await import('../src/app/utils/sesion.ts');
@@ -56,6 +57,7 @@ function token(rol, adicionales = {}) {
 function preparar(jwt, metadatos = {}, respuesta = {}, volver = null) {
   const datos = new Map(Object.entries(metadatos));
   const navegaciones = [];
+  const eventos = new Subject();
   if (jwt) datos.set('token', jwt);
   globalThis.localStorage = {
     getItem: (clave) => datos.get(clave) ?? null,
@@ -68,6 +70,8 @@ function preparar(jwt, metadatos = {}, respuesta = {}, volver = null) {
     {
       provide: Router,
       useValue: {
+        events: eventos,
+        url: '/',
         createUrlTree: (partes) => partes.join('/'),
         parseUrl: (ruta) => ruta,
         navigateByUrl: (ruta) => navegaciones.push(ruta),
@@ -76,10 +80,12 @@ function preparar(jwt, metadatos = {}, respuesta = {}, volver = null) {
     { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: { get: () => volver } } } },
     { provide: ThemeService, useValue: {} },
     { provide: ListaEsperaService, useValue: {} },
+    { provide: SolicitudReventaService, useValue: {} },
   ]);
   return {
     auth: injector.get(AuthService),
     datos,
+    eventos,
     navegaciones,
     ejecutar: (funcion) => runInInjectionContext(injector, funcion),
   };
@@ -109,9 +115,9 @@ test('el retorno de login rechaza direcciones externas', () => {
 
 // RF-10 y RF-18 a RF-22: navegación y menús acordes con los roles existentes.
 for (const [rol, inicio, secciones, cantidadOpciones] of [
-  ['ADMINISTRADOR', '/app/admin/dashboard', ['admin', 'gestion'], 6],
-  ['ORGANIZADOR', '/app/gestion/festivales', ['gestion'], 3],
-  ['USUARIO', '/app/usuario/boletas', ['usuario'], 3],
+  ['ADMINISTRADOR', '/app/admin/dashboard', ['admin', 'gestion'], 7],
+  ['ORGANIZADOR', '/app/gestion/festivales', ['gestion'], 4],
+  ['USUARIO', '/app/usuario/boletas', ['usuario', 'revendedor'], 3],
 ]) {
   test(`${rol}: inicio, menú y permisos de cada sección`, () => {
     const contexto = preparar(token(rol));
@@ -130,6 +136,30 @@ for (const [rol, inicio, secciones, cantidadOpciones] of [
     }
   });
 }
+
+test('USUARIO: pasa al panel de revendedor y lo conserva en las pantallas comunes', () => {
+  const contexto = preparar(token('USUARIO'));
+  const sidebar = contexto.ejecutar(() => new SidebarComponent());
+  const navegar = (url) => contexto.eventos.next(new NavigationEnd(1, url, url));
+  const secciones = () => sidebar.opciones().map((opcion) => opcion.ruta.split('/')[2]);
+
+  assert.equal(sidebar.rol(), 'Usuario');
+  navegar('/app/revendedor/boletas');
+  assert.equal(sidebar.rol(), 'Revendedor');
+  assert.deepEqual([...new Set(secciones())], ['revendedor']);
+  navegar('/app/perfil');
+  assert.equal(sidebar.rol(), 'Revendedor');
+  navegar('/app/usuario/boletas');
+  assert.equal(sidebar.rol(), 'Usuario');
+  assert.deepEqual([...new Set(secciones())], ['usuario']);
+});
+
+test('ORGANIZADOR: la ruta de revendedor no cambia su menú', () => {
+  const contexto = preparar(token('ORGANIZADOR'));
+  const sidebar = contexto.ejecutar(() => new SidebarComponent());
+  contexto.eventos.next(new NavigationEnd(1, '/app/revendedor', '/app/revendedor'));
+  assert.equal(sidebar.rol(), 'Organizador');
+});
 
 test('el token de administrador recupera el panel aunque los metadatos antiguos digan USUARIO', () => {
   const contexto = preparar(token('ADMINISTRADOR'), { tipoUsuario: 'USUARIO', documento: '999' });

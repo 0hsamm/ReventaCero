@@ -14,6 +14,7 @@ import { Errores, esVacio, hayErrores, mensajeError } from '../../../utils/valid
 import { CampoComponent } from '../../campo/campo';
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog';
 import { PaginacionComponent, TAMANO_PAGINA } from '../../paginacion/paginacion';
+import { PatrociniosFestivalComponent } from '../patrocinios-festival/patrocinios-festival';
 
 const VACIO: Partial<Festival> = {
   nombre: '',
@@ -35,6 +36,7 @@ const VACIO: Partial<Festival> = {
     CampoComponent,
     ConfirmDialogComponent,
     PaginacionComponent,
+    PatrociniosFestivalComponent,
   ],
   templateUrl: './festivales.html',
 })
@@ -60,6 +62,8 @@ export class GestionFestivalesComponent implements OnInit {
   protected errorForm = signal('');
   protected errores = signal<Errores>({});
   protected form: Partial<Festival> = { ...VACIO };
+  protected tienePatrocinadores: boolean | null = null;
+  protected festivalNuevo = signal<Festival | null>(null);
 
   private filtrados = computed(() => {
     const busqueda = this.busqueda().trim().toLowerCase();
@@ -137,10 +141,16 @@ export class GestionFestivalesComponent implements OnInit {
       : this.festivalService.crear(this.form);
 
     peticion.subscribe({
-      next: () => {
+      next: (festival) => {
         this.enviando.set(false);
         this.toastService.success(original ? 'Festival actualizado' : 'Festival creado');
         this.formularioAbierto.set(false);
+
+        if (!original && this.tienePatrocinadores) {
+          this.festivalNuevo.set(festival);
+          subirPanel();
+        }
+
         this.cargar();
       },
       error: (err: HttpErrorResponse) => {
@@ -171,6 +181,8 @@ export class GestionFestivalesComponent implements OnInit {
 
   private abrir(form: Partial<Festival>, festival: Festival | null): void {
     this.form = form;
+    this.tienePatrocinadores = null;
+    this.festivalNuevo.set(null);
     this.editando.set(festival);
     this.errores.set({});
     this.errorForm.set('');
@@ -215,6 +227,10 @@ export class GestionFestivalesComponent implements OnInit {
 
     if (this.esAdmin() && !formulario.documentoOrganizador) {
       errores['documentoOrganizador'] = 'Selecciona el organizador';
+    }
+
+    if (!this.editando() && this.tienePatrocinadores == null) {
+      errores['tienePatrocinadores'] = 'Indica si el festival tiene patrocinadores';
     }
 
     return errores;
