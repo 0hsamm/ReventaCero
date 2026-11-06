@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import co.edu.unbosque.reventacero.entity.Usuario;
 import co.edu.unbosque.reventacero.enums.TipoUsuario;
 import co.edu.unbosque.reventacero.repository.UsuarioRepository;
+import co.edu.unbosque.reventacero.service.CorreoService;
 import co.edu.unbosque.reventacero.service.FestivalService;
 
 /**
@@ -56,6 +57,9 @@ class SeguridadIntegracionTest {
 
 	@MockitoBean
 	private FestivalService festivalService;
+
+	@MockitoBean
+	private CorreoService correoService;
 
 	private Usuario usuarioNormal;
 
@@ -163,6 +167,40 @@ class SeguridadIntegracionTest {
 	void usuarioNormalNoPuedeCrearFestivales() throws Exception {
 		mockMvc.perform(post("/festivales").header("Authorization", bearer(usuarioNormal)))
 				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	void loginDeCuentaSinVerificarDevuelve403() throws Exception {
+		Usuario pendiente = crearUsuario(4L, "pendiente", "pendiente@correo.com", TipoUsuario.USUARIO);
+		pendiente.setEstadoCuenta("PENDIENTE");
+		when(usuarioRepository.findByNombreUsuario("pendiente")).thenReturn(Optional.of(pendiente));
+
+		mockMvc.perform(post("/auth/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"nombreUsuario\":\"pendiente\",\"contrasenia\":\"claveSegura1\"}"))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	void elTokenDeVerificacionNoSirveParaAutenticarse() throws Exception {
+		String tokenVerificacion = jwtUtil.generarTokenVerificacion(usuarioNormal, 24);
+		when(usuarioRepository.findByCorreo("1")).thenReturn(Optional.of(usuarioNormal));
+
+		mockMvc.perform(get("/boletas/comprador/1").header("Authorization", "Bearer " + tokenVerificacion))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void verificarCorreoYReenviarSonPublicos() throws Exception {
+		mockMvc.perform(post("/auth/verificar-correo")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"token\":\"enlace-falso\"}"))
+				.andExpect(status().isBadRequest());
+
+		mockMvc.perform(post("/auth/reenviar-verificacion")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"usuario\":\"nadie@correo.com\"}"))
+				.andExpect(status().isOk());
 	}
 
 }

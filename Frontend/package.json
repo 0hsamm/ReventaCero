@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:paneles": "node --test tests/paneles.test.mjs"
   },
   "private": true,
   "packageManager": "npm@11.11.0",

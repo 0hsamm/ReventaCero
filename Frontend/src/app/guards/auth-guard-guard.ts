@@ -8,7 +8,7 @@ export const authGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  return authService.sesion() ? true : router.createUrlTree(['/acceso']);
+  return authService.validarSesion() ? true : router.createUrlTree(['/acceso']);
 };
 
 // Cada rol solo entra a sus paneles: si intenta otro, vuelve al suyo.
@@ -16,7 +16,7 @@ export function rolGuard(...roles: TipoUsuario[]): CanActivateFn {
   return () => {
     const authService = inject(AuthService);
     const router = inject(Router);
-    const sesion = authService.sesion();
+    const sesion = authService.validarSesion();
 
     if (sesion == null) {
       return router.createUrlTree(['/acceso']);

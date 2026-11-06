@@ -121,6 +121,21 @@ export interface Genero {
   idGeneroPrincipal: number | null;
 }
 
+export interface Patrocinador {
+  idPatrocinador: number;
+  nombre: string;
+  tipo: string;
+  contacto: string;
+}
+
+export interface Patrocinio {
+  idPatrocinio: number;
+  monto: number;
+  tipoAporte: string;
+  idFestival: number;
+  idPatrocinador: number;
+}
+
 export interface Boleta {
   codigoBoleta: number;
   fechaEmision: string;
@@ -158,6 +173,21 @@ export interface Transaccion {
 export interface ReventaAutorizada extends Transaccion {
   vendedorDocumento: number;
   compradorDocumento: number;
+}
+
+export interface PublicacionReventa {
+  /** Identifica la boleta en venta sin revelar su código; cambia cuando la boleta se vende. */
+  referencia: number;
+  precio: number;
+  codigoBoleta: number;
+  vendedorDocumento: number;
+  idFestival: number;
+  nombreFestival: string;
+  ciudad: string;
+  fechaInicio: string;
+  fechaFin: string;
+  categoriaEntrada: string;
+  nombreZona: string;
 }
 
 export interface Devolucion extends Transaccion {

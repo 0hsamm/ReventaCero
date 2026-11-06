@@ -31,6 +31,7 @@ import co.edu.unbosque.reventacero.exception.RecursoNoEncontradoException;
 import co.edu.unbosque.reventacero.exception.ReglaNegocioException;
 import co.edu.unbosque.reventacero.security.JwtAuthenticationFilter;
 import co.edu.unbosque.reventacero.security.JwtUtil;
+import co.edu.unbosque.reventacero.service.BoletaQrService;
 import co.edu.unbosque.reventacero.security.SecurityConfig;
 import co.edu.unbosque.reventacero.service.*;
 
@@ -53,6 +54,7 @@ import co.edu.unbosque.reventacero.service.*;
         VentaPrimariaController.class,
         DevolucionController.class,
         ReventaAutorizadaController.class,
+        PublicacionReventaController.class,
         ListaEsperaController.class,
         InscripcionController.class,
         NotificacionController.class,
@@ -81,10 +83,12 @@ class ControladoresIntegracionTest {
     @MockitoBean private UsuarioService usuarioService;
     @MockitoBean private DispositivoService dispositivoService;
     @MockitoBean private BoletaService boletaService;
+    @MockitoBean private BoletaQrService boletaQrService;
     @MockitoBean private TransaccionService transaccionService;
     @MockitoBean private VentaPrimariaService ventaPrimariaService;
     @MockitoBean private DevolucionService devolucionService;
     @MockitoBean private ReventaAutorizadaService reventaAutorizadaService;
+    @MockitoBean private PublicacionReventaService publicacionReventaService;
     @MockitoBean private ListaEsperaService listaEsperaService;
     @MockitoBean private InscripcionService inscripcionService;
     @MockitoBean private NotificacionService notificacionService;
@@ -117,7 +121,7 @@ class ControladoresIntegracionTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/administradores", "/organizadores", "/generos", "/artistas", "/patrocinadores", "/festivales", "/zonas", "/patrocinios", "/tipos-entrada", "/escenarios", "/presentaciones", "/dispositivos", "/ventas-primarias", "/devoluciones", "/reventas-autorizadas", "/listas-espera", "/inscripciones", "/controles-acceso/boleta/1"})
+    @ValueSource(strings = {"/administradores", "/organizadores", "/generos", "/artistas", "/patrocinadores", "/festivales", "/zonas", "/patrocinios", "/tipos-entrada", "/escenarios", "/presentaciones", "/dispositivos", "/ventas-primarias", "/devoluciones", "/listas-espera", "/inscripciones", "/controles-acceso/boleta/1"})
     void operacionesDeCreacionResponden201(String ruta) throws Exception {
         mvc.perform(post(ruta).with(user(administrador))
                 .contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isCreated());
@@ -204,9 +208,49 @@ class ControladoresIntegracionTest {
         var boleta = new BoletaDTO();
         boleta.setDocumentoComprador(99);
         when(boletaService.buscarPorCodigo(1)).thenReturn(boleta);
-        mvc.perform(post("/reventas-autorizadas").with(user(asistente)).contentType(MediaType.APPLICATION_JSON)
-                .content("{\"codigoBoleta\":1}")).andExpect(status().isForbidden());
+        mvc.perform(post("/publicaciones-reventa").with(user(asistente)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"codigoBoleta\":1,\"precio\":10}")).andExpect(status().isForbidden());
+        verify(publicacionReventaService, never()).publicar(anyLong(), any());
+    }
+
+    @Test
+    void elDuenoPublicaSuBoleta() throws Exception {
+        var boleta = new BoletaDTO();
+        boleta.setDocumentoComprador(asistente.getDocumento());
+        when(boletaService.buscarPorCodigo(1)).thenReturn(boleta);
+        mvc.perform(post("/publicaciones-reventa").with(user(asistente)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"codigoBoleta\":1,\"precio\":10}")).andExpect(status().isCreated());
+        verify(publicacionReventaService).publicar(1, new java.math.BigDecimal("10"));
+    }
+
+    @Test
+    void noExisteLaReventaDirectaSinCompradorQueLaCompre() throws Exception {
+        mvc.perform(post("/reventas-autorizadas").with(user(administrador)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"codigoBoleta\":1}")).andExpect(status().is4xxClientError());
         verify(reventaAutorizadaService, never()).revender(any());
+    }
+
+    @Test
+    void compraUnaPublicacionConLaCuentaAutenticada() throws Exception {
+        mvc.perform(put("/publicaciones-reventa/40/comprar").with(user(asistente)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"idDispositivo\":7,\"metodoPago\":\"PSE\"}")).andExpect(status().isNoContent());
+        verify(publicacionReventaService).comprar(40, asistente.getDocumento(), 7, "PSE");
+    }
+
+    @Test
+    void soloElUsuarioNormalCompraReventas() throws Exception {
+        mvc.perform(put("/publicaciones-reventa/40/comprar").with(user(organizador)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"idDispositivo\":7,\"metodoPago\":\"PSE\"}")).andExpect(status().isForbidden());
+        verify(publicacionReventaService, never()).comprar(anyLong(), anyLong(), anyLong(), any());
+    }
+
+    @Test
+    void soloElDuenoRetiraSuPublicacion() throws Exception {
+        var boleta = new BoletaDTO();
+        boleta.setDocumentoComprador(99);
+        when(boletaService.buscarPorCodigo(1)).thenReturn(boleta);
+        mvc.perform(put("/publicaciones-reventa/boleta/1/retirar").with(user(asistente))).andExpect(status().isForbidden());
+        verify(publicacionReventaService, never()).retirar(anyLong());
     }
 
     @Test
@@ -339,6 +383,72 @@ class ControladoresIntegracionTest {
                 .content("{}"))
                 .andExpect(status().isConflict())
                 .andExpect(content().string("La operacion entra en conflicto con los datos existentes"));
+    }
+
+    @Test
+    void elDuenoObtieneElQrDeSuBoletaComoSvgYTexto() throws Exception {
+        var boleta = new BoletaDTO();
+        boleta.setDocumentoComprador(asistente.getDocumento());
+        when(boletaService.buscarPorCodigo(7)).thenReturn(boleta);
+        when(boletaQrService.svg(7)).thenReturn("<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>");
+        when(boletaQrService.contenido(7)).thenReturn("Número de boleta: 7");
+
+        mvc.perform(get("/boletas/7/qr").with(user(asistente)))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", org.hamcrest.Matchers.startsWith("image/svg+xml")))
+                .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("no-store")));
+        mvc.perform(get("/boletas/7/qr/texto").with(user(asistente)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Número de boleta: 7"));
+    }
+
+    @Test
+    void elQrDeUnaBoletaAjenaEsRechazado() throws Exception {
+        var boleta = new BoletaDTO();
+        boleta.setDocumentoComprador(99);
+        when(boletaService.buscarPorCodigo(7)).thenReturn(boleta);
+
+        mvc.perform(get("/boletas/7/qr").with(user(asistente))).andExpect(status().isForbidden());
+        mvc.perform(get("/boletas/7/qr/texto").with(user(asistente))).andExpect(status().isForbidden());
+        verify(boletaQrService, never()).svg(anyLong());
+        verify(boletaQrService, never()).contenido(anyLong());
+    }
+
+    @Test
+    void elAdministradorPuedeVerElQrDeCualquierBoleta() throws Exception {
+        var boleta = new BoletaDTO();
+        boleta.setDocumentoComprador(99);
+        when(boletaService.buscarPorCodigo(7)).thenReturn(boleta);
+        when(boletaQrService.svg(7)).thenReturn("<svg></svg>");
+
+        mvc.perform(get("/boletas/7/qr").with(user(administrador))).andExpect(status().isOk());
+    }
+
+    @Test
+    void elCatalogoDeBoletasEsPublicoPeroSuGestionNo() throws Exception {
+        mvc.perform(get("/zonas/festival/1")).andExpect(status().isOk());
+        mvc.perform(get("/zonas/1/aforo-disponible")).andExpect(status().isOk());
+        mvc.perform(get("/tipos-entrada")).andExpect(status().isOk());
+        mvc.perform(post("/zonas").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(post("/tipos-entrada").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(get("/boletas/7/qr")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void elListadoDeReventasEsPublicoPeroComprarYVerLasPropiasNo() throws Exception {
+        mvc.perform(get("/publicaciones-reventa")).andExpect(status().isOk());
+        verify(publicacionReventaService).disponibles(0);
+        mvc.perform(get("/publicaciones-reventa/mias")).andExpect(status().isUnauthorized());
+        mvc.perform(put("/publicaciones-reventa/1/comprar").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"idDispositivo\":1,\"metodoPago\":\"PSE\"}")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void conSesionElListadoDeReventasExcluyeLasDelPropioUsuario() throws Exception {
+        mvc.perform(get("/publicaciones-reventa").with(user(asistente))).andExpect(status().isOk());
+        verify(publicacionReventaService).disponibles(asistente.getDocumento());
     }
 
     private Usuario usuario(long documento, TipoUsuario rol) {

@@ -78,25 +78,6 @@ export class BoletaService {
     );
   }
 
-  revender(
-    codigoBoleta: number,
-    compradorDocumento: number,
-    precio: number,
-    metodoPago: string,
-  ): Observable<ReventaAutorizada> {
-    return this.dispositivoActivo().pipe(
-      switchMap((dispositivo) =>
-        this.http.post<ReventaAutorizada>(`${this.api}/reventas-autorizadas`, {
-          codigoBoleta,
-          compradorDocumento,
-          precio,
-          metodoPago,
-          idDispositivo: dispositivo.idDispositivo,
-        }),
-      ),
-    );
-  }
-
   devolver(codigoBoleta: number, motivo: string, metodoPago: string): Observable<Devolucion> {
     return this.dispositivoActivo().pipe(
       switchMap((dispositivo) =>
@@ -109,6 +90,14 @@ export class BoletaService {
         }),
       ),
     );
+  }
+
+  qr(codigoBoleta: number): Observable<Blob> {
+    return this.http.get(`${this.api}/boletas/${codigoBoleta}/qr`, { responseType: 'blob' });
+  }
+
+  qrTexto(codigoBoleta: number): Observable<string> {
+    return this.http.get(`${this.api}/boletas/${codigoBoleta}/qr/texto`, { responseType: 'text' });
   }
 
   transaccionesDeBoleta(codigoBoleta: number): Observable<Transaccion[]> {
@@ -138,7 +127,7 @@ export class BoletaService {
   }
 
   // El backend exige un dispositivo activo para toda transacción: este navegador se registra solo.
-  private dispositivoActivo(): Observable<Dispositivo> {
+  dispositivoActivo(): Observable<Dispositivo> {
     return this.dispositivos().pipe(
       switchMap((lista) => {
         const activo = lista.find((dispositivo) => dispositivo.activo);

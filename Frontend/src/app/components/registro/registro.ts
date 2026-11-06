@@ -5,7 +5,6 @@ import { Router, RouterLink } from '@angular/router';
 
 import { hoyIso } from '../../models/modelos';
 import { AuthService } from '../../services/auth.service';
-import { ThemeService } from '../../services/theme.service';
 import { ToastService } from '../../services/toast.service';
 import {
   Errores,
@@ -19,21 +18,20 @@ import {
   mensajeError,
   tieneLetras,
 } from '../../utils/validaciones';
+import { AuthShellComponent } from '../auth-shell/auth-shell';
 import { CampoComponent } from '../campo/campo';
 
 // El registro público solo crea cuentas de usuario: el backend crea a organizadores y
 // administradores desde el panel de administración.
 @Component({
   selector: 'app-registro',
-  imports: [FormsModule, RouterLink, CampoComponent],
+  imports: [FormsModule, RouterLink, CampoComponent, AuthShellComponent],
   templateUrl: './registro.html',
-  styleUrl: '../login/login.css',
 })
 export class RegistroComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private toastService = inject(ToastService);
-  protected themeService = inject(ThemeService);
 
   protected readonly longitudMinima = LONGITUD_MINIMA_CONTRASENIA;
   protected readonly hoy = hoyIso();
@@ -82,10 +80,12 @@ export class RegistroComponent implements OnInit {
         telefono: this.telefono.trim() ? [limpiarTelefono(this.telefono)] : [],
       })
       .subscribe({
-        next: () => {
+        next: (mensaje) => {
           this.cargando.set(false);
-          this.toastService.success('Cuenta creada', 'Ya puedes iniciar sesión.');
-          this.router.navigate(['/acceso']);
+          this.toastService.success('Cuenta creada', 'Verifica tu correo para activarla.');
+          this.router.navigate(['/verificar-correo'], {
+            state: { usuario: this.correo.trim(), aviso: mensaje },
+          });
         },
         error: (err: HttpErrorResponse) => {
           this.cargando.set(false);

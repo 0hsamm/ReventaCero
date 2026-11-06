@@ -1,0 +1,63 @@
+<app-auth-shell
+  etiqueta="Verificación"
+  lineaNeon="Un correo"
+  lineaHueca="cero bots"
+  grafiti="¡Casi listo!"
+  texto="Verificamos cada correo antes de activar la cuenta. Así las boletas llegan a personas reales y no a revendedores automáticos."
+  paso="Último paso · Activación"
+  [tituloTarjeta]="titulo()"
+>
+  <div aria-live="polite">
+    @switch (estado()) {
+      @case ('verificando') {
+        <div class="esqueleto" style="height: 58px"></div>
+      }
+
+      @case ('verificada') {
+        <span class="auth-sello" aria-hidden="true"><i class="pi pi-check"></i></span>
+        <p class="auth-parrafo">{{ mensaje() }}</p>
+        <a class="btn btn-primary auth-enviar" routerLink="/acceso">Iniciar sesión →</a>
+      }
+
+      @default {
+        @if (estado() === 'error') {
+          <span class="auth-sello auth-sello-error" aria-hidden="true"><i class="pi pi-times"></i></span>
+          <div class="auth-error" role="alert">{{ mensaje() }}</div>
+        } @else {
+          <span class="auth-sello" aria-hidden="true"><i class="pi pi-envelope"></i></span>
+          @if (aviso()) {
+            <p class="auth-aviso">{{ aviso() }}</p>
+          }
+          <p class="auth-parrafo">
+            Para activar tu cuenta abre el enlace que te enviamos. Si no lo ves en unos minutos,
+            revisa la carpeta de spam o pide uno nuevo.
+          </p>
+        }
+
+        <form class="auth-formulario" novalidate (ngSubmit)="reenviar()">
+          <app-campo etiqueta="Correo o nombre de usuario" para="usuario" [error]="errorReenvio()">
+            <input
+              id="usuario"
+              name="usuario"
+              class="input"
+              autocomplete="username"
+              [class.invalido]="errorReenvio()"
+              [attr.aria-invalid]="!!errorReenvio()"
+              [(ngModel)]="usuario"
+            />
+          </app-campo>
+
+          @if (respuestaReenvio()) {
+            <p class="auth-aviso" role="status">{{ respuestaReenvio() }}</p>
+          }
+
+          <button type="submit" class="btn btn-primary auth-enviar" [disabled]="enviando()">
+            {{ enviando() ? 'Enviando…' : 'Enviar un nuevo enlace' }}
+          </button>
+        </form>
+      }
+    }
+  </div>
+
+  <p pie class="auth-pie-texto">¿Ya la verificaste?<a routerLink="/acceso">Inicia sesión</a></p>
+</app-auth-shell>

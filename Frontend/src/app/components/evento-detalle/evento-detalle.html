@@ -1,48 +1,136 @@
 @if (cargando()) {
-  <main class="detalle"><div class="esqueleto" style="height: 400px"></div></main>
+  <main class="compra">
+    <div class="esqueleto" style="height: 520px"></div>
+  </main>
 } @else if (festival(); as f) {
-  <main class="detalle">
-    <div>
-      <a class="volver" routerLink="/eventos">← Todos los festivales</a>
+  <main class="compra">
+    <section class="hero" aria-labelledby="titulo-festival">
+      <img class="hero-fondo" [src]="cartelFestival(f.idFestival)" alt="" />
+      <span class="cinta cinta-a" aria-hidden="true"></span>
+      <span class="cinta cinta-b" aria-hidden="true"></span>
 
-      <div class="portada"><img [src]="cartelFestival(f.idFestival)" alt="" /></div>
+      <div class="hero-contenido">
+        <div class="hero-barra">
+          <a class="volver-hero" routerLink="/eventos">← Todos los festivales</a>
+          <span class="etiqueta-estado" [attr.data-estado]="estadoFestival(f)">
+            {{ etiquetaEstado[estadoFestival(f)] }}
+          </span>
+        </div>
 
-      <span class="chip chip-neutro">{{ etiquetaEstado[estadoFestival(f)] }}</span>
-      <h1 class="titulo-seccion">{{ f.nombre }}</h1>
+        <p class="hero-sobre">Edición {{ f.edicion }} · Boletas oficiales</p>
+        <h1 id="titulo-festival" class="hero-titulo">
+          <span class="neon">{{ f.nombre }}</span>
+          <span class="hueco">Boletas</span>
+        </h1>
 
-      <div class="datos">
-        <span>Edición {{ f.edicion }}</span>
-        <span>{{ f.fechaInicio | date: 'd MMM y' }} – {{ f.fechaFin | date: 'd MMM y' }}</span>
-        <span>
+        <ul class="hero-datos">
+          <li>
+            <small>Fechas</small>
+            {{ f.fechaInicio | date: 'd MMM' }} – {{ f.fechaFin | date: 'd MMM y' }}
+          </li>
+          <li>
+            <small>Ciudad</small>
+            {{ f.ubicacionCiudad }}, {{ f.ubicacionPais }}
+          </li>
           @if (f.ubicacionDireccion) {
-            {{ f.ubicacionDireccion }},
+            <li>
+              <small>Lugar</small>
+              {{ f.ubicacionDireccion }}
+            </li>
           }
-          {{ f.ubicacionCiudad }}, {{ f.ubicacionPais }}
-        </span>
+        </ul>
+      </div>
+    </section>
+    <section class="bloque" aria-labelledby="titulo-boletas">
+      <h2 id="titulo-boletas" class="titulo-bloque">Compra tu boleta</h2>
+
+      <div class="pestanas" role="tablist" aria-label="Tipo de boletas" (keydown)="moverPestana($event)">
+        <button
+          type="button"
+          role="tab"
+          id="pestana-oficial"
+          class="pestana"
+          aria-controls="panel-oficial"
+          [class.activa]="pestana() === 'oficial'"
+          [attr.aria-selected]="pestana() === 'oficial'"
+          [attr.tabindex]="pestana() === 'oficial' ? 0 : -1"
+          (click)="cambiarPestana('oficial')"
+        >
+          <span class="pestana-numero">01</span>
+          <span class="pestana-texto">
+            <strong>Boletas Disponibles</strong>
+            <small>Venta oficial del organizador</small>
+          </span>
+          <span class="pestana-conteo">{{ cargandoBoletas() ? '…' : opciones().length }}</span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          id="pestana-reventa"
+          class="pestana pestana-reventa"
+          aria-controls="panel-reventa"
+          [class.activa]="pestana() === 'reventa'"
+          [attr.aria-selected]="pestana() === 'reventa'"
+          [attr.tabindex]="pestana() === 'reventa' ? 0 : -1"
+          (click)="cambiarPestana('reventa')"
+        >
+          <span class="pestana-numero">02</span>
+          <span class="pestana-texto">
+            <strong>Boletas en Reventa</strong>
+            <small>Publicadas por otros asistentes</small>
+          </span>
+          <span class="pestana-conteo">{{ cantidadReventa() ?? '…' }}</span>
+        </button>
       </div>
 
-      @if (sesion()) {
-        <h2>Boletas</h2>
+      <div
+        id="panel-reventa"
+        role="tabpanel"
+        aria-labelledby="pestana-reventa"
+        class="panel-pestana"
+        [hidden]="pestana() !== 'reventa'"
+      >
+        <app-reventas-festival
+          [idFestival]="f.idFestival"
+          [finalizado]="finalizado()"
+          (cantidad)="cantidadReventa.set($event)"
+        />
+      </div>
 
-        @if (errorDetalle()) {
-          <p class="error-general" role="alert">{{ errorDetalle() }}</p>
-        } @else if (opciones().length === 0) {
-          <p class="nota">Este festival todavía no tiene boletas publicadas.</p>
-        } @else {
-          <div class="zonas" role="group" aria-label="Boleta">
-            @for (opcion of opciones(); track opcion.tipo.idTipoEntrada) {
+      <div
+        id="panel-oficial"
+        role="tabpanel"
+        aria-labelledby="pestana-oficial"
+        class="panel-pestana"
+        [hidden]="pestana() !== 'oficial'"
+      >
+      @if (cargandoBoletas()) {
+        <div class="tickets" aria-label="Cargando boletas">
+          <div class="esqueleto" style="height: 188px"></div>
+          <div class="esqueleto" style="height: 188px"></div>
+        </div>
+      } @else if (errorDetalle()) {
+        <p class="error-general" role="alert">{{ errorDetalle() }}</p>
+      } @else if (opciones().length === 0) {
+        <p class="vacio">Este festival todavía no tiene boletas publicadas.</p>
+      } @else {
+        <div class="tickets" role="group" aria-label="Elige tu boleta">
+          @for (opcion of opciones(); track opcion.tipo.idTipoEntrada; let i = $index) {
+            <div class="ticket-celda">
               <button
                 type="button"
-                class="zona"
+                class="ticket"
                 [class.elegida]="elegida()?.tipo?.idTipoEntrada === opcion.tipo.idTipoEntrada"
+                [class.agotada]="opcion.disponibles === 0"
                 [attr.aria-pressed]="elegida()?.tipo?.idTipoEntrada === opcion.tipo.idTipoEntrada"
-                [disabled]="opcion.disponibles === 0"
+                [disabled]="opcion.disponibles === 0 || finalizado()"
                 (click)="elegir(opcion)"
               >
-                <span>
-                  <strong>{{ opcion.zona.nombre }} · {{ opcion.tipo.categoria }}</strong>
-                  <small>
-                    Tope de reventa:
+                <span class="ticket-cuerpo">
+                  <span class="ticket-zona">{{ opcion.zona.nombre }} · {{ opcion.zona.tipoZona }}</span>
+                  <strong class="ticket-categoria">{{ opcion.tipo.categoria }}</strong>
+                  <span class="ticket-detalle">
+                    Tope de reventa
                     {{ opcion.tipo.precioTopeReventa | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}
                     ·
                     @if (opcion.disponibles === 0) {
@@ -50,12 +138,31 @@
                     } @else {
                       {{ opcion.disponibles | number }} disponibles
                     }
-                  </small>
+                  </span>
+                  <span class="ticket-pie">
+                    <span class="ticket-precio">
+                      {{ opcion.tipo.precioBase | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}
+                    </span>
+                    <span class="ticket-accion" aria-hidden="true">
+                      @if (elegida()?.tipo?.idTipoEntrada === opcion.tipo.idTipoEntrada) {
+                        Elegida ✓
+                      } @else if (opcion.disponibles === 0) {
+                        Agotada
+                      } @else {
+                        Elegir
+                      }
+                    </span>
+                  </span>
                 </span>
-                <span class="precio">
-                  {{ opcion.tipo.precioBase | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}
+                <span class="ticket-talon" aria-hidden="true">
+                  <span class="codigo-barras"></span>
+                  <span class="ticket-numero">N° {{ numeroTalon(i) }}</span>
                 </span>
+                @if (opcion.disponibles === 0) {
+                  <span class="sello-agotada" aria-hidden="true">Agotada</span>
+                }
               </button>
+
               @if (opcion.disponibles === 0 && esUsuario() && !finalizado()) {
                 <button
                   type="button"
@@ -65,117 +172,161 @@
                   Unirme a la lista de espera
                 </button>
               }
-            }
-          </div>
-          @if (errorOpcion()) {
-            <p class="field-error" role="alert">{{ errorOpcion() }}</p>
+            </div>
           }
-        }
-
-        <h2>Cartel</h2>
-        @if (cartel().length) {
-          <table class="tabla">
-            <tbody>
-              @for (item of cartel(); track item.idPresentacion) {
-                <tr>
-                  <td class="sin-salto">{{ item.horaInicio | date: 'd MMM, HH:mm' }}</td>
-                  <td>{{ item.artista }}</td>
-                  <td>Escenario {{ item.nombreEscenario }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        } @else {
-          <p class="nota">El cartel todavía no está publicado.</p>
+        </div>
+        @if (errorOpcion()) {
+          <p class="field-error centrado" role="alert">{{ errorOpcion() }}</p>
         }
       }
-    </div>
+      </div>
+    </section>
+    <section
+      #seccionPago
+      class="bloque pago"
+      aria-labelledby="titulo-pago"
+      [hidden]="pestana() !== 'oficial'"
+    >
+      <h2 id="titulo-pago" class="titulo-bloque">Método de pago</h2>
 
-    <aside class="resumen" aria-labelledby="titulo-resumen">
-      <h2 id="titulo-resumen">Resumen de la orden</h2>
-
-      @if (sesion() == null) {
-        <p class="nota">Inicia sesión para ver las boletas, sus precios y el cartel.</p>
-        <button type="button" class="btn btn-primary comprar" (click)="irAIngresar()">
-          Iniciar sesión
-        </button>
-      } @else if (finalizado()) {
-        <p class="error-general" role="status">Este festival ya finalizó.</p>
-      } @else if (!esUsuario()) {
-        <p class="nota">Solo una cuenta de usuario puede comprar boletas.</p>
-      } @else if (opciones().length === 0) {
-        <p class="nota">Podrás comprar cuando este festival publique sus boletas.</p>
-      } @else {
-        <form novalidate (ngSubmit)="comprar()">
-          <div class="field">
-            <span class="field-label" id="etiqueta-cantidad">Cantidad</span>
-            <div class="cantidad" role="group" aria-labelledby="etiqueta-cantidad">
-              <button
-                type="button"
-                class="btn btn-ghost"
-                aria-label="Quitar una boleta"
-                (click)="cambiarCantidad(-1)"
-              >
-                −
-              </button>
-              <output>{{ cantidad() }}</output>
-              <button
-                type="button"
-                class="btn btn-ghost"
-                aria-label="Agregar una boleta"
-                (click)="cambiarCantidad(1)"
-              >
-                +
-              </button>
-            </div>
+      <div class="pago-grid">
+        <div class="collage" aria-hidden="true">
+          <span class="grafiti">¡Reventas autorizadas!</span>
+          <div class="foto">
+            <img [src]="cartelFestival(f.idFestival)" alt="" />
+            <span class="cinta-foto cinta-foto-a"></span>
+            <span class="cinta-foto cinta-foto-b"></span>
           </div>
+          <span class="grafiti grafiti-b">Precio justo</span>
+        </div>
 
-          <app-campo etiqueta="Método de pago" para="metodo" [error]="errorMetodo()">
-            <select
-              id="metodo"
-              name="metodo"
-              class="input"
-              [class.invalido]="errorMetodo()"
-              [attr.aria-invalid]="!!errorMetodo()"
-              [(ngModel)]="metodo"
-            >
-              <option value="">Selecciona</option>
-              @for (item of metodos; track item) {
-                <option>{{ item }}</option>
-              }
-            </select>
-          </app-campo>
+        <div class="pago-lado">
+          <p class="declaracion">
+            Paga <span class="resaltado-neon">en línea</span> con PSE o tarjeta. Tu boleta llega al
+            instante a <span class="resaltado-neon">Mis boletas</span> con su código QR.
+          </p>
 
-          <dl class="lineas">
-            <div>
-              <dt>Boleta</dt>
-              <dd>
-                @if (elegida(); as opcion) {
-                  {{ opcion.zona.nombre }} · {{ opcion.tipo.categoria }}
-                } @else {
-                  Sin seleccionar
+          @if (sesion() == null) {
+            <p class="nota">Inicia sesión para comprar.</p>
+            <button type="button" class="btn btn-primary comprar" (click)="irAIngresar()">
+              Iniciar sesión
+            </button>
+          } @else if (finalizado()) {
+            <p class="error-general" role="status">Este festival ya finalizó.</p>
+          } @else if (!esUsuario()) {
+            <p class="nota">Solo una cuenta de usuario puede comprar boletas.</p>
+          } @else if (opciones().length === 0) {
+            <p class="nota">Podrás comprar cuando este festival publique sus boletas.</p>
+          } @else {
+            <form class="orden" novalidate (ngSubmit)="comprar()">
+              <fieldset class="metodos" [attr.aria-invalid]="!!errorMetodo()">
+                <legend class="field-label">Paga con</legend>
+                <div class="metodos-opciones">
+                  @for (item of metodos; track item) {
+                    <label class="metodo" [class.metodo-elegido]="metodo === item">
+                      <input
+                        type="radio"
+                        name="metodo"
+                        [value]="item"
+                        [(ngModel)]="metodo"
+                        (ngModelChange)="errorMetodo.set('')"
+                      />
+                      {{ item }}
+                    </label>
+                  }
+                </div>
+                @if (errorMetodo()) {
+                  <p class="field-error" role="alert">{{ errorMetodo() }}</p>
                 }
-              </dd>
-            </div>
-            <div class="total">
-              <dt>Total</dt>
-              <dd>{{ total() | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</dd>
-            </div>
-          </dl>
+              </fieldset>
 
-          @if (error()) {
-            <p class="field-error" role="alert">{{ error() }}</p>
+              <div class="field">
+                <span class="field-label" id="etiqueta-cantidad">
+                  Cantidad <small>(máximo {{ maximo() }})</small>
+                </span>
+                <div class="cantidad" role="group" aria-labelledby="etiqueta-cantidad">
+                  <button
+                    type="button"
+                    class="btn btn-ghost"
+                    aria-label="Quitar una boleta"
+                    [disabled]="cantidad() <= 1"
+                    (click)="cambiarCantidad(-1)"
+                  >
+                    −
+                  </button>
+                  <output aria-live="polite">{{ cantidad() }}</output>
+                  <button
+                    type="button"
+                    class="btn btn-ghost"
+                    aria-label="Agregar una boleta"
+                    [disabled]="cantidad() >= maximo()"
+                    (click)="cambiarCantidad(1)"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <dl class="lineas">
+                <div>
+                  <dt>Boleta</dt>
+                  <dd>
+                    @if (elegida(); as opcion) {
+                      {{ opcion.zona.nombre }} · {{ opcion.tipo.categoria }}
+                    } @else {
+                      Sin seleccionar
+                    }
+                  </dd>
+                </div>
+                <div class="total">
+                  <dt>Total</dt>
+                  <dd>{{ total() | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</dd>
+                </div>
+              </dl>
+
+              @if (error()) {
+                <p class="field-error" role="alert">{{ error() }}</p>
+              }
+
+              <button type="submit" class="btn btn-primary comprar" [disabled]="comprando()">
+                {{ comprando() ? 'Registrando…' : 'Confirmar compra' }}
+              </button>
+            </form>
           }
+        </div>
+      </div>
+    </section>
+    <section class="bloque" aria-labelledby="titulo-reglas">
+      <h2 id="titulo-reglas" class="titulo-bloque">Reglas generales</h2>
 
-          <button type="submit" class="btn btn-primary comprar" [disabled]="comprando()">
-            {{ comprando() ? 'Registrando…' : 'Confirmar compra' }}
-          </button>
-        </form>
+      <app-reglas-festival
+        [imagen]="cartelFestival(f.idFestival)"
+        [conSesion]="sesion() != null"
+        [cartel]="cartel()"
+      />
+    </section>
+
+    @if (elegida(); as opcion) {
+      @if (esUsuario() && !finalizado() && !pagoVisible() && pestana() === 'oficial') {
+        <div class="barra-orden" role="region" aria-label="Boleta elegida">
+          <span class="barra-boleta">
+            <strong>{{ opcion.zona.nombre }} · {{ opcion.tipo.categoria }}</strong>
+            × {{ cantidad() }}
+          </span>
+          <span class="barra-total">{{ total() | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</span>
+          <button type="button" class="btn btn-primary" (click)="irAPago()">Ir a pagar ↓</button>
+        </div>
       }
-    </aside>
+    }
+    <app-dialogo-sesion
+      #dialogoSesion
+      [boleta]="boletaPendiente()"
+      (ingresar)="irAIngresar()"
+      (registrarse)="irARegistro()"
+    />
   </main>
 } @else {
-  <main class="detalle">
+  <main class="compra">
     <div class="aviso" [class.aviso-error]="!noExiste()">
       <strong>{{ noExiste() ? 'Este festival no existe' : errorCarga() }}</strong>
       <a class="btn btn-ghost" routerLink="/eventos">Ver festivales</a>

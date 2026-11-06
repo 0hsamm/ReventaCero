@@ -1,0 +1,90 @@
+<div class="pagina-panel">
+  <header class="panel-header">
+    <h1>Patrocinadores</h1>
+    <p>Las empresas y marcas disponibles para patrocinar festivales. El aporte a cada festival se registra al configurarlo.</p>
+  </header>
+
+  <section class="tarjeta-panel">
+    <h2>{{ editando() ? 'Editar ' + editando()!.nombre : 'Nuevo patrocinador' }}</h2>
+    @if (errorForm()) {
+      <p class="error-general" role="alert">{{ errorForm() }}</p>
+    }
+    <form class="form-grid" novalidate (ngSubmit)="guardar()">
+      <app-campo etiqueta="Nombre" para="nombre" [error]="errores()['nombre']">
+        <input
+          id="nombre"
+          name="nombre"
+          class="input"
+          [class.invalido]="errores()['nombre']"
+          [attr.aria-invalid]="!!errores()['nombre']"
+          [(ngModel)]="nombre"
+        />
+      </app-campo>
+      <app-campo etiqueta="Tipo de patrocinio (opcional)" para="tipo">
+        <input id="tipo" name="tipo" class="input" [(ngModel)]="tipo" />
+      </app-campo>
+      <app-campo class="completo" etiqueta="Contacto (opcional)" para="contacto">
+        <input id="contacto" name="contacto" class="input" [(ngModel)]="contacto" />
+      </app-campo>
+      <div class="completo acciones-fila">
+        <button type="submit" class="btn btn-primary" [disabled]="enviando()">
+          {{ enviando() ? 'Guardando…' : 'Guardar' }}
+        </button>
+        @if (editando()) {
+          <button type="button" class="btn btn-ghost" (click)="limpiar()">Cancelar</button>
+        }
+      </div>
+    </form>
+  </section>
+
+  @if (cargando()) {
+    <div class="esqueleto" style="height: 240px"></div>
+  } @else if (error()) {
+    <div class="aviso aviso-error" role="alert">
+      <strong>{{ error() }}</strong>
+      <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (total() === 0) {
+    <div class="aviso"><strong>Todavía no hay patrocinadores</strong></div>
+  } @else {
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th scope="col">Nombre</th>
+          <th scope="col">Tipo</th>
+          <th scope="col">Contacto</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (patrocinador of filas(); track patrocinador.idPatrocinador) {
+          <tr>
+            <td>{{ patrocinador.nombre }}</td>
+            <td>{{ patrocinador.tipo }}</td>
+            <td>{{ patrocinador.contacto }}</td>
+            <td>
+              <div class="acciones-fila">
+                <button type="button" class="btn btn-ghost btn-sm" (click)="editar(patrocinador)">
+                  Editar
+                </button>
+                <button type="button" class="btn btn-ghost btn-sm" (click)="eliminando.set(patrocinador)">
+                  Eliminar
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <app-paginacion [total]="total()" [(pagina)]="pagina"></app-paginacion>
+  }
+</div>
+
+<app-confirm-dialog
+  title="Eliminar patrocinador"
+  [message]="'Se eliminará ' + (eliminando()?.nombre ?? '') + '. Esto no se puede deshacer.'"
+  confirmLabel="Eliminar"
+  [visible]="eliminando() != null"
+  (confirmed)="confirmarEliminacion()"
+  (cancelled)="eliminando.set(null)"
+></app-confirm-dialog>

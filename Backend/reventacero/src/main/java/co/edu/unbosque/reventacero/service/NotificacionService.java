@@ -83,6 +83,43 @@ public class NotificacionService {
 		return false;
 	}
 
+	/**
+	 * Avisa a las primeras personas en espera de una zona, una por cada cupo nuevo. El aviso no reserva
+	 * la boleta: quien compre primero se la lleva.
+	 */
+	@Transactional
+	public int notificarCuposNuevos(long idZona, String nombreZona, int cupos) {
+
+		int avisadas = 0;
+
+		for (Inscripcion inscripcion : inscripcionRepo.findPendientesPorZona(idZona)) {
+
+			if (avisadas == cupos) {
+				break;
+			}
+
+			if (!cuentaActiva(inscripcion.getUsuario().getDocumento())) {
+				continue;
+			}
+
+			long idTipoEntrada = inscripcion.getListaEspera().getTipoEntrada().getIdTipoEntrada();
+			TipoEntrada tipoEntrada = tipoEntradaRepo.findById(idTipoEntrada).orElse(null);
+
+			if (tipoEntrada == null) {
+				continue;
+			}
+
+			Festival festival = boletaService.festivalDe(tipoEntrada);
+			guardar(inscripcion, "Se liberaron cupos en " + nombreZona + " (" + tipoEntrada.getCategoria()
+					+ ") del festival " + festival.getNombre() + ". Ya puedes comprar tu boleta.");
+			inscripcionRepo.actualizarEstado(inscripcion.getUsuario().getDocumento(),
+					inscripcion.getListaEspera().getIdLista(), InscripcionService.NOTIFICADA);
+			avisadas++;
+		}
+
+		return avisadas;
+	}
+
 	@Scheduled(cron = "0 0 8 * * *")
 	@Transactional
 	public int enviarRecordatoriosProximidad() {

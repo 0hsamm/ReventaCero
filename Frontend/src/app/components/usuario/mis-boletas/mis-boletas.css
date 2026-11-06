@@ -85,10 +85,15 @@ dd {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: flex-start;
   gap: 6px;
-  width: 200px;
+  width: 220px;
   padding: 20px;
   border-left: 2px dashed var(--line-strong);
+}
+
+.talon app-qr-boleta {
+  margin-bottom: 8px;
 }
 
 code {

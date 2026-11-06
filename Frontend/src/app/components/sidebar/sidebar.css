@@ -83,8 +83,7 @@
   font-size: 14px;
 }
 
-.pie-accion:hover,
-.salir:hover {
+.pie-accion:hover {
   background: var(--surface-2);
 }
 
@@ -119,13 +118,29 @@
 }
 
 .salir {
-  flex: none;
-  width: 44px;
-  height: 44px;
-  background: none;
-  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 0 12px;
+  background: transparent;
+  border: 2px solid var(--danger);
   border-radius: var(--radius);
-  color: var(--text-2);
+  color: var(--danger);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.salir:hover {
+  background: var(--danger);
+  color: var(--bg);
 }
 
 .menu-item {
@@ -142,6 +157,32 @@
   color: var(--text-3);
   font-size: 13px;
   text-transform: uppercase;
+}
+
+.cambio-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-top: -12px;
+  padding: 4px;
+  background: var(--surface-2);
+  border-radius: var(--radius);
+}
+
+.cambio-panel a {
+  display: grid;
+  place-items: center;
+  min-height: 36px;
+  border-radius: var(--radius);
+  color: var(--text-2);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.cambio-panel a.activa {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 500;
 }
 
 .contador {

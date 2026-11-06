@@ -22,6 +22,7 @@ import co.edu.unbosque.reventacero.exception.RecursoNoEncontradoException;
 import co.edu.unbosque.reventacero.exception.ReglaNegocioException;
 import co.edu.unbosque.reventacero.repository.BoletaRepository;
 import co.edu.unbosque.reventacero.repository.DevolucionRepository;
+import co.edu.unbosque.reventacero.repository.PublicacionReventaRepository;
 import co.edu.unbosque.reventacero.repository.TipoEntradaRepository;
 import co.edu.unbosque.reventacero.repository.TransaccionRepository;
 import co.edu.unbosque.reventacero.util.Validaciones;
@@ -49,13 +50,17 @@ public class DevolucionService {
 	
 	private final NotificacionService notificacionService;
 
+	private final PublicacionReventaRepository publicacionRepo;
+
 	private final ModelMapper modelMapper;
-	
+
 
 	public DevolucionService(DevolucionRepository devolucionRepo, TransaccionRepository transaccionRepo,
 			BoletaRepository boletaRepo, TipoEntradaRepository tipoEntradaRepo, BoletaService boletaService,
 			UsuarioService usuarioService, DispositivoService dispositivoService,
-			TransaccionService transaccionService, NotificacionService notificacionService, ModelMapper modelMapper) {
+			TransaccionService transaccionService, NotificacionService notificacionService,
+			PublicacionReventaRepository publicacionRepo,
+			ModelMapper modelMapper) {
 		this.devolucionRepo = devolucionRepo;
 		this.transaccionRepo = transaccionRepo;
 		this.boletaRepo = boletaRepo;
@@ -65,6 +70,7 @@ public class DevolucionService {
 		this.dispositivoService = dispositivoService;
 		this.transaccionService = transaccionService;
 		this.notificacionService = notificacionService;
+		this.publicacionRepo = publicacionRepo;
 		this.modelMapper = modelMapper;
 	}
 
@@ -121,6 +127,8 @@ public class DevolucionService {
 
 		transaccionRepo.save(devolucion);
 		devolucionRepo.save(devolucion);
+		// Una boleta devuelta ya no se puede revender: si estaba publicada, sale de la venta
+		publicacionRepo.quitarDeVenta(boleta.getCodigoBoleta());
 		notificacionService.notificarCupoLiberado(tipoEntrada.getIdTipoEntrada());
 
 		return aDTO(devolucion);
