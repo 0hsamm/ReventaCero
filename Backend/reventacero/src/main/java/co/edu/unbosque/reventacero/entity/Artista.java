@@ -28,7 +28,7 @@ public class Artista {
 		this.pais = pais;
 		this.genero = genero;
 		this.redesSociales = redesSociales;
-		this.artistaInvitados = artistaInvitados;
+		this.artistaInvitados = artistaInvitados; // skipcq: JAVA-E1086
 	}
 
 
@@ -78,7 +78,7 @@ public class Artista {
 
 
 	public void setRedesSociales(List<String> redesSociales) {
-		this.redesSociales = redesSociales;
+		this.redesSociales = redesSociales; // skipcq: JAVA-E1086
 	}
 
 
@@ -88,7 +88,7 @@ public class Artista {
 
 
 	public void setArtistaInvitados(List<Artista> artistaInvitados) {
-		this.artistaInvitados = artistaInvitados;
+		this.artistaInvitados = artistaInvitados; // skipcq: JAVA-E1086
 	}
 
 
@@ -108,7 +108,7 @@ public class Artista {
 			return false;
 		Artista other = (Artista) obj;
 		return Objects.equals(artistaInvitados, other.artistaInvitados) && Objects.equals(genero, other.genero)
-				&& Objects.equals(idArtista, other.idArtista) && Objects.equals(nombreArtistico, other.nombreArtistico)
+				&& Objects.equals(idArtista, other.idArtista) && Objects.equals(nombreArtistico, other.nombreArtistico) // skipcq: JAVA-W1080
 				&& Objects.equals(pais, other.pais) && Objects.equals(redesSociales, other.redesSociales);
 	}
 

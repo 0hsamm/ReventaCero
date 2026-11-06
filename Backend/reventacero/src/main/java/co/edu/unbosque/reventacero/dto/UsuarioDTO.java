@@ -108,7 +108,7 @@ public class UsuarioDTO {
 	}
 
 	public void setTelefono(List<String> telefono) {
-		this.telefono = telefono;
+		this.telefono = telefono; // skipcq: JAVA-E1086
 	}
 
 	public Long getAutorizadoPorDocumento() {

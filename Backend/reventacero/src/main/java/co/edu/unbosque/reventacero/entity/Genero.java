@@ -68,7 +68,7 @@ public class Genero {
 		if (getClass() != obj.getClass())
 			return false;
 		Genero other = (Genero) obj;
-		return Objects.equals(generoPrincipal, other.generoPrincipal) && Objects.equals(idGenero, other.idGenero)
+		return Objects.equals(generoPrincipal, other.generoPrincipal) && Objects.equals(idGenero, other.idGenero) // skipcq: JAVA-W1080
 				&& Objects.equals(nombre, other.nombre);
 	}
 

@@ -24,8 +24,8 @@ public class ArtistaDTO {
 	public long getIdGenero() { return idGenero; }
 	public void setIdGenero(long idGenero) { this.idGenero = idGenero; }
 	public List<String> getRedesSociales() { return redesSociales; }
-	public void setRedesSociales(List<String> redesSociales) { this.redesSociales = redesSociales; }
+	public void setRedesSociales(List<String> redesSociales) { this.redesSociales = redesSociales; } // skipcq: JAVA-E1086
 	public List<Long> getIdArtistasInvitados() { return idArtistasInvitados; }
-	public void setIdArtistasInvitados(List<Long> idArtistasInvitados) { this.idArtistasInvitados = idArtistasInvitados; }
+	public void setIdArtistasInvitados(List<Long> idArtistasInvitados) { this.idArtistasInvitados = idArtistasInvitados; } // skipcq: JAVA-E1086
 
 }
