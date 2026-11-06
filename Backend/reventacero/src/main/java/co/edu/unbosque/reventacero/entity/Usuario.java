@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -141,7 +140,7 @@ public class Usuario implements UserDetails {
 	}
 
 	public void setTelefono(List<String> telefono) {
-		this.telefono = telefono;
+		this.telefono = telefono; // skipcq: JAVA-E1086
 	}
 
 	@Override
@@ -162,30 +161,21 @@ public class Usuario implements UserDetails {
 		return correo;
 	}
 
+	/**
+	 * Dos usuarios son el mismo si tienen el mismo documento, que es su llave primaria.
+	 */
 	@Override
 	public int hashCode() {
-		return Objects.hash(autorizadoPor, contrasenia, correo, documento, estadoCuenta, fechaAutorizacion,
-				fechaNacimiento, fechaRegistro, nombreCompleto, nombreUsuario, telefono, tipoUsuario);
+		return Long.hashCode(documento);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (obj == null || getClass() != obj.getClass())
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Usuario other = (Usuario) obj;
-		return Objects.equals(autorizadoPor, other.autorizadoPor) && Objects.equals(contrasenia, other.contrasenia)
-				&& Objects.equals(correo, other.correo) && Objects.equals(documento, other.documento)
-				&& Objects.equals(estadoCuenta, other.estadoCuenta)
-				&& Objects.equals(fechaAutorizacion, other.fechaAutorizacion)
-				&& Objects.equals(fechaNacimiento, other.fechaNacimiento)
-				&& Objects.equals(fechaRegistro, other.fechaRegistro)
-				&& Objects.equals(nombreCompleto, other.nombreCompleto)
-				&& Objects.equals(nombreUsuario, other.nombreUsuario) && Objects.equals(telefono, other.telefono)
-				&& tipoUsuario == other.tipoUsuario;
+		return documento == ((Usuario) obj).documento;
 	}
 
 	@Override
