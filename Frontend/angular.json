@@ -52,7 +52,8 @@
             ],
             "styles": [
               "node_modules/primeicons/primeicons.css",
-              "src/styles.css"
+              "src/styles.css",
+              "src/app/components/auth-shell/auth-formulario.css"
             ]
           },
           "configurations": {

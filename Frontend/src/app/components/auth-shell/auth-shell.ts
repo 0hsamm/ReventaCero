@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, inject, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
@@ -8,7 +8,6 @@ import { ThemeService } from '../../services/theme.service';
   imports: [RouterLink],
   templateUrl: './auth-shell.html',
   styleUrl: './auth-shell.css',
-  encapsulation: ViewEncapsulation.None,
 })
 export class AuthShellComponent {
   protected themeService = inject(ThemeService);

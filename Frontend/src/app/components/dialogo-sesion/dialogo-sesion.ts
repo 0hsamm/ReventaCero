@@ -15,8 +15,8 @@ export interface BoletaResumen {
 export class DialogoSesionComponent {
   readonly boleta = input<BoletaResumen | null>(null);
 
-  readonly ingresar = output<void>();
-  readonly registrarse = output<void>();
+  readonly ingresar = output();
+  readonly registrarse = output();
 
   private dialogo = viewChild.required<ElementRef<HTMLDialogElement>>('dialogo');
 

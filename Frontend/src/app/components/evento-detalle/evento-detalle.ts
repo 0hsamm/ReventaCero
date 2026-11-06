@@ -273,9 +273,7 @@ export class EventoDetalleComponent implements OnInit {
     });
   }
 
-  protected numeroTalon(indice: number): string {
-    return String(indice + 1).padStart(2, '0');
-  }
+  protected readonly numeroTalon = (indice: number): string => String(indice + 1).padStart(2, '0');
 
   protected cambiarCantidad(cambio: number): void {
     this.cantidad.update((valor) => Math.min(this.maximo(), Math.max(1, valor + cambio)));
