@@ -104,16 +104,6 @@ public class JwtUtil {
     }
 
     /**
-     * Verifica si el token expiró.
-     */
-    private Boolean isTokenExpired(
-            String token) {
-
-        return extractExpiration(token)
-                .before(new Date());
-    }
-
-    /**
      * Genera el token JWT.
      */
     public String generateToken(
