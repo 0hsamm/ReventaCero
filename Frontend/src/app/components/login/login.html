@@ -1,0 +1,53 @@
+<app-auth-shell
+  etiqueta="Zona de acceso"
+  lineaNeon="Tu boleta"
+  lineaHueca="te espera"
+  grafiti="¡Sin bots!"
+  texto="Entra para comprar boletas con código QR único y revenderlas solo de forma autorizada, sin pasar el precio tope."
+  paso="Paso único · Ingreso"
+  tituloTarjeta="Inicia sesión"
+>
+  @if (error()) {
+    <div class="auth-error" role="alert">
+      <span>{{ error() }}</span>
+      @if (sinVerificar()) {
+        <button type="button" class="auth-enlace-accion" (click)="irAVerificar()">
+          Enviar un nuevo enlace de verificación
+        </button>
+      }
+    </div>
+  }
+
+  <form class="auth-formulario" novalidate (ngSubmit)="entrar()">
+    <app-campo etiqueta="Nombre de usuario" para="nombreUsuario" [error]="errores()['nombreUsuario']">
+      <input
+        id="nombreUsuario"
+        name="nombreUsuario"
+        class="input"
+        autocomplete="username"
+        [class.invalido]="errores()['nombreUsuario']"
+        [attr.aria-invalid]="!!errores()['nombreUsuario']"
+        [(ngModel)]="nombreUsuario"
+      />
+    </app-campo>
+
+    <app-campo etiqueta="Contraseña" para="contrasenia" [error]="errores()['contrasenia']">
+      <input
+        id="contrasenia"
+        name="contrasenia"
+        type="password"
+        class="input"
+        autocomplete="current-password"
+        [class.invalido]="errores()['contrasenia']"
+        [attr.aria-invalid]="!!errores()['contrasenia']"
+        [(ngModel)]="contrasenia"
+      />
+    </app-campo>
+
+    <button type="submit" class="btn btn-primary auth-enviar" [disabled]="cargando()">
+      {{ cargando() ? 'Ingresando…' : 'Ingresar →' }}
+    </button>
+  </form>
+
+  <p pie class="auth-pie-texto">¿No tienes cuenta?<a routerLink="/registro">Regístrate</a></p>
+</app-auth-shell>

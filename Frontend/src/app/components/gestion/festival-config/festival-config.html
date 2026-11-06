@@ -1,0 +1,287 @@
+<div class="pagina-panel">
+  <a class="volver" routerLink="/app/gestion/festivales">← Festivales</a>
+
+  @if (cargando()) {
+    <div class="esqueleto" style="height: 300px"></div>
+  } @else if (error()) {
+    <div class="aviso aviso-error" role="alert">
+      <strong>{{ error() }}</strong>
+      <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (festival(); as f) {
+    <header class="panel-header">
+      <h1>{{ f.nombre }}</h1>
+      <p>
+        Edición {{ f.edicion }} · {{ f.fechaInicio | date: 'd MMM y' }} –
+        {{ f.fechaFin | date: 'd MMM y' }} · {{ f.ubicacionCiudad }}
+      </p>
+    </header>
+
+    <section class="tarjeta-panel">
+      <h2>Zonas</h2>
+      @if (zonas().length) {
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Tipo</th>
+              <th scope="col" class="numero">Aforo</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (zona of zonas(); track zona.idZona) {
+              <tr>
+                <td>{{ zona.nombre }}</td>
+                <td>{{ zona.tipoZona }}</td>
+                <td class="numero">{{ zona.aforoMaximo }}</td>
+                <td>
+                  <div class="acciones-fila">
+                    <button type="button" class="btn btn-ghost btn-sm" (click)="editarZona(zona)">
+                      Editar
+                    </button>
+                    <button type="button" class="btn btn-ghost btn-sm" (click)="eliminarZona(zona)">
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="nota">Crea al menos una zona para poder publicar entradas.</p>
+      }
+      <form class="form-grid agregar" novalidate (ngSubmit)="guardarZona()">
+        <app-campo etiqueta="Nombre de la zona" para="zonaNombre" [error]="errores()['zonaNombre']">
+          <input id="zonaNombre" name="zonaNombre" class="input" [(ngModel)]="zonaForm.nombre" />
+        </app-campo>
+        <app-campo etiqueta="Tipo de zona" para="zonaTipo" [error]="errores()['zonaTipo']">
+          <input id="zonaTipo" name="zonaTipo" class="input" [(ngModel)]="zonaForm.tipoZona" />
+        </app-campo>
+        <app-campo etiqueta="Aforo máximo" para="zonaAforo" [error]="errores()['zonaAforo']">
+          <input
+            id="zonaAforo"
+            name="zonaAforo"
+            type="number"
+            min="1"
+            class="input"
+            [(ngModel)]="zonaForm.aforoMaximo"
+          />
+        </app-campo>
+        <div class="completo">
+          <button type="submit" class="btn btn-ghost">
+            {{ zonaForm.idZona ? 'Guardar zona' : 'Agregar zona' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="tarjeta-panel">
+      <h2>Entradas</h2>
+      @if (tipos().length) {
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th scope="col">Zona</th>
+              <th scope="col">Categoría</th>
+              <th scope="col" class="numero">Precio base</th>
+              <th scope="col" class="numero">Tope de reventa</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (tipo of tipos(); track tipo.idTipoEntrada) {
+              <tr>
+                <td>{{ nombreZona(tipo.idZona) }}</td>
+                <td>{{ tipo.categoria }}</td>
+                <td class="numero">{{ tipo.precioBase | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</td>
+                <td class="numero">
+                  {{ tipo.precioTopeReventa | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}
+                </td>
+                <td>
+                  <div class="acciones-fila">
+                    <button type="button" class="btn btn-ghost btn-sm" (click)="editarTipo(tipo)">
+                      Editar
+                    </button>
+                    <button type="button" class="btn btn-ghost btn-sm" (click)="eliminarTipo(tipo)">
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="nota">Este festival todavía no tiene entradas.</p>
+      }
+      <form class="form-grid agregar" novalidate (ngSubmit)="guardarTipo()">
+        <app-campo etiqueta="Zona" para="tipoZona" [error]="errores()['tipoZona']">
+          <select id="tipoZona" name="tipoZona" class="input" [(ngModel)]="tipoForm.idZona">
+            <option [ngValue]="0">Selecciona</option>
+            @for (zona of zonas(); track zona.idZona) {
+              <option [ngValue]="zona.idZona">{{ zona.nombre }}</option>
+            }
+          </select>
+        </app-campo>
+        <app-campo etiqueta="Categoría" para="tipoCategoria" [error]="errores()['tipoCategoria']">
+          <input id="tipoCategoria" name="tipoCategoria" class="input" [(ngModel)]="tipoForm.categoria" />
+        </app-campo>
+        <app-campo etiqueta="Precio base" para="tipoPrecio" [error]="errores()['tipoPrecio']">
+          <input
+            id="tipoPrecio"
+            name="tipoPrecio"
+            type="number"
+            min="0"
+            class="input"
+            [(ngModel)]="tipoForm.precioBase"
+          />
+        </app-campo>
+        <app-campo etiqueta="Tope de reventa" para="tipoTope" [error]="errores()['tipoTope']">
+          <input
+            id="tipoTope"
+            name="tipoTope"
+            type="number"
+            min="0"
+            class="input"
+            [(ngModel)]="tipoForm.precioTopeReventa"
+          />
+        </app-campo>
+        <div class="completo">
+          <button type="submit" class="btn btn-ghost">
+            {{ tipoForm.idTipoEntrada ? 'Guardar entrada' : 'Agregar entrada' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="tarjeta-panel">
+      <h2>Escenarios</h2>
+      @if (escenarios().length) {
+        <table class="tabla">
+          <tbody>
+            @for (escenario of escenarios(); track escenario.nombreEscenario) {
+              <tr>
+                <td>{{ escenario.nombreEscenario }}</td>
+                <td class="numero">Capacidad {{ escenario.capacidad }}</td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-sm"
+                    (click)="eliminarEscenario(escenario)"
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="nota">Crea un escenario para poder armar el cartel.</p>
+      }
+      <form class="form-grid agregar" novalidate (ngSubmit)="guardarEscenario()">
+        <app-campo etiqueta="Nombre" para="escenarioNombre" [error]="errores()['escenarioNombre']">
+          <input
+            id="escenarioNombre"
+            name="escenarioNombre"
+            class="input"
+            [(ngModel)]="escenarioForm.nombreEscenario"
+          />
+        </app-campo>
+        <app-campo etiqueta="Capacidad" para="escenarioCapacidad" [error]="errores()['escenarioCapacidad']">
+          <input
+            id="escenarioCapacidad"
+            name="escenarioCapacidad"
+            type="number"
+            min="1"
+            class="input"
+            [(ngModel)]="escenarioForm.capacidad"
+          />
+        </app-campo>
+        <div class="completo">
+          <button type="submit" class="btn btn-ghost">Agregar escenario</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="tarjeta-panel">
+      <h2>Cartel</h2>
+      @if (presentaciones().length) {
+        <table class="tabla">
+          <tbody>
+            @for (item of presentaciones(); track item.idPresentacion) {
+              <tr>
+                <td class="sin-salto">{{ item.horaInicio | date: 'd MMM, HH:mm' }}</td>
+                <td>{{ nombreArtista(item.idArtista) }}</td>
+                <td>Escenario {{ item.nombreEscenario }}</td>
+                <td>
+                  <button type="button" class="btn btn-ghost btn-sm" (click)="eliminarPresentacion(item)">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="nota">El cartel todavía está vacío.</p>
+      }
+      <form class="form-grid agregar" novalidate (ngSubmit)="guardarPresentacion()">
+        <app-campo etiqueta="Artista" para="presArtista" [error]="errores()['presArtista']">
+          <select id="presArtista" name="presArtista" class="input" [(ngModel)]="presentacionForm.idArtista">
+            <option [ngValue]="0">Selecciona</option>
+            @for (artista of artistas(); track artista.idArtista) {
+              <option [ngValue]="artista.idArtista">{{ artista.nombreArtistico }}</option>
+            }
+          </select>
+        </app-campo>
+        <app-campo etiqueta="Escenario" para="presEscenario" [error]="errores()['presEscenario']">
+          <select
+            id="presEscenario"
+            name="presEscenario"
+            class="input"
+            [(ngModel)]="presentacionForm.nombreEscenario"
+          >
+            <option value="">Selecciona</option>
+            @for (escenario of escenarios(); track escenario.nombreEscenario) {
+              <option>{{ escenario.nombreEscenario }}</option>
+            }
+          </select>
+        </app-campo>
+        <app-campo etiqueta="Fecha" para="presFecha" [error]="errores()['presFecha']">
+          <input
+            id="presFecha"
+            name="presFecha"
+            type="date"
+            class="input"
+            [min]="f.fechaInicio"
+            [max]="f.fechaFin"
+            [(ngModel)]="presentacionForm.fecha"
+          />
+        </app-campo>
+        <app-campo etiqueta="Hora de inicio" para="presInicio" [error]="errores()['presInicio']">
+          <input id="presInicio" name="presInicio" type="time" class="input" [(ngModel)]="presentacionForm.inicio" />
+        </app-campo>
+        <app-campo etiqueta="Hora de fin" para="presFin" [error]="errores()['presFin']">
+          <input id="presFin" name="presFin" type="time" class="input" [(ngModel)]="presentacionForm.fin" />
+        </app-campo>
+        <div class="completo">
+          <button type="submit" class="btn btn-ghost">Agregar presentación</button>
+        </div>
+      </form>
+    </section>
+
+    <app-patrocinios-festival [idFestival]="f.idFestival"></app-patrocinios-festival>
+  }
+</div>
+
+<app-confirm-dialog
+  title="Confirmar eliminación"
+  [message]="eliminacion()?.mensaje ?? ''"
+  confirmLabel="Eliminar"
+  [visible]="eliminacion() != null"
+  (confirmed)="confirmarEliminacion()"
+  (cancelled)="eliminacion.set(null)"
+></app-confirm-dialog>

@@ -1,0 +1,230 @@
+<div class="pagina-panel">
+  <header class="panel-header">
+    <h1>Festivales</h1>
+    <p>
+      {{ esAdmin() ? 'Todos los festivales de la plataforma.' : 'Los festivales a tu cargo.' }}
+      Configura en cada uno sus zonas, entradas y cartel.
+    </p>
+  </header>
+
+  <div class="acciones-fila barra">
+    <button type="button" class="btn btn-primary" (click)="nuevo()">Crear festival</button>
+  </div>
+
+  @if (formularioAbierto()) {
+    <section class="tarjeta-panel">
+      <h2>{{ editando() ? 'Editar ' + editando()!.nombre : 'Nuevo festival' }}</h2>
+      @if (errorForm()) {
+        <p class="error-general" role="alert">{{ errorForm() }}</p>
+      }
+      <form class="form-grid" novalidate (ngSubmit)="guardar()">
+        <app-campo etiqueta="Nombre" para="nombre" [error]="errores()['nombre']">
+          <input
+            id="nombre"
+            name="nombre"
+            class="input"
+            [class.invalido]="errores()['nombre']"
+            [attr.aria-invalid]="!!errores()['nombre']"
+            [(ngModel)]="form.nombre"
+          />
+        </app-campo>
+        <app-campo etiqueta="Edición" para="edicion" [error]="errores()['edicion']">
+          <input
+            id="edicion"
+            name="edicion"
+            type="number"
+            min="1"
+            class="input"
+            [class.invalido]="errores()['edicion']"
+            [attr.aria-invalid]="!!errores()['edicion']"
+            [(ngModel)]="form.edicion"
+          />
+        </app-campo>
+        <app-campo etiqueta="Fecha de inicio" para="fechaInicio" [error]="errores()['fechaInicio']">
+          <input
+            id="fechaInicio"
+            name="fechaInicio"
+            type="date"
+            class="input"
+            [class.invalido]="errores()['fechaInicio']"
+            [attr.aria-invalid]="!!errores()['fechaInicio']"
+            [(ngModel)]="form.fechaInicio"
+          />
+        </app-campo>
+        <app-campo etiqueta="Fecha de fin" para="fechaFin" [error]="errores()['fechaFin']">
+          <input
+            id="fechaFin"
+            name="fechaFin"
+            type="date"
+            class="input"
+            [class.invalido]="errores()['fechaFin']"
+            [attr.aria-invalid]="!!errores()['fechaFin']"
+            [(ngModel)]="form.fechaFin"
+          />
+        </app-campo>
+        <app-campo etiqueta="País" para="pais" [error]="errores()['ubicacionPais']">
+          <input
+            id="pais"
+            name="pais"
+            class="input"
+            [class.invalido]="errores()['ubicacionPais']"
+            [attr.aria-invalid]="!!errores()['ubicacionPais']"
+            [(ngModel)]="form.ubicacionPais"
+          />
+        </app-campo>
+        <app-campo etiqueta="Ciudad" para="ciudad" [error]="errores()['ubicacionCiudad']">
+          <input
+            id="ciudad"
+            name="ciudad"
+            class="input"
+            [class.invalido]="errores()['ubicacionCiudad']"
+            [attr.aria-invalid]="!!errores()['ubicacionCiudad']"
+            [(ngModel)]="form.ubicacionCiudad"
+          />
+        </app-campo>
+        <app-campo etiqueta="Dirección (opcional)" para="direccion">
+          <input id="direccion" name="direccion" class="input" [(ngModel)]="form.ubicacionDireccion" />
+        </app-campo>
+        @if (esAdmin()) {
+          <app-campo
+            etiqueta="Organizador"
+            para="organizador"
+            [error]="errores()['documentoOrganizador']"
+            [ayuda]="organizadores().length ? '' : 'Primero crea un organizador en Usuarios.'"
+          >
+            <select
+              id="organizador"
+              name="organizador"
+              class="input"
+              [class.invalido]="errores()['documentoOrganizador']"
+              [attr.aria-invalid]="!!errores()['documentoOrganizador']"
+              [(ngModel)]="form.documentoOrganizador"
+            >
+              <option [ngValue]="undefined">Selecciona</option>
+              @for (item of organizadores(); track item.documento) {
+                <option [ngValue]="item.documento">{{ item.nombre }} {{ item.apellido }}</option>
+              }
+            </select>
+          </app-campo>
+        }
+        @if (!editando()) {
+          <fieldset class="completo pregunta">
+            <legend class="field-label">¿Este festival tiene patrocinadores?</legend>
+            <div class="opciones-radio">
+              <label>
+                <input
+                  type="radio"
+                  name="tienePatrocinadores"
+                  [value]="true"
+                  [(ngModel)]="tienePatrocinadores"
+                />
+                Sí
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="tienePatrocinadores"
+                  [value]="false"
+                  [(ngModel)]="tienePatrocinadores"
+                />
+                No
+              </label>
+            </div>
+            @if (errores()['tienePatrocinadores'] && tienePatrocinadores == null) {
+              <span class="field-error" role="alert">{{ errores()['tienePatrocinadores'] }}</span>
+            } @else if (tienePatrocinadores) {
+              <span class="field-help">Al guardar el festival podrás registrar sus patrocinadores y aportes.</span>
+            }
+          </fieldset>
+        }
+        <div class="completo acciones-fila">
+          <button type="submit" class="btn btn-primary" [disabled]="enviando()">
+            {{ enviando() ? 'Guardando…' : tienePatrocinadores && !editando() ? 'Guardar y agregar patrocinadores' : 'Guardar' }}
+          </button>
+          <button type="button" class="btn btn-ghost" (click)="formularioAbierto.set(false)">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  @if (festivalNuevo(); as nuevo) {
+    <app-patrocinios-festival
+      [idFestival]="nuevo.idFestival"
+      [titulo]="'Patrocinadores de ' + nuevo.nombre"
+    >
+      <button type="button" class="btn btn-ghost" (click)="festivalNuevo.set(null)">Terminar</button>
+    </app-patrocinios-festival>
+  }
+
+  <div class="field filtro">
+    <label for="busqueda">Buscar</label>
+    <input
+      id="busqueda"
+      type="search"
+      class="input"
+      [ngModel]="busqueda()"
+      (ngModelChange)="buscar($event)"
+    />
+  </div>
+
+  @if (cargando()) {
+    <div class="esqueleto" style="height: 240px"></div>
+  } @else if (error()) {
+    <div class="aviso aviso-error" role="alert">
+      <strong>{{ error() }}</strong>
+      <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (total() === 0) {
+    <div class="aviso"><strong>No hay festivales para mostrar</strong></div>
+  } @else {
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th scope="col">Festival</th>
+          <th scope="col">Fechas</th>
+          <th scope="col">Ciudad</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (festival of filas(); track festival.idFestival) {
+          <tr>
+            <td>{{ festival.nombre }} (ed. {{ festival.edicion }})</td>
+            <td class="sin-salto">
+              {{ festival.fechaInicio | date: 'd MMM y' }} – {{ festival.fechaFin | date: 'd MMM y' }}
+            </td>
+            <td>{{ festival.ubicacionCiudad }}</td>
+            <td>
+              <div class="acciones-fila">
+                <a
+                  class="btn btn-primary btn-sm"
+                  [routerLink]="['/app/gestion/festivales', festival.idFestival]"
+                >
+                  Configurar
+                </a>
+                <button type="button" class="btn btn-ghost btn-sm" (click)="editar(festival)">
+                  Editar
+                </button>
+                <button type="button" class="btn btn-ghost btn-sm" (click)="eliminando.set(festival)">
+                  Eliminar
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <app-paginacion [total]="total()" [(pagina)]="pagina"></app-paginacion>
+  }
+</div>
+
+<app-confirm-dialog
+  title="Eliminar festival"
+  [message]="'Se eliminará ' + (eliminando()?.nombre ?? '') + '. Esto no se puede deshacer.'"
+  confirmLabel="Eliminar"
+  [visible]="eliminando() != null"
+  (confirmed)="confirmarEliminacion()"
+  (cancelled)="eliminando.set(null)"
+></app-confirm-dialog>

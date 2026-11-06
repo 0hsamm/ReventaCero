@@ -1,0 +1,31 @@
+<div class="reglas-grid">
+  <div class="reglas">
+    @for (regla of reglas; track regla.titulo; let primera = $first) {
+      <details name="reglas" [open]="primera">
+        <summary>{{ regla.titulo }}</summary>
+        <p>{{ regla.texto }}</p>
+      </details>
+    }
+  </div>
+
+  <aside class="cartel" aria-labelledby="titulo-cartel">
+    <img [src]="imagen()" alt="" />
+    <div class="cartel-contenido">
+      <h3 id="titulo-cartel">Cartel</h3>
+      @if (!conSesion()) {
+        <p class="nota-cartel">Inicia sesión para ver quién toca.</p>
+      } @else if (cartel().length) {
+        <ol>
+          @for (item of cartel(); track item.idPresentacion) {
+            <li>
+              <strong>{{ item.artista }}</strong>
+              <span>{{ item.horaInicio | date: 'd MMM · HH:mm' }} — {{ item.nombreEscenario }}</span>
+            </li>
+          }
+        </ol>
+      } @else {
+        <p class="nota-cartel">El cartel todavía no está publicado.</p>
+      }
+    </div>
+  </aside>
+</div>

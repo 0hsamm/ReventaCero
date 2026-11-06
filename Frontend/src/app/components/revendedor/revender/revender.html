@@ -1,0 +1,110 @@
+<div class="pagina-panel">
+  <header class="panel-header">
+    <h1>Revender boletas</h1>
+    <p>Publica tus boletas para que otros usuarios las compren en la pestaña de reventa de cada festival.</p>
+  </header>
+
+  @if (seleccionada(); as boleta) {
+    <section class="tarjeta-panel">
+      <h2>Publicar boleta {{ boleta.codigoBoleta }}</h2>
+      <p class="nota aviso-tope">
+        {{ boleta.festival.nombre }} · {{ boleta.tipoEntrada.categoria }}. Aparecerá en las reventas del
+        festival y seguirá siendo tuya hasta que alguien la compre. Tope de reventa:
+        {{ boleta.tipoEntrada.precioTopeReventa | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}.
+      </p>
+      @if (errorAccion()) {
+        <p class="error-general" role="alert">{{ errorAccion() }}</p>
+      }
+      <form class="form-grid" novalidate (ngSubmit)="publicar()">
+        <app-campo etiqueta="Precio de venta" para="precio" [error]="errores()['precio']">
+          <input
+            id="precio"
+            name="precio"
+            type="number"
+            min="0"
+            class="input"
+            [class.invalido]="errores()['precio']"
+            [attr.aria-invalid]="!!errores()['precio']"
+            [(ngModel)]="precio"
+          />
+        </app-campo>
+        <div class="completo acciones-fila">
+          <button type="submit" class="btn btn-primary" [disabled]="enviando()">
+            {{ enviando() ? 'Publicando…' : 'Publicar boleta' }}
+          </button>
+          <button type="button" class="btn btn-ghost" (click)="cerrar()">Cancelar</button>
+        </div>
+      </form>
+    </section>
+  }
+
+  @if (cargando()) {
+    <div class="esqueleto" style="height: 240px"></div>
+  } @else if (error()) {
+    <div class="aviso aviso-error" role="alert">
+      <strong>{{ error() }}</strong>
+      <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (disponibles().length === 0) {
+    <div class="aviso">
+      <strong>No tienes boletas para revender</strong>
+      <a class="btn btn-primary" routerLink="/eventos">Ver festivales</a>
+    </div>
+  } @else {
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th scope="col">Boleta</th>
+          <th scope="col">Festival</th>
+          <th scope="col">Fechas</th>
+          <th scope="col">Entrada</th>
+          <th scope="col" class="numero">Tope de reventa</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (boleta of disponibles(); track boleta.codigoBoleta) {
+          <tr>
+            <td>{{ boleta.codigoBoleta }}</td>
+            <td>{{ boleta.festival.nombre }}</td>
+            <td class="sin-salto">
+              {{ boleta.festival.fechaInicio | date: 'd MMM' }} –
+              {{ boleta.festival.fechaFin | date: 'd MMM y' }}
+            </td>
+            <td>{{ boleta.tipoEntrada.categoria }} · {{ boleta.zona.nombre }}</td>
+            <td class="numero">
+              {{ boleta.tipoEntrada.precioTopeReventa | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}
+            </td>
+            @if (publicacionDe(boleta); as publicacion) {
+              <td>
+                <span class="chip chip-alerta">
+                  Publicada por {{ publicacion.precio | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}
+                </span>
+              </td>
+              <td>
+                <button type="button" class="btn btn-ghost btn-sm" (click)="retirando.set(boleta)">
+                  Retirar
+                </button>
+              </td>
+            } @else {
+              <td><span class="chip chip-neutro">En tu cuenta</span></td>
+              <td>
+                <button type="button" class="btn btn-primary btn-sm" (click)="abrir(boleta)">Publicar</button>
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+
+<app-confirm-dialog
+  title="Retirar publicación"
+  [message]="'La boleta ' + (retirando()?.codigoBoleta ?? '') + ' dejará de aparecer en las reventas del festival.'"
+  confirmLabel="Retirar"
+  [visible]="retirando() != null"
+  (confirmed)="confirmarRetiro()"
+  (cancelled)="retirando.set(null)"
+></app-confirm-dialog>

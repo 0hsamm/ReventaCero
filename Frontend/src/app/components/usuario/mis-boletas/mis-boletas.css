@@ -1,0 +1,108 @@
+.aviso-tope {
+  margin-bottom: 16px;
+}
+
+.pestanas {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.pestanas button {
+  min-height: 44px;
+  margin-bottom: -1px;
+  padding: 0 2px;
+  background: none;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  color: var(--text-2);
+}
+
+.pestanas button.activa {
+  border-bottom-color: var(--neon);
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+.pestanas span {
+  margin-left: 4px;
+  color: var(--text-3);
+  font-size: 13px;
+}
+
+.boletas {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.boleta {
+  display: flex;
+  background: var(--surface);
+  border: 2px dashed var(--line-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--sombra);
+}
+
+.cuerpo {
+  flex: 1;
+  min-width: 0;
+  padding: 24px;
+}
+
+.boleta h2 {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 40px;
+  margin: 20px 0 0;
+}
+
+dt {
+  color: var(--text-3);
+  font-size: 13px;
+}
+
+dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+.acciones-boleta {
+  margin-top: 16px;
+}
+
+.talon {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 6px;
+  width: 220px;
+  padding: 20px;
+  border-left: 2px dashed var(--line-strong);
+}
+
+.talon app-qr-boleta {
+  margin-bottom: 8px;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 17px;
+  font-weight: 500;
+}
+
+small {
+  color: var(--text-3);
+  font-size: 13px;
+}

@@ -1,0 +1,33 @@
+.catalogo {
+  padding: 48px;
+}
+
+.filtros {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  align-items: end;
+  gap: 16px;
+  margin: 24px 0 32px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--sombra);
+}
+
+.resultados {
+  margin-bottom: 16px;
+  color: var(--text-2);
+}
+
+.grilla {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.grilla li {
+  height: 320px;
+}

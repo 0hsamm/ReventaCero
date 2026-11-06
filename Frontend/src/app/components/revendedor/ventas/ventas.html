@@ -1,0 +1,62 @@
+<div class="pagina-panel">
+  <header class="panel-header">
+    <h1>Mis ventas</h1>
+    <p>Las boletas que has revendido.</p>
+  </header>
+
+  @if (cargando()) {
+    <div class="esqueleto" style="height: 240px"></div>
+  } @else if (error()) {
+    <div class="aviso aviso-error" role="alert">
+      <strong>{{ error() }}</strong>
+      <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else {
+    <div class="metricas">
+      <div class="metrica">
+        <span>Reventas</span>
+        <strong>{{ total() }}</strong>
+      </div>
+      <div class="metrica">
+        <span>Total vendido</span>
+        <strong>{{ totalVendido() | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</strong>
+      </div>
+      <div class="metrica">
+        <span>Comisión del organizador</span>
+        <strong>{{ totalComision() | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</strong>
+      </div>
+    </div>
+
+    @if (total() === 0) {
+      <div class="aviso"><strong>Todavía no has revendido boletas</strong></div>
+    } @else {
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th scope="col">Fecha</th>
+            <th scope="col">Boleta</th>
+            <th scope="col">Comprador</th>
+            <th scope="col">Método</th>
+            <th scope="col" class="numero">Precio</th>
+            <th scope="col" class="numero">Comisión</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (venta of filas(); track venta.idTransaccion) {
+            <tr>
+              <td class="sin-salto">{{ venta.fechaHora | date: 'd MMM y, HH:mm' }}</td>
+              <td>{{ venta.codigoBoleta }}</td>
+              <td>{{ venta.compradorDocumento }}</td>
+              <td>{{ venta.metodoPago }}</td>
+              <td class="numero">{{ venta.precio | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</td>
+              <td class="numero">
+                {{ venta.comisionOrganizador | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <app-paginacion [total]="total()" [(pagina)]="pagina"></app-paginacion>
+    }
+  }
+</div>

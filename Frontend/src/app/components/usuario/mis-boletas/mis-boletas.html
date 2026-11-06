@@ -1,0 +1,160 @@
+<div class="pagina-panel">
+  <header class="panel-header no-imprimir">
+    <h1>Mis boletas</h1>
+    <p>Presenta el código QR de cada boleta y tu documento al ingresar al festival.</p>
+  </header>
+
+  @if (seleccionada(); as boleta) {
+    <section class="tarjeta-panel no-imprimir">
+      <h2>Devolver boleta {{ boleta.codigoBoleta }}</h2>
+      <p class="nota aviso-tope">Se reembolsará el valor pagado por esta boleta.</p>
+      @if (errorAccion()) {
+        <p class="error-general" role="alert">{{ errorAccion() }}</p>
+      }
+      <form class="form-grid" novalidate (ngSubmit)="pedirDevolucion()">
+        <app-campo etiqueta="Motivo" para="motivo" [error]="errores()['motivo']">
+          <input
+            id="motivo"
+            name="motivo"
+            class="input"
+            [class.invalido]="errores()['motivo']"
+            [attr.aria-invalid]="!!errores()['motivo']"
+            [(ngModel)]="motivo"
+          />
+        </app-campo>
+        <app-campo etiqueta="Reembolsar por" para="metodoDevolucion" [error]="errores()['metodo']">
+          <select
+            id="metodoDevolucion"
+            name="metodo"
+            class="input"
+            [class.invalido]="errores()['metodo']"
+            [attr.aria-invalid]="!!errores()['metodo']"
+            [(ngModel)]="metodo"
+          >
+            <option value="">Selecciona</option>
+            @for (item of metodos; track item) {
+              <option>{{ item }}</option>
+            }
+          </select>
+        </app-campo>
+        <div class="completo acciones-fila">
+          <button type="submit" class="btn btn-primary" [disabled]="enviando()">
+            Solicitar devolución
+          </button>
+          <button type="button" class="btn btn-ghost" (click)="cerrar()">Cancelar</button>
+        </div>
+      </form>
+    </section>
+  }
+
+  @if (cargando()) {
+    <div class="esqueleto" style="height: 180px"></div>
+  } @else if (error()) {
+    <div class="aviso aviso-error" role="alert">
+      <strong>{{ error() }}</strong>
+      <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else {
+    <div class="pestanas no-imprimir" role="group" aria-label="Filtrar boletas">
+      <button
+        type="button"
+        [class.activa]="pestana() === 'vigentes'"
+        [attr.aria-pressed]="pestana() === 'vigentes'"
+        (click)="pestana.set('vigentes')"
+      >
+        Vigentes <span>{{ vigentes().length }}</span>
+      </button>
+      <button
+        type="button"
+        [class.activa]="pestana() === 'pasadas'"
+        [attr.aria-pressed]="pestana() === 'pasadas'"
+        (click)="pestana.set('pasadas')"
+      >
+        Pasadas <span>{{ pasadas().length }}</span>
+      </button>
+    </div>
+
+    <div class="boletas">
+      @for (boleta of visibles(); track boleta.codigoBoleta) {
+        <article class="boleta" [class.boleta-imprimir]="imprimiendo() === boleta.codigoBoleta">
+          <div class="cuerpo">
+            <h2>{{ boleta.festival.nombre }}</h2>
+            @if (boleta.devuelta) {
+              <span class="chip chip-alerta">Devuelta</span>
+            }
+            <p class="nota">
+              {{ boleta.festival.fechaInicio | date: 'd MMM' }} –
+              {{ boleta.festival.fechaFin | date: 'd MMM y' }} · {{ boleta.festival.ubicacionCiudad }}
+            </p>
+            <dl>
+              <div>
+                <dt>Entrada</dt>
+                <dd>{{ boleta.tipoEntrada.categoria }} · {{ boleta.zona.nombre }}</dd>
+              </div>
+              <div>
+                <dt>Precio base</dt>
+                <dd>{{ boleta.tipoEntrada.precioBase | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</dd>
+              </div>
+              <div>
+                <dt>Tope de reventa</dt>
+                <dd>
+                  {{ boleta.tipoEntrada.precioTopeReventa | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}
+                </dd>
+              </div>
+            </dl>
+            <div class="acciones-fila acciones-boleta no-imprimir">
+              <button
+                type="button"
+                class="btn btn-ghost btn-sm"
+                (click)="imprimir(boleta.codigoBoleta)"
+              >
+                Imprimir
+              </button>
+              @if (pestana() === 'vigentes') {
+                <a
+                  class="btn btn-ghost btn-sm"
+                  routerLink="/app/revendedor/boletas"
+                  [queryParams]="{ boleta: boleta.codigoBoleta }"
+                >
+                  Revender
+                </a>
+                @if (puedeDevolver(boleta)) {
+                  <button type="button" class="btn btn-ghost btn-sm" (click)="abrir(boleta)">
+                    Devolver
+                  </button>
+                }
+              }
+            </div>
+          </div>
+
+          <div class="talon">
+            @if (!boleta.devuelta) {
+              <app-qr-boleta [codigo]="boleta.codigoBoleta" />
+            }
+            <small>Código</small>
+            <code>{{ boleta.codigoBoleta }}</code>
+            <small>Emitida el {{ boleta.fechaEmision | date: 'd MMM y' }}</small>
+          </div>
+        </article>
+      } @empty {
+        <div class="aviso">
+          @if (pestana() === 'vigentes') {
+            <strong>No tienes boletas vigentes</strong>
+            <a class="btn btn-primary" routerLink="/eventos">Ver festivales</a>
+          } @else {
+            <strong>Aún no tienes boletas pasadas</strong>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<app-confirm-dialog
+  title="Devolver boleta"
+  message="La boleta dejará de ser válida y esto no se puede deshacer. Si está publicada para reventa, se retirará de la venta."
+  confirmLabel="Devolver"
+  [visible]="confirmandoDevolucion()"
+  (confirmed)="devolver()"
+  (cancelled)="confirmandoDevolucion.set(false)"
+></app-confirm-dialog>

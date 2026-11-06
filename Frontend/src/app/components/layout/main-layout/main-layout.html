@@ -1,0 +1,7 @@
+<div class="main-layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="panel-pane" #panel>
+    <router-outlet (activate)="panel.scrollTop = 0"></router-outlet>
+  </main>
+</div>

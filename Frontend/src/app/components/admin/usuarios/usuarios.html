@@ -1,0 +1,145 @@
+<div class="pagina-panel">
+  <header class="panel-header">
+    <h1>Usuarios</h1>
+    <p>Suspende o bloquea cuentas y crea organizadores.</p>
+  </header>
+
+  <div class="acciones-fila barra">
+    <button type="button" class="btn btn-primary" (click)="abrirFormulario()">Crear organizador</button>
+  </div>
+
+  @if (formularioAbierto()) {
+    <section class="tarjeta-panel">
+      <h2>Nuevo organizador</h2>
+      @if (errorForm()) {
+        <p class="error-general" role="alert">{{ errorForm() }}</p>
+      }
+      <form class="form-grid" novalidate (ngSubmit)="crearOrganizador()">
+        <app-campo etiqueta="Documento" para="documento" [error]="errores()['documento']">
+          <input id="documento" name="documento" class="input" inputmode="numeric" autocomplete="off" [(ngModel)]="form.documento" />
+        </app-campo>
+        <app-campo etiqueta="Cargo" para="cargo" [error]="errores()['cargo']">
+          <input id="cargo" name="cargo" class="input" [(ngModel)]="form.cargo" />
+        </app-campo>
+        <app-campo etiqueta="Nombre" para="nombre" [error]="errores()['nombre']">
+          <input id="nombre" name="nombre" class="input" autocomplete="off" [(ngModel)]="form.nombre" />
+        </app-campo>
+        <app-campo etiqueta="Apellido" para="apellido" [error]="errores()['apellido']">
+          <input id="apellido" name="apellido" class="input" autocomplete="off" [(ngModel)]="form.apellido" />
+        </app-campo>
+        <app-campo etiqueta="Correo" para="correo" [error]="errores()['correo']">
+          <input id="correo" name="correo" type="email" class="input" autocomplete="off" [(ngModel)]="form.correo" />
+        </app-campo>
+        <app-campo etiqueta="Fecha de nacimiento" para="fechaNacimiento" [error]="errores()['fechaNacimiento']">
+          <input id="fechaNacimiento" name="fechaNacimiento" type="date" class="input" [max]="hoy" [(ngModel)]="form.fechaNacimiento" />
+        </app-campo>
+        <app-campo etiqueta="Nombre de usuario" para="nombreUsuario" [error]="errores()['nombreUsuario']">
+          <input id="nombreUsuario" name="nombreUsuario" class="input" autocomplete="off" [(ngModel)]="form.nombreUsuario" />
+        </app-campo>
+        <app-campo etiqueta="Contraseña inicial" para="contrasenia" [error]="errores()['contrasenia']">
+          <input id="contrasenia" name="contrasenia" type="password" class="input" autocomplete="new-password" [(ngModel)]="form.contrasenia" />
+        </app-campo>
+        <div class="completo acciones-fila">
+          <button type="submit" class="btn btn-primary">Crear</button>
+          <button type="button" class="btn btn-ghost" (click)="formularioAbierto.set(false)">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  <div class="filtros-usuarios">
+    <div class="field">
+      <label for="busqueda">Buscar</label>
+      <input
+        id="busqueda"
+        type="search"
+        class="input"
+        placeholder="Nombre, usuario, correo o documento"
+        [ngModel]="busqueda()"
+        (ngModelChange)="filtrar('busqueda', $event)"
+      />
+    </div>
+    <div class="field">
+      <label for="filtroRol">Rol</label>
+      <select
+        id="filtroRol"
+        class="input"
+        [ngModel]="filtroRol()"
+        (ngModelChange)="filtrar('rol', $event)"
+      >
+        <option value="">Todos</option>
+        @for (rol of roles; track rol) {
+          <option>{{ rol }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (cargando()) {
+    <div class="esqueleto" style="height: 280px"></div>
+  } @else if (error()) {
+    <div class="aviso aviso-error" role="alert">
+      <strong>{{ error() }}</strong>
+      <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (total() === 0) {
+    <div class="aviso"><strong>Ningún usuario coincide</strong></div>
+  } @else {
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th scope="col">Nombre</th>
+          <th scope="col">Usuario</th>
+          <th scope="col">Correo</th>
+          <th scope="col">Rol</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (usuario of filas(); track usuario.documento) {
+          <tr>
+            <td>{{ usuario.nombre }} {{ usuario.apellido }}</td>
+            <td>{{ usuario.nombreUsuario }}</td>
+            <td>{{ usuario.correo }}</td>
+            <td>{{ usuario.tipoUsuario }}</td>
+            <td>
+              <span class="chip" [class]="claseEstado(usuario.estadoCuenta)">
+                {{ usuario.estadoCuenta }}
+              </span>
+            </td>
+            <td>
+              @if (usuario.documento !== yo()) {
+                <div class="acciones-fila">
+                  @for (estado of estados; track estado) {
+                    @if (estado !== usuario.estadoCuenta) {
+                      <button
+                        type="button"
+                        class="btn btn-ghost btn-sm"
+                        (click)="cambio.set({ usuario, estado })"
+                      >
+                        {{ estado === 'ACTIVA' ? 'Activar' : estado === 'SUSPENDIDA' ? 'Suspender' : 'Bloquear' }}
+                      </button>
+                    }
+                  }
+                </div>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <app-paginacion [total]="total()" [(pagina)]="pagina"></app-paginacion>
+  }
+</div>
+
+<app-confirm-dialog
+  title="Cambiar estado de la cuenta"
+  [message]="'La cuenta de ' + (cambio()?.usuario?.nombreUsuario ?? '') + ' pasará a ' + (cambio()?.estado ?? '') + '.'"
+  confirmLabel="Confirmar"
+  [visible]="cambio() != null"
+  (confirmed)="confirmarCambio()"
+  (cancelled)="cambio.set(null)"
+></app-confirm-dialog>

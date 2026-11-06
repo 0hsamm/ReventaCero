@@ -1,0 +1,62 @@
+<div class="pagina-panel">
+  <header class="panel-header">
+    <h1>Listas de espera</h1>
+    <p>Te avisamos cuando se libere un cupo en una entrada agotada.</p>
+  </header>
+
+  @if (cargando()) {
+    <div class="esqueleto" style="height: 200px"></div>
+  } @else if (error()) {
+    <div class="aviso aviso-error" role="alert">
+      <strong>{{ error() }}</strong>
+      <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (filas().length === 0) {
+    <div class="aviso">
+      <strong>No estás en ninguna lista de espera</strong>
+      <span>Puedes unirte desde un festival cuando una entrada esté agotada.</span>
+      <a class="btn btn-primary" routerLink="/eventos">Ver festivales</a>
+    </div>
+  } @else {
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th scope="col">Entrada</th>
+          <th scope="col">Solicitud</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="numero">Posición</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (fila of filas(); track fila.idLista) {
+          <tr>
+            <td>{{ fila.descripcion }}</td>
+            <td class="sin-salto">{{ fila.fechaSolicitud | date: 'd MMM y' }}</td>
+            <td>
+              <span class="chip" [class]="claseEstado(fila.estado)">{{ fila.estado }}</span>
+            </td>
+            <td class="numero">{{ fila.posicion ?? '—' }}</td>
+            <td>
+              @if (fila.estado !== 'CANCELADA') {
+                <button type="button" class="btn btn-ghost btn-sm" (click)="cancelando.set(fila)">
+                  Cancelar
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+
+<app-confirm-dialog
+  title="Cancelar inscripción"
+  message="Perderás tu lugar en la cola de esta entrada."
+  confirmLabel="Cancelar inscripción"
+  cancelLabel="Volver"
+  [visible]="cancelando() != null"
+  (confirmed)="confirmarCancelacion()"
+  (cancelled)="cancelando.set(null)"
+></app-confirm-dialog>

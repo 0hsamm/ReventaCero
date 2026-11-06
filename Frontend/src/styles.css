@@ -1,0 +1,564 @@
+/*
+  Tema oscuro: el principal.
+  El neón se usa como relleno con texto negro (--neon / --on-neon). Como texto solo funciona
+  sobre oscuro: en claro daría 1,1:1, así que --accent cambia a negro y el neón pasa a ser fondo.
+*/
+:root {
+  --neon: #ccff00;
+  --on-neon: #050505;
+  --bg: #050505;
+  --surface: #121212;
+  --surface-2: #1f1f1f;
+  --line: #2e2e2e;
+  --line-strong: #f4f4f5;
+  --text-1: #f4f4f5;
+  --text-2: #c4c4c9;
+  --text-3: #a1a1aa;
+  --accent: #ccff00;
+  --accent-hover: #dcff4d;
+  --accent-soft: rgb(204 255 0 / 14%);
+  --on-accent: #050505;
+  --ok: #ccff00;
+  --ok-soft: rgb(204 255 0 / 14%);
+  --danger: #ff6b5e;
+  --danger-soft: rgb(255 107 94 / 14%);
+  --sello: #ff6b5e;
+  --radius: 2px;
+  /* Sombra brutalista: sin desenfoque. En oscuro el borde hace ese trabajo. */
+  --sombra: none;
+  --sombra-recorte: none;
+  --font-display: 'Anton', Impact, 'Arial Narrow', sans-serif;
+  --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --bg: #f9f9f9;
+  --surface: #ffffff;
+  --surface-2: #ececec;
+  --line: #0f0f0f;
+  --line-strong: #0f0f0f;
+  --text-1: #0f0f0f;
+  --text-2: #3a3a3f;
+  --text-3: #52525b;
+  --accent: #0f0f0f;
+  --accent-hover: #2a2a2a;
+  --accent-soft: #ccff00;
+  --on-accent: #ffffff;
+  --ok: #0f0f0f;
+  --ok-soft: #ccff00;
+  --danger: #b3261e;
+  --danger-soft: #fbe4e2;
+  --sello: #b3261e;
+  --sombra: 4px 4px 0 #000;
+  /* drop-shadow sigue la silueta de los boletos troquelados; box-shadow se recortaría */
+  --sombra-recorte: drop-shadow(4px 4px 0 #000);
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 88px;
+}
+
+/* La aplicación es solo para PC: en ventanas más angostas aparece scroll horizontal */
+body {
+  min-width: 1180px;
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ruido sobre toda la página para quitarle lo plano al fondo */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Tipografía de impacto */
+.titulo-seccion {
+  font-family: var(--font-display);
+  font-size: 112px;
+  font-weight: 400;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.contorno {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--text-1);
+}
+
+.resaltado {
+  padding: 0 0.14em;
+  background: var(--neon);
+  color: var(--on-neon);
+}
+
+/* Botones */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.btn-primary {
+  background: var(--neon);
+  border-color: var(--on-neon);
+  color: var(--on-neon);
+  box-shadow: var(--sombra);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #dcff4d;
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--line-strong);
+  color: var(--text-1);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: var(--bg);
+}
+
+/* Formularios */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.field label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.input:focus {
+  border-color: var(--accent);
+}
+
+.input.invalido {
+  border-color: var(--danger);
+}
+
+.field-error {
+  font-size: 13px;
+  color: var(--danger);
+}
+
+.field-help {
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+/* Estados de festival */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.chip-proximo {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.chip-en-curso {
+  background: var(--neon);
+  color: var(--on-neon);
+}
+
+.chip-finalizado {
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+/* Estructura común de los paneles */
+.panel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 24px;
+}
+
+.panel-header h1 {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 400;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.panel-header p {
+  color: var(--text-2);
+}
+
+.aviso {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 32px 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--sombra);
+  color: var(--text-2);
+}
+
+.aviso strong {
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+.aviso-error {
+  border-color: var(--danger);
+}
+
+.esqueleto {
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  animation: latido 1.4s ease-in-out infinite;
+}
+
+@keyframes latido {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Componentes compartidos por los paneles de cada rol */
+.pagina-panel {
+  max-width: 1240px;
+  margin-inline: auto;
+  padding: 32px;
+}
+
+.metricas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metrica,
+.tarjeta-panel {
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--sombra);
+}
+
+.metrica span {
+  display: block;
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.metrica strong {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.tarjeta-panel {
+  margin-bottom: 24px;
+}
+
+.tarjeta-panel > h2 {
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  font-size: 15px;
+}
+
+.tabla th {
+  padding: 10px 12px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+}
+
+/* Correos y nombres largos no deben empujar la tabla fuera del panel */
+.tabla td {
+  padding: 12px;
+  border-top: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+
+.tabla .numero {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabla .sin-salto {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.tabla select.input {
+  min-width: 156px;
+  min-height: 36px;
+}
+
+.acciones-fila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-sm {
+  min-height: 36px;
+  padding: 0 10px;
+  font-size: 14px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.form-grid .completo {
+  grid-column: 1 / -1;
+}
+
+.chip-ok {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.chip-alerta {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.chip-neutro {
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+.nota {
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.barra {
+  margin-bottom: 16px;
+}
+
+.filtro {
+  max-width: 320px;
+  margin-bottom: 16px;
+}
+
+.error-general {
+  padding: 12px;
+  margin-bottom: 16px;
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 14px;
+}
+
+.field-label {
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.pregunta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.opciones-radio {
+  display: flex;
+  gap: 8px;
+}
+
+.opciones-radio label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.opciones-radio label:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.tabla tfoot th {
+  border-top: 1px solid var(--line-strong);
+  color: var(--text-1);
+  font-size: 15px;
+}
+
+/* Al imprimir una boleta solo sale esa boleta */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .boleta-imprimir,
+  .boleta-imprimir * {
+    visibility: visible;
+    color: #000 !important;
+  }
+
+  .boleta-imprimir {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-shadow: none !important;
+  }
+
+  .no-imprimir {
+    display: none !important;
+  }
+}
+
+.agregar {
+  margin-top: 20px;
+}
+
+.volver {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--text-1);
+  text-decoration-color: var(--neon);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.filtros-usuarios {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}

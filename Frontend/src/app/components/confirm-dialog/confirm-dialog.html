@@ -1,0 +1,13 @@
+<dialog #dialogo [attr.aria-label]="title()" (cancel)="alCancelar($event)">
+  <h2>{{ title() }}</h2>
+  <p>{{ message() }}</p>
+
+  <div class="acciones">
+    <button type="button" class="btn btn-ghost" (click)="cancelled.emit()">
+      {{ cancelLabel() }}
+    </button>
+    <button type="button" class="btn btn-danger" (click)="confirmed.emit()">
+      {{ confirmLabel() }}
+    </button>
+  </div>
+</dialog>

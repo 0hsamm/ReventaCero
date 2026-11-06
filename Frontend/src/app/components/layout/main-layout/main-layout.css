@@ -1,0 +1,10 @@
+.main-layout {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  height: 100dvh;
+}
+
+.panel-pane {
+  min-height: 0;
+  overflow-y: auto;
+}
