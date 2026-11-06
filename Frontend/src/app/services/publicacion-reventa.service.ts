@@ -3,7 +3,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable, switchMap, tap } from 'rxjs';
 
 import { environment } from '../../environment/environment';
-import { PublicacionReventa } from '../models/modelos';
+import { PublicacionReventa, ReventaAutorizada } from '../models/modelos';
 import { BoletaService } from './boleta.service';
 
 // Boletas publicadas para que cualquier usuario las compre. Siguen siendo del revendedor hasta la venta.
@@ -16,7 +16,7 @@ export class PublicacionReventaService {
 
   private api = `${environment.apiUrl}/publicaciones-reventa`;
 
-  /** Ventas del revendedor: el menú lateral las suma a su contador de notificaciones. */
+  /** Boletas vendidas: el menú lateral las suma a su contador de notificaciones. */
   readonly vendidas = signal(0);
 
   disponibles(): Observable<PublicacionReventa[]> {
@@ -24,21 +24,26 @@ export class PublicacionReventaService {
   }
 
   mias(): Observable<PublicacionReventa[]> {
-    return this.http
-      .get<PublicacionReventa[]>(`${this.api}/mias`)
-      .pipe(tap((lista) => this.vendidas.set(lista.filter((p) => p.estado === 'VENDIDA').length)));
+    return this.http.get<PublicacionReventa[]>(`${this.api}/mias`);
   }
 
-  publicar(codigoBoleta: number, precio: number): Observable<PublicacionReventa> {
-    return this.http.post<PublicacionReventa>(this.api, { codigoBoleta, precio });
+  /** Las ventas ya quedan en las reventas registradas: de ahí sale el aviso al revendedor. */
+  ventas(documento: number): Observable<ReventaAutorizada[]> {
+    return this.boletaService
+      .reventasComoVendedor(documento)
+      .pipe(tap((lista) => this.vendidas.set(lista.length)));
   }
 
-  comprar(id: number, metodoPago: string): Observable<PublicacionReventa> {
+  publicar(codigoBoleta: number, precio: number): Observable<unknown> {
+    return this.http.post(this.api, { codigoBoleta, precio });
+  }
+
+  comprar(referencia: number, metodoPago: string): Observable<unknown> {
     return this.boletaService
       .dispositivoActivo()
       .pipe(
         switchMap((dispositivo) =>
-          this.http.put<PublicacionReventa>(`${this.api}/${id}/comprar`, {
+          this.http.put(`${this.api}/${referencia}/comprar`, {
             idDispositivo: dispositivo.idDispositivo,
             metodoPago,
           }),
@@ -46,7 +51,7 @@ export class PublicacionReventaService {
       );
   }
 
-  retirar(id: number): Observable<PublicacionReventa> {
-    return this.http.put<PublicacionReventa>(`${this.api}/${id}/retirar`, {});
+  retirar(codigoBoleta: number): Observable<unknown> {
+    return this.http.put(`${this.api}/boleta/${codigoBoleta}/retirar`, {});
   }
 }

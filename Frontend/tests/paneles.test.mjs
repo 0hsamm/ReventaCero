@@ -34,7 +34,6 @@ registerHooks({
 const { AuthService } = await import('../src/app/services/auth.service.ts');
 const { ThemeService } = await import('../src/app/services/theme.service.ts');
 const { ListaEsperaService } = await import('../src/app/services/lista-espera.service.ts');
-const { SolicitudReventaService } = await import('../src/app/services/solicitud-reventa.service.ts');
 const { PublicacionReventaService } = await import('../src/app/services/publicacion-reventa.service.ts');
 const { SidebarComponent } = await import('../src/app/components/sidebar/sidebar.ts');
 const { routes } = await import('../src/app/app.routes.ts');
@@ -81,7 +80,6 @@ function preparar(jwt, metadatos = {}, respuesta = {}, volver = null) {
     { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: { get: () => volver } } } },
     { provide: ThemeService, useValue: {} },
     { provide: ListaEsperaService, useValue: {} },
-    { provide: SolicitudReventaService, useValue: {} },
     { provide: PublicacionReventaService, useValue: {} },
   ]);
   return {

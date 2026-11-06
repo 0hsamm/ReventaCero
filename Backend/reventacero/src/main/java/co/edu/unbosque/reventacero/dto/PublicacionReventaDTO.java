@@ -2,19 +2,17 @@ package co.edu.unbosque.reventacero.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
-/** Boleta publicada para reventa, con los datos que necesita quien la va a comprar. */
+/**
+ * Boleta en venta. La referencia es la última transacción de la boleta: identifica la publicación sin
+ * revelar el código (que es lo que da acceso al festival) y cambia en cuanto la boleta se vende.
+ */
 public class PublicacionReventaDTO {
 
-	private long idPublicacion;
-	private LocalDateTime fechaPublicacion;
+	private long referencia;
 	private BigDecimal precio;
-	private String estado;
-	private LocalDateTime fechaCierre;
 	private long codigoBoleta;
 	private long vendedorDocumento;
-	private long compradorDocumento;
 	private long idFestival;
 	private String nombreFestival;
 	private String ciudad;
@@ -26,22 +24,14 @@ public class PublicacionReventaDTO {
 	public PublicacionReventaDTO() {
 	}
 
-	public long getIdPublicacion() { return idPublicacion; }
-	public void setIdPublicacion(long idPublicacion) { this.idPublicacion = idPublicacion; }
-	public LocalDateTime getFechaPublicacion() { return fechaPublicacion; }
-	public void setFechaPublicacion(LocalDateTime fechaPublicacion) { this.fechaPublicacion = fechaPublicacion; }
+	public long getReferencia() { return referencia; }
+	public void setReferencia(long referencia) { this.referencia = referencia; }
 	public BigDecimal getPrecio() { return precio; }
 	public void setPrecio(BigDecimal precio) { this.precio = precio; }
-	public String getEstado() { return estado; }
-	public void setEstado(String estado) { this.estado = estado; }
-	public LocalDateTime getFechaCierre() { return fechaCierre; }
-	public void setFechaCierre(LocalDateTime fechaCierre) { this.fechaCierre = fechaCierre; }
 	public long getCodigoBoleta() { return codigoBoleta; }
 	public void setCodigoBoleta(long codigoBoleta) { this.codigoBoleta = codigoBoleta; }
 	public long getVendedorDocumento() { return vendedorDocumento; }
 	public void setVendedorDocumento(long vendedorDocumento) { this.vendedorDocumento = vendedorDocumento; }
-	public long getCompradorDocumento() { return compradorDocumento; }
-	public void setCompradorDocumento(long compradorDocumento) { this.compradorDocumento = compradorDocumento; }
 	public long getIdFestival() { return idFestival; }
 	public void setIdFestival(long idFestival) { this.idFestival = idFestival; }
 	public String getNombreFestival() { return nombreFestival; }

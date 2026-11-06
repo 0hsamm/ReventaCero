@@ -7,7 +7,6 @@ import { ETIQUETA_ROL, TipoUsuario } from '../../models/modelos';
 import { AuthService } from '../../services/auth.service';
 import { ListaEsperaService } from '../../services/lista-espera.service';
 import { PublicacionReventaService } from '../../services/publicacion-reventa.service';
-import { SolicitudReventaService } from '../../services/solicitud-reventa.service';
 import { ThemeService } from '../../services/theme.service';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
 
@@ -64,7 +63,6 @@ const MENU: Record<TipoUsuario, OpcionMenu[]> = {
 export class SidebarComponent implements OnInit {
   private authService = inject(AuthService);
   private listaService = inject(ListaEsperaService);
-  private solicitudService = inject(SolicitudReventaService);
   private publicacionService = inject(PublicacionReventaService);
   private router = inject(Router);
   protected themeService = inject(ThemeService);
@@ -72,7 +70,7 @@ export class SidebarComponent implements OnInit {
   protected confirmandoSalida = signal(false);
   private avisos = signal(0);
   protected totalNotificaciones = computed(
-    () => this.avisos() + this.solicitudService.pendientes() + this.publicacionService.vendidas(),
+    () => this.avisos() + this.publicacionService.vendidas(),
   );
 
   private sesion = this.authService.sesion;
@@ -106,8 +104,7 @@ export class SidebarComponent implements OnInit {
         next: (lista) => this.avisos.set(lista.length),
         error: () => this.avisos.set(0),
       });
-      this.solicitudService.recibidas().subscribe({ error: () => undefined });
-      this.publicacionService.mias().subscribe({ error: () => undefined });
+      this.publicacionService.ventas(documento).subscribe({ error: () => undefined });
     }
   }
 

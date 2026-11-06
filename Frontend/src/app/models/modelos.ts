@@ -175,61 +175,12 @@ export interface ReventaAutorizada extends Transaccion {
   compradorDocumento: number;
 }
 
-export type EstadoSolicitudReventa = 'PENDIENTE' | 'ACEPTADA' | 'RECHAZADA' | 'CANCELADA';
-
-export const ETIQUETA_ESTADO_SOLICITUD: Record<EstadoSolicitudReventa, string> = {
-  PENDIENTE: 'Esperando respuesta',
-  ACEPTADA: 'Aceptada',
-  RECHAZADA: 'Rechazada',
-  CANCELADA: 'Cancelada',
-};
-
-export const CLASE_ESTADO_SOLICITUD: Record<EstadoSolicitudReventa, string> = {
-  PENDIENTE: 'chip-neutro',
-  ACEPTADA: 'chip-ok',
-  RECHAZADA: 'chip-alerta',
-  CANCELADA: 'chip-neutro',
-};
-
-export interface SolicitudReventa {
-  idSolicitud: number;
-  fechaHora: string;
-  precio: number;
-  metodoPago: string;
-  estado: EstadoSolicitudReventa;
-  fechaRespuesta: string | null;
-  codigoBoleta: number;
-  vendedorDocumento: number;
-  compradorDocumento: number;
-  nombreVendedor: string;
-  nombreFestival: string;
-  categoriaEntrada: string;
-  nombreZona: string;
-}
-
-export type EstadoPublicacion = 'DISPONIBLE' | 'VENDIDA' | 'RETIRADA';
-
-export const ETIQUETA_ESTADO_PUBLICACION: Record<EstadoPublicacion, string> = {
-  DISPONIBLE: 'Publicada',
-  VENDIDA: 'Vendida',
-  RETIRADA: 'Retirada',
-};
-
-export const CLASE_ESTADO_PUBLICACION: Record<EstadoPublicacion, string> = {
-  DISPONIBLE: 'chip-alerta',
-  VENDIDA: 'chip-ok',
-  RETIRADA: 'chip-neutro',
-};
-
 export interface PublicacionReventa {
-  idPublicacion: number;
-  fechaPublicacion: string;
+  /** Identifica la boleta en venta sin revelar su código; cambia cuando la boleta se vende. */
+  referencia: number;
   precio: number;
-  estado: EstadoPublicacion;
-  fechaCierre: string | null;
   codigoBoleta: number;
   vendedorDocumento: number;
-  compradorDocumento: number;
   idFestival: number;
   nombreFestival: string;
   ciudad: string;

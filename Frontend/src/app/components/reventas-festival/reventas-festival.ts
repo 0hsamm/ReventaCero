@@ -1,4 +1,4 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
@@ -23,7 +23,7 @@ import { BoletaResumen, DialogoSesionComponent } from '../dialogo-sesion/dialogo
 
 @Component({
   selector: 'app-reventas-festival',
-  imports: [CurrencyPipe, DatePipe, FormsModule, DialogoSesionComponent],
+  imports: [CurrencyPipe, FormsModule, DialogoSesionComponent],
   templateUrl: './reventas-festival.html',
   styleUrl: './reventas-festival.css',
 })
@@ -76,7 +76,7 @@ export class ReventasFestivalComponent implements OnInit {
 
         const elegida = this.seleccionada();
 
-        if (elegida && !delFestival.some((p) => p.idPublicacion === elegida.idPublicacion)) {
+        if (elegida && !delFestival.some((p) => p.referencia === elegida.referencia)) {
           this.seleccionada.set(null);
         }
       },
@@ -132,7 +132,7 @@ export class ReventasFestivalComponent implements OnInit {
 
     this.enviando.set(true);
 
-    this.publicacionService.comprar(publicacion.idPublicacion, this.metodo).subscribe({
+    this.publicacionService.comprar(publicacion.referencia, this.metodo).subscribe({
       next: () => {
         this.enviando.set(false);
         this.toastService.success('Boleta comprada', 'Ya está en Mis boletas con su código QR.');

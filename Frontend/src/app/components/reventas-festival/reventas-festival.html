@@ -25,12 +25,12 @@
   </div>
 } @else {
   <div class="reventas" role="group" aria-label="Boletas en reventa">
-    @for (publicacion of publicaciones(); track publicacion.idPublicacion) {
+    @for (publicacion of publicaciones(); track publicacion.referencia) {
       <button
         type="button"
         class="reventa"
-        [class.elegida]="seleccionada()?.idPublicacion === publicacion.idPublicacion"
-        [attr.aria-pressed]="seleccionada()?.idPublicacion === publicacion.idPublicacion"
+        [class.elegida]="seleccionada()?.referencia === publicacion.referencia"
+        [attr.aria-pressed]="seleccionada()?.referencia === publicacion.referencia"
         [disabled]="finalizado()"
         (click)="elegir(publicacion)"
       >
@@ -38,11 +38,11 @@
         <span class="cuerpo">
           <span class="zona">{{ publicacion.nombreZona }}</span>
           <strong class="categoria">{{ publicacion.categoriaEntrada }}</strong>
-          <span class="detalle">Publicada el {{ publicacion.fechaPublicacion | date: 'd MMM, HH:mm' }}</span>
+          <span class="detalle">Dentro del tope del organizador</span>
           <span class="pie">
             <span class="precio">{{ publicacion.precio | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</span>
             <span class="accion" aria-hidden="true">
-              {{ seleccionada()?.idPublicacion === publicacion.idPublicacion ? 'Elegida ✓' : 'Comprar' }}
+              {{ seleccionada()?.referencia === publicacion.referencia ? 'Elegida ✓' : 'Comprar' }}
             </span>
           </span>
         </span>

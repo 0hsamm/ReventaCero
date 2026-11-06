@@ -23,7 +23,6 @@ import co.edu.unbosque.reventacero.exception.ReglaNegocioException;
 import co.edu.unbosque.reventacero.repository.BoletaRepository;
 import co.edu.unbosque.reventacero.repository.DevolucionRepository;
 import co.edu.unbosque.reventacero.repository.PublicacionReventaRepository;
-import co.edu.unbosque.reventacero.repository.SolicitudReventaRepository;
 import co.edu.unbosque.reventacero.repository.TipoEntradaRepository;
 import co.edu.unbosque.reventacero.repository.TransaccionRepository;
 import co.edu.unbosque.reventacero.util.Validaciones;
@@ -51,8 +50,6 @@ public class DevolucionService {
 	
 	private final NotificacionService notificacionService;
 
-	private final SolicitudReventaRepository solicitudRepo;
-
 	private final PublicacionReventaRepository publicacionRepo;
 
 	private final ModelMapper modelMapper;
@@ -62,7 +59,7 @@ public class DevolucionService {
 			BoletaRepository boletaRepo, TipoEntradaRepository tipoEntradaRepo, BoletaService boletaService,
 			UsuarioService usuarioService, DispositivoService dispositivoService,
 			TransaccionService transaccionService, NotificacionService notificacionService,
-			SolicitudReventaRepository solicitudRepo, PublicacionReventaRepository publicacionRepo,
+			PublicacionReventaRepository publicacionRepo,
 			ModelMapper modelMapper) {
 		this.devolucionRepo = devolucionRepo;
 		this.transaccionRepo = transaccionRepo;
@@ -73,7 +70,6 @@ public class DevolucionService {
 		this.dispositivoService = dispositivoService;
 		this.transaccionService = transaccionService;
 		this.notificacionService = notificacionService;
-		this.solicitudRepo = solicitudRepo;
 		this.publicacionRepo = publicacionRepo;
 		this.modelMapper = modelMapper;
 	}
@@ -131,10 +127,8 @@ public class DevolucionService {
 
 		transaccionRepo.save(devolucion);
 		devolucionRepo.save(devolucion);
-		// Una boleta devuelta ya no se puede transferir: su oferta pendiente deja de tener sentido
-		solicitudRepo.cancelarPendientesDeBoleta(boleta.getCodigoBoleta(), SolicitudReventaService.CANCELADA,
-				LocalDateTime.now());
-		publicacionRepo.retirarDisponiblesDeBoleta(boleta.getCodigoBoleta(), LocalDateTime.now());
+		// Una boleta devuelta ya no se puede revender: si estaba publicada, sale de la venta
+		publicacionRepo.quitarDeVenta(boleta.getCodigoBoleta());
 		notificacionService.notificarCupoLiberado(tipoEntrada.getIdTipoEntrada());
 
 		return aDTO(devolucion);

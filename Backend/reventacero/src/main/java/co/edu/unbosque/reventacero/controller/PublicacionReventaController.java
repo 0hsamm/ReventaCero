@@ -1,5 +1,6 @@
 package co.edu.unbosque.reventacero.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,8 @@ import co.edu.unbosque.reventacero.service.PublicacionReventaService;
 @RequestMapping("/publicaciones-reventa")
 public class PublicacionReventaController {
 
+    private static final String NO_ES_TUYA = "La boleta no pertenece a tu cuenta";
+
     private final PublicacionReventaService publicacionService;
 
     private final BoletaService boletaService;
@@ -32,6 +35,7 @@ public class PublicacionReventaController {
         this.boletaService = boletaService;
     }
 
+    /** Público: la página del festival muestra las reventas también a quien no ha iniciado sesión. */
     @GetMapping
     public List<PublicacionReventaDTO> disponibles(@AuthenticationPrincipal Usuario actual) {
         return publicacionService.disponibles(actual != null ? actual.getDocumento() : 0);
@@ -43,29 +47,37 @@ public class PublicacionReventaController {
     }
 
     @PostMapping
-    public ResponseEntity<?> publicar(@RequestBody PublicacionReventaDTO dto, @AuthenticationPrincipal Usuario actual) {
-        if (boletaService.buscarPorCodigo(dto.getCodigoBoleta()).getDocumentoComprador() != actual.getDocumento()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("La boleta no pertenece a tu cuenta");
+    public ResponseEntity<?> publicar(@RequestBody Publicacion publicacion, @AuthenticationPrincipal Usuario actual) {
+        if (!esDueno(publicacion.codigoBoleta(), actual)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NO_ES_TUYA);
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(publicacionService.publicar(dto, actual.getDocumento()));
+        publicacionService.publicar(publicacion.codigoBoleta(), publicacion.precio());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PreAuthorize("hasRole('USUARIO')")
-    @PutMapping("/{id}/comprar")
-    public ResponseEntity<?> comprar(@PathVariable long id, @RequestBody Compra compra, @AuthenticationPrincipal Usuario actual) {
-        PublicacionReventaDTO comprada = publicacionService.comprar(id, actual.getDocumento(), compra.idDispositivo(), compra.metodoPago());
-        comprada.setVendedorDocumento(0);
-        return ResponseEntity.ok(comprada);
+    @PutMapping("/{referencia}/comprar")
+    public ResponseEntity<?> comprar(@PathVariable long referencia, @RequestBody Compra compra, @AuthenticationPrincipal Usuario actual) {
+        publicacionService.comprar(referencia, actual.getDocumento(), compra.idDispositivo(), compra.metodoPago());
+        return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}/retirar")
-    public ResponseEntity<?> retirar(@PathVariable long id, @AuthenticationPrincipal Usuario actual) {
-        if (publicacionService.buscarPorId(id).getVendedorDocumento() != actual.getDocumento()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Solo quien publicó la boleta puede retirarla");
+    @PutMapping("/boleta/{codigoBoleta}/retirar")
+    public ResponseEntity<?> retirar(@PathVariable long codigoBoleta, @AuthenticationPrincipal Usuario actual) {
+        if (!esDueno(codigoBoleta, actual)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NO_ES_TUYA);
         }
-        return ResponseEntity.ok(publicacionService.retirar(id));
+        publicacionService.retirar(codigoBoleta);
+        return ResponseEntity.noContent().build();
+    }
+
+    public record Publicacion(long codigoBoleta, BigDecimal precio) {
     }
 
     public record Compra(long idDispositivo, String metodoPago) {
+    }
+
+    private boolean esDueno(long codigoBoleta, Usuario actual) {
+        return boletaService.buscarPorCodigo(codigoBoleta).getDocumentoComprador() == actual.getDocumento();
     }
 }

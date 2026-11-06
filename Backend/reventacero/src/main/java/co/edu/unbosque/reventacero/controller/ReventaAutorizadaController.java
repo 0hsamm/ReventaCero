@@ -20,7 +20,7 @@ import co.edu.unbosque.reventacero.service.ReventaAutorizadaService;
 
 /**
  * RF-15, RF-21; controlador de ReventaAutorizada de Fase 2, semana 12. Solo consulta: una reventa nace
- * cuando el receptor acepta en SolicitudReventaController.
+ * cuando alguien compra una boleta publicada en PublicacionReventaController.
  */
 @RestController
 @RequestMapping("/reventas-autorizadas")

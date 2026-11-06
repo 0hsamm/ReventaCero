@@ -75,7 +75,7 @@ public class ReventaAutorizadaService {
 		this.comisionPorcentaje = comisionPorcentaje;
 	}
 
-	/** Reglas de una reventa con comprador conocido: oferta directa y momento de cerrar la venta. */
+	/** Reglas de una reventa con comprador conocido: se revisan al cerrar la venta. */
 	public Boleta validarCondiciones(long codigoBoleta, long compradorDocumento, BigDecimal precio) {
 
 		Boleta boleta = validarBoletaRevendible(codigoBoleta, precio);
