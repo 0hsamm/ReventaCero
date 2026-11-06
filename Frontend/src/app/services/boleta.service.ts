@@ -92,6 +92,14 @@ export class BoletaService {
     );
   }
 
+  qr(codigoBoleta: number): Observable<Blob> {
+    return this.http.get(`${this.api}/boletas/${codigoBoleta}/qr`, { responseType: 'blob' });
+  }
+
+  qrTexto(codigoBoleta: number): Observable<string> {
+    return this.http.get(`${this.api}/boletas/${codigoBoleta}/qr/texto`, { responseType: 'text' });
+  }
+
   transaccionesDeBoleta(codigoBoleta: number): Observable<Transaccion[]> {
     return this.http.get<Transaccion[]>(`${this.api}/transacciones/boleta/${codigoBoleta}`);
   }

@@ -1,0 +1,78 @@
+<div class="auth">
+  <aside class="auth-cartel">
+    <span class="auth-cinta auth-cinta-a" aria-hidden="true"></span>
+    <span class="auth-cinta auth-cinta-b" aria-hidden="true"></span>
+
+    <a class="auth-logo" routerLink="/">Reventa<span>Cero</span></a>
+
+    <div class="auth-titular">
+      @if (etiqueta()) {
+        <span class="auth-etiqueta">{{ etiqueta() }}</span>
+      }
+      <h1>
+        <span class="auth-neon">{{ lineaNeon() }}</span>
+        @if (lineaHueca()) {
+          <span class="auth-hueco">{{ lineaHueca() }}</span>
+        }
+      </h1>
+      @if (grafiti()) {
+        <span class="auth-grafiti" aria-hidden="true">{{ grafiti() }}</span>
+      }
+      @if (texto()) {
+        <p class="auth-texto">{{ texto() }}</p>
+      }
+    </div>
+
+    <ul class="auth-ventajas">
+      <li><i class="pi pi-qrcode" aria-hidden="true"></i> QR único por boleta</li>
+      <li><i class="pi pi-tag" aria-hidden="true"></i> Precio tope de reventa</li>
+      <li><i class="pi pi-verified" aria-hidden="true"></i> Reventas autorizadas</li>
+    </ul>
+
+    <div class="auth-boleta" aria-hidden="true">
+      <div class="auth-boleta-cuerpo">
+        <small>Acceso general</small>
+        <strong>Boleta legítima</strong>
+        <span>Verificada · Sin bots · Precio justo</span>
+      </div>
+      <div class="auth-boleta-talon">
+        <span class="auth-barras"></span>
+        <small>N° 0001</small>
+      </div>
+    </div>
+  </aside>
+
+  <main class="auth-lado">
+    <div class="auth-barra">
+      <a class="auth-volver" routerLink="/eventos">← Ver festivales</a>
+      <button type="button" class="btn btn-ghost auth-tema" (click)="themeService.alternar()">
+        <i
+          class="pi"
+          [class.pi-moon]="themeService.tema() === 'claro'"
+          [class.pi-sun]="themeService.tema() === 'oscuro'"
+          aria-hidden="true"
+        ></i>
+        {{ themeService.tema() === 'claro' ? 'Modo oscuro' : 'Modo claro' }}
+      </button>
+    </div>
+
+    <section class="auth-tarjeta" [class.auth-tarjeta-ancha]="ancha()"
+      [attr.aria-labelledby]="tituloTarjeta() ? 'auth-titulo' : null"
+    >
+      @if (tituloTarjeta()) {
+        <header class="auth-cabecera">
+          @if (paso()) {
+            <span class="auth-paso">{{ paso() }}</span>
+          }
+          <h2 id="auth-titulo">{{ tituloTarjeta() }}</h2>
+        </header>
+      }
+      <div class="auth-cuerpo">
+        <ng-content />
+      </div>
+      <footer class="auth-pie">
+        <ng-content select="[pie]" />
+      </footer>
+    </section>
+  </main>
+</div>

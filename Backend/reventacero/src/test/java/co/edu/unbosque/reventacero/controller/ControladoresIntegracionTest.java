@@ -31,6 +31,7 @@ import co.edu.unbosque.reventacero.exception.RecursoNoEncontradoException;
 import co.edu.unbosque.reventacero.exception.ReglaNegocioException;
 import co.edu.unbosque.reventacero.security.JwtAuthenticationFilter;
 import co.edu.unbosque.reventacero.security.JwtUtil;
+import co.edu.unbosque.reventacero.service.BoletaQrService;
 import co.edu.unbosque.reventacero.security.SecurityConfig;
 import co.edu.unbosque.reventacero.service.*;
 
@@ -83,6 +84,7 @@ class ControladoresIntegracionTest {
     @MockitoBean private UsuarioService usuarioService;
     @MockitoBean private DispositivoService dispositivoService;
     @MockitoBean private BoletaService boletaService;
+    @MockitoBean private BoletaQrService boletaQrService;
     @MockitoBean private TransaccionService transaccionService;
     @MockitoBean private VentaPrimariaService ventaPrimariaService;
     @MockitoBean private DevolucionService devolucionService;
@@ -432,6 +434,72 @@ class ControladoresIntegracionTest {
                 .content("{}"))
                 .andExpect(status().isConflict())
                 .andExpect(content().string("La operacion entra en conflicto con los datos existentes"));
+    }
+
+    @Test
+    void elDuenoObtieneElQrDeSuBoletaComoSvgYTexto() throws Exception {
+        var boleta = new BoletaDTO();
+        boleta.setDocumentoComprador(asistente.getDocumento());
+        when(boletaService.buscarPorCodigo(7)).thenReturn(boleta);
+        when(boletaQrService.svg(7)).thenReturn("<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>");
+        when(boletaQrService.contenido(7)).thenReturn("Número de boleta: 7");
+
+        mvc.perform(get("/boletas/7/qr").with(user(asistente)))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", org.hamcrest.Matchers.startsWith("image/svg+xml")))
+                .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("no-store")));
+        mvc.perform(get("/boletas/7/qr/texto").with(user(asistente)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Número de boleta: 7"));
+    }
+
+    @Test
+    void elQrDeUnaBoletaAjenaEsRechazado() throws Exception {
+        var boleta = new BoletaDTO();
+        boleta.setDocumentoComprador(99);
+        when(boletaService.buscarPorCodigo(7)).thenReturn(boleta);
+
+        mvc.perform(get("/boletas/7/qr").with(user(asistente))).andExpect(status().isForbidden());
+        mvc.perform(get("/boletas/7/qr/texto").with(user(asistente))).andExpect(status().isForbidden());
+        verify(boletaQrService, never()).svg(anyLong());
+        verify(boletaQrService, never()).contenido(anyLong());
+    }
+
+    @Test
+    void elAdministradorPuedeVerElQrDeCualquierBoleta() throws Exception {
+        var boleta = new BoletaDTO();
+        boleta.setDocumentoComprador(99);
+        when(boletaService.buscarPorCodigo(7)).thenReturn(boleta);
+        when(boletaQrService.svg(7)).thenReturn("<svg></svg>");
+
+        mvc.perform(get("/boletas/7/qr").with(user(administrador))).andExpect(status().isOk());
+    }
+
+    @Test
+    void elCatalogoDeBoletasEsPublicoPeroSuGestionNo() throws Exception {
+        mvc.perform(get("/zonas/festival/1")).andExpect(status().isOk());
+        mvc.perform(get("/zonas/1/aforo-disponible")).andExpect(status().isOk());
+        mvc.perform(get("/tipos-entrada")).andExpect(status().isOk());
+        mvc.perform(post("/zonas").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(post("/tipos-entrada").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(get("/boletas/7/qr")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void elListadoDeReventasEsPublicoPeroComprarYVerLasPropiasNo() throws Exception {
+        mvc.perform(get("/publicaciones-reventa")).andExpect(status().isOk());
+        verify(publicacionReventaService).disponibles(0);
+        mvc.perform(get("/publicaciones-reventa/mias")).andExpect(status().isUnauthorized());
+        mvc.perform(put("/publicaciones-reventa/1/comprar").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"idDispositivo\":1,\"metodoPago\":\"PSE\"}")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void conSesionElListadoDeReventasExcluyeLasDelPropioUsuario() throws Exception {
+        mvc.perform(get("/publicaciones-reventa").with(user(asistente))).andExpect(status().isOk());
+        verify(publicacionReventaService).disponibles(asistente.getDocumento());
     }
 
     private Usuario usuario(long documento, TipoUsuario rol) {

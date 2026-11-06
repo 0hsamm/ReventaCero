@@ -1,0 +1,37 @@
+@if (url(); as src) {
+  <button
+    type="button"
+    class="miniatura"
+    [attr.aria-label]="'Ampliar el código QR de la boleta ' + codigo()"
+    (click)="ampliar()"
+  >
+    <img [src]="src" alt="" width="148" height="148" />
+    <span class="no-imprimir">Ampliar</span>
+  </button>
+} @else if (error()) {
+  <p class="qr-error">No pudimos cargar el QR. Recarga la página.</p>
+} @else {
+  <div class="esqueleto qr-cargando" aria-label="Cargando código QR"></div>
+}
+
+<dialog #dialogo class="dialogo no-imprimir" (click)="clicEnDialogo($event)" aria-labelledby="titulo-qr">
+  <div class="tarjeta">
+    <header>
+      <h2 id="titulo-qr">Boleta {{ codigo() }}</h2>
+      <button type="button" class="btn btn-ghost btn-sm" (click)="cerrar()">Cerrar</button>
+    </header>
+
+    @if (url(); as src) {
+      <img class="grande" [src]="src" alt="Código QR de la boleta {{ codigo() }}" />
+    }
+
+    <p class="nota">Esto es lo que verá el personal de acceso al escanearlo:</p>
+    @if (errorTexto()) {
+      <p class="field-error" role="alert">{{ errorTexto() }}</p>
+    } @else if (texto()) {
+      <pre>{{ texto() }}</pre>
+    } @else {
+      <div class="esqueleto" style="height: 120px"></div>
+    }
+  </div>
+</dialog>

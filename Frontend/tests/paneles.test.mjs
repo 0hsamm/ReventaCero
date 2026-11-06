@@ -119,7 +119,7 @@ test('el retorno de login rechaza direcciones externas', () => {
 for (const [rol, inicio, secciones, cantidadOpciones] of [
   ['ADMINISTRADOR', '/app/admin/dashboard', ['admin', 'gestion'], 7],
   ['ORGANIZADOR', '/app/gestion/festivales', ['gestion'], 4],
-  ['USUARIO', '/app/usuario/boletas', ['usuario', 'revendedor'], 4],
+  ['USUARIO', '/app/usuario/boletas', ['usuario', 'revendedor'], 3],
 ]) {
   test(`${rol}: inicio, menú y permisos de cada sección`, () => {
     const contexto = preparar(token(rol));

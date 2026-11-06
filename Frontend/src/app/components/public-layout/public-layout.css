@@ -68,3 +68,14 @@ nav a.activo {
 .tema:hover {
   background: var(--surface-2);
 }
+
+.salir {
+  background: transparent;
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.salir:hover {
+  background: var(--danger);
+  color: var(--bg);
+}

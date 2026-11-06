@@ -34,7 +34,7 @@ public class PublicacionReventaController {
 
     @GetMapping
     public List<PublicacionReventaDTO> disponibles(@AuthenticationPrincipal Usuario actual) {
-        return publicacionService.disponibles(actual.getDocumento());
+        return publicacionService.disponibles(actual != null ? actual.getDocumento() : 0);
     }
 
     @GetMapping("/mias")

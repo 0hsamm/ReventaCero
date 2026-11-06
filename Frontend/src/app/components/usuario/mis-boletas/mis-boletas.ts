@@ -12,6 +12,7 @@ import { subirPanel } from '../../../utils/panel';
 import { Errores, esVacio, hayErrores, mensajeError } from '../../../utils/validaciones';
 import { CampoComponent } from '../../campo/campo';
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog';
+import { QrBoletaComponent } from '../../qr-boleta/qr-boleta';
 
 // El backend solo permite devolver antes de que empiece el festival.
 function puedeDevolver(boleta: BoletaDetalle): boolean {
@@ -27,6 +28,7 @@ function puedeDevolver(boleta: BoletaDetalle): boolean {
     RouterLink,
     CampoComponent,
     ConfirmDialogComponent,
+    QrBoletaComponent,
   ],
   templateUrl: './mis-boletas.html',
   styleUrl: './mis-boletas.css',

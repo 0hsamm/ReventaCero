@@ -35,6 +35,18 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/registro`, datos, { responseType: 'text' });
   }
 
+  verificarCorreo(token: string): Observable<string> {
+    return this.http.post(`${this.apiUrl}/verificar-correo`, { token }, { responseType: 'text' });
+  }
+
+  reenviarVerificacion(usuario: string): Observable<string> {
+    return this.http.post(
+      `${this.apiUrl}/reenviar-verificacion`,
+      { usuario },
+      { responseType: 'text' },
+    );
+  }
+
   obtenerToken(): string | null {
     return this.almacenamiento.getItem('token');
   }

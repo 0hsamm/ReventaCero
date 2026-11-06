@@ -192,12 +192,61 @@ public class JwtUtil {
             String token,
             UserDetails userDetails) {
 
-        final String correo =
-                extractUsername(token);
+        final Claims claims =
+                extractAllClaims(token);
 
-        return correo.equals(
-                userDetails.getUsername())
+        return claims.get(CLAIM_PROPOSITO) == null
 
-                && !isTokenExpired(token);
+                && claims.getSubject() != null
+
+                && claims.getSubject().equals(
+                        userDetails.getUsername())
+
+                && claims.getExpiration() != null
+
+                && !claims.getExpiration()
+                        .before(new Date());
+    }
+
+    static final String CLAIM_PROPOSITO = "proposito";
+
+    static final String PROPOSITO_VERIFICAR_CORREO = "VERIFICAR_CORREO";
+
+    public String generarTokenVerificacion(
+            Usuario usuario,
+            long horasValidez) {
+
+        long ahora = System.currentTimeMillis();
+
+        return Jwts.builder()
+                .claim(CLAIM_PROPOSITO, PROPOSITO_VERIFICAR_CORREO)
+                .claim("correo", usuario.getCorreo())
+                .setSubject(String.valueOf(usuario.getDocumento()))
+                .setIssuedAt(new Date(ahora))
+                .setExpiration(new Date(ahora + horasValidez * 60 * 60 * 1000))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public java.util.Optional<VerificacionCorreo> leerTokenVerificacion(
+            String token) {
+
+        try {
+            Claims claims = extractAllClaims(token);
+
+            if (!PROPOSITO_VERIFICAR_CORREO.equals(claims.get(CLAIM_PROPOSITO))) {
+                return java.util.Optional.empty();
+            }
+
+            return java.util.Optional.of(new VerificacionCorreo(
+                    Long.parseLong(claims.getSubject()),
+                    claims.get("correo", String.class)));
+
+        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
+            return java.util.Optional.empty();
+        }
+    }
+
+    public record VerificacionCorreo(long documento, String correo) {
     }
 }

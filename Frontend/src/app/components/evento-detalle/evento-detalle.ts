@@ -1,6 +1,15 @@
-import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, DecimalPipe, Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin, map, of, switchMap } from 'rxjs';
@@ -22,9 +31,11 @@ import { FestivalService } from '../../services/festival.service';
 import { ListaEsperaService } from '../../services/lista-espera.service';
 import { ToastService } from '../../services/toast.service';
 import { mensajeError } from '../../utils/validaciones';
-import { CampoComponent } from '../campo/campo';
+import { BoletaResumen, DialogoSesionComponent } from '../dialogo-sesion/dialogo-sesion';
+import { MAXIMO_POR_COMPRA, ReglasFestivalComponent } from '../reglas-festival/reglas-festival';
+import { ReventasFestivalComponent } from '../reventas-festival/reventas-festival';
 
-const MAXIMO_POR_COMPRA = 6;
+type Pestana = 'oficial' | 'reventa';
 
 interface Opcion {
   tipo: TipoEntrada;
@@ -34,7 +45,16 @@ interface Opcion {
 
 @Component({
   selector: 'app-evento-detalle',
-  imports: [CurrencyPipe, DatePipe, DecimalPipe, FormsModule, RouterLink, CampoComponent],
+  imports: [
+    CurrencyPipe,
+    DatePipe,
+    DecimalPipe,
+    FormsModule,
+    RouterLink,
+    DialogoSesionComponent,
+    ReventasFestivalComponent,
+    ReglasFestivalComponent,
+  ],
   templateUrl: './evento-detalle.html',
   styleUrl: './evento-detalle.css',
 })
@@ -45,7 +65,9 @@ export class EventoDetalleComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private toastService = inject(ToastService);
-  private ruta = inject(ActivatedRoute).snapshot;
+  private location = inject(Location);
+  private rutaActiva = inject(ActivatedRoute);
+  private ruta = this.rutaActiva.snapshot;
 
   private id = Number(this.ruta.paramMap.get('id'));
 
@@ -54,12 +76,23 @@ export class EventoDetalleComponent implements OnInit {
   protected readonly estadoFestival = estadoFestival;
   protected readonly cartelFestival = cartelFestival;
 
+  private seccionPago = viewChild<ElementRef<HTMLElement>>('seccionPago');
+  private dialogoSesion = viewChild<DialogoSesionComponent>('dialogoSesion');
+
+  protected pagoVisible = signal(false);
+  protected pestana = signal<Pestana>(
+    this.ruta.queryParamMap.get('pestana') === 'reventa' ? 'reventa' : 'oficial',
+  );
+  protected cantidadReventa = signal<number | null>(null);
+  protected boletaPendiente = signal<BoletaResumen | null>(null);
+
   protected sesion = this.authService.sesion;
   protected esUsuario = computed(() => this.sesion()?.tipoUsuario === 'USUARIO');
 
   protected cargando = signal(true);
   protected noExiste = signal(false);
   protected errorCarga = signal('');
+  protected cargandoBoletas = signal(true);
   protected errorDetalle = signal('');
 
   protected festival = signal<Festival | null>(null);
@@ -99,15 +132,32 @@ export class EventoDetalleComponent implements OnInit {
       })),
   );
 
+  constructor() {
+    effect((onCleanup) => {
+      const seccion = this.seccionPago()?.nativeElement;
+
+      if (!seccion || typeof IntersectionObserver === 'undefined') {
+        return;
+      }
+
+      const observador = new IntersectionObserver(
+        ([entrada]) => this.pagoVisible.set(entrada.isIntersecting),
+        { threshold: 0.25 },
+      );
+      observador.observe(seccion);
+      onCleanup(() => observador.disconnect());
+    });
+  }
+
   ngOnInit(): void {
     this.festivalService.buscar(this.id).subscribe({
       next: (festival) => {
         this.festival.set(festival);
         this.cargando.set(false);
+        this.cargarBoletas();
 
-        // El backend solo muestra zonas, precios y cartel a quien inició sesión
         if (this.sesion()) {
-          this.cargarDetalle();
+          this.cargarCartel();
         }
       },
       error: (err: HttpErrorResponse) => {
@@ -118,18 +168,13 @@ export class EventoDetalleComponent implements OnInit {
     });
   }
 
-  private cargarDetalle(): void {
+  private cargarBoletas(): void {
     forkJoin({
       zonas: this.festivalService.zonasDeFestival(this.id),
       tipos: this.festivalService.listarTipos(),
-      presentaciones: this.festivalService.presentacionesDeFestival(this.id),
-      artistas: this.festivalService.listarArtistas(),
     })
       .pipe(
-        switchMap(({ zonas, tipos, presentaciones, artistas }) => {
-          this.presentaciones.set(presentaciones);
-          this.artistas.set(artistas);
-
+        switchMap(({ zonas, tipos }) => {
           const aforos = zonas.map((zona) =>
             this.festivalService
               .aforoDisponible(zona.idZona)
@@ -148,20 +193,88 @@ export class EventoDetalleComponent implements OnInit {
         }),
       )
       .subscribe({
-        next: (opciones) => this.opciones.set(opciones),
-        error: (err: HttpErrorResponse) =>
-          this.errorDetalle.set(mensajeError(err, 'No pudimos cargar las boletas')),
+        next: (opciones) => {
+          this.opciones.set(opciones);
+          this.cargandoBoletas.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.errorDetalle.set(mensajeError(err, 'No pudimos cargar las boletas'));
+          this.cargandoBoletas.set(false);
+        },
       });
+  }
+
+  private cargarCartel(): void {
+    forkJoin({
+      presentaciones: this.festivalService.presentacionesDeFestival(this.id),
+      artistas: this.festivalService.listarArtistas(),
+    }).subscribe({
+      next: ({ presentaciones, artistas }) => {
+        this.presentaciones.set(presentaciones);
+        this.artistas.set(artistas);
+      },
+      error: () => this.presentaciones.set([]),
+    });
   }
 
   protected irAIngresar(): void {
     this.router.navigate(['/acceso'], { queryParams: { volver: `/eventos/${this.id}` } });
   }
 
+  protected irARegistro(): void {
+    this.router.navigate(['/registro']);
+  }
+
   protected elegir(opcion: Opcion): void {
+    if (this.sesion() == null) {
+      this.boletaPendiente.set({
+        nombre: `${opcion.zona.nombre} · ${opcion.tipo.categoria}`,
+        precio: opcion.tipo.precioBase,
+      });
+      this.dialogoSesion()?.abrir();
+      return;
+    }
+
     this.elegida.set(opcion);
     this.errorOpcion.set('');
     this.cantidad.update((valor) => Math.max(1, Math.min(valor, this.maximo())));
+
+    if (this.esUsuario() && !this.finalizado()) {
+      this.irAPago();
+    }
+  }
+
+  protected cambiarPestana(pestana: Pestana): void {
+    this.pestana.set(pestana);
+    const url = this.router.createUrlTree([], {
+      relativeTo: this.rutaActiva,
+      queryParams: { pestana: pestana === 'reventa' ? 'reventa' : null },
+    });
+    this.location.replaceState(this.router.serializeUrl(url));
+  }
+
+  protected moverPestana(evento: KeyboardEvent): void {
+    if (evento.key !== 'ArrowLeft' && evento.key !== 'ArrowRight') {
+      return;
+    }
+
+    evento.preventDefault();
+    const siguiente: Pestana = this.pestana() === 'oficial' ? 'reventa' : 'oficial';
+    this.cambiarPestana(siguiente);
+    document.getElementById(`pestana-${siguiente}`)?.focus();
+  }
+
+  protected irAPago(): void {
+    const reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    this.seccionPago()?.nativeElement.scrollIntoView({
+      behavior: reducir ? 'auto' : 'smooth',
+      block: 'start',
+    });
+  }
+
+  protected numeroTalon(indice: number): string {
+    return String(indice + 1).padStart(2, '0');
   }
 
   protected cambiarCantidad(cambio: number): void {

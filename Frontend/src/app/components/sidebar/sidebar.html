@@ -78,16 +78,12 @@
     <div class="perfil">
       <span class="avatar" aria-hidden="true">{{ iniciales() }}</span>
       <span class="perfil-nombre" [title]="nombreUsuario()">{{ nombreUsuario() }}</span>
-      <button
-        type="button"
-        class="salir"
-        aria-label="Cerrar sesión"
-        title="Cerrar sesión"
-        (click)="confirmandoSalida.set(true)"
-      >
-        <i class="pi pi-sign-out" aria-hidden="true"></i>
-      </button>
     </div>
+
+    <button type="button" class="salir" (click)="confirmandoSalida.set(true)">
+      <i class="pi pi-sign-out" aria-hidden="true"></i>
+      <span>Cerrar sesión</span>
+    </button>
   </div>
 </div>
 

@@ -1,0 +1,104 @@
+<div class="encabezado">
+  <p>
+    Boletas que otros asistentes publicaron.
+    <strong>Nunca superan el precio tope del organizador</strong> y al comprarlas el QR anterior deja
+    de servir: la boleta queda a tu nombre con uno nuevo.
+  </p>
+  <span class="sello-autorizada" aria-hidden="true">Reventa autorizada</span>
+</div>
+
+@if (cargando()) {
+  <div class="reventas">
+    <div class="esqueleto" style="height: 172px"></div>
+    <div class="esqueleto" style="height: 172px"></div>
+  </div>
+} @else if (error()) {
+  <div class="aviso aviso-error" role="alert">
+    <strong>{{ error() }}</strong>
+    <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+  </div>
+} @else if (publicaciones().length === 0) {
+  <div class="vacio">
+    <span class="vacio-icono" aria-hidden="true"><i class="pi pi-ticket"></i></span>
+    <strong>Nadie ha puesto boletas de este festival en reventa</strong>
+    <p>Cuando alguien publique una, aparecerá aquí con su precio.</p>
+  </div>
+} @else {
+  <div class="reventas" role="group" aria-label="Boletas en reventa">
+    @for (publicacion of publicaciones(); track publicacion.idPublicacion) {
+      <button
+        type="button"
+        class="reventa"
+        [class.elegida]="seleccionada()?.idPublicacion === publicacion.idPublicacion"
+        [attr.aria-pressed]="seleccionada()?.idPublicacion === publicacion.idPublicacion"
+        [disabled]="finalizado()"
+        (click)="elegir(publicacion)"
+      >
+        <span class="banda" aria-hidden="true">Reventa</span>
+        <span class="cuerpo">
+          <span class="zona">{{ publicacion.nombreZona }}</span>
+          <strong class="categoria">{{ publicacion.categoriaEntrada }}</strong>
+          <span class="detalle">Publicada el {{ publicacion.fechaPublicacion | date: 'd MMM, HH:mm' }}</span>
+          <span class="pie">
+            <span class="precio">{{ publicacion.precio | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</span>
+            <span class="accion" aria-hidden="true">
+              {{ seleccionada()?.idPublicacion === publicacion.idPublicacion ? 'Elegida ✓' : 'Comprar' }}
+            </span>
+          </span>
+        </span>
+      </button>
+    }
+  </div>
+
+  @if (seleccionada(); as elegida) {
+    <section #panelCompra class="compra" aria-labelledby="titulo-compra-reventa">
+      <div class="compra-resumen">
+        <span class="compra-etiqueta">Tu reventa</span>
+        <h3 id="titulo-compra-reventa">{{ elegida.nombreZona }} · {{ elegida.categoriaEntrada }}</h3>
+        <p>Al confirmar, la boleta pasa a tu cuenta y recibes un QR nuevo en Mis boletas.</p>
+        <span class="compra-total">{{ elegida.precio | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</span>
+      </div>
+
+      <form class="compra-form" novalidate (ngSubmit)="comprar()">
+        <fieldset class="metodos" [attr.aria-invalid]="!!errorMetodo()">
+          <legend>Paga con</legend>
+          <div class="metodos-opciones">
+            @for (item of metodos; track item) {
+              <label class="metodo" [class.metodo-elegido]="metodo === item">
+                <input
+                  type="radio"
+                  name="metodoReventa"
+                  [value]="item"
+                  [(ngModel)]="metodo"
+                  (ngModelChange)="errorMetodo.set('')"
+                />
+                {{ item }}
+              </label>
+            }
+          </div>
+          @if (errorMetodo()) {
+            <p class="field-error" role="alert">{{ errorMetodo() }}</p>
+          }
+        </fieldset>
+
+        @if (errorCompra()) {
+          <p class="error-general" role="alert">{{ errorCompra() }}</p>
+        }
+
+        <div class="compra-acciones">
+          <button type="submit" class="btn btn-primary" [disabled]="enviando()">
+            {{ enviando() ? 'Comprando…' : 'Confirmar compra' }}
+          </button>
+          <button type="button" class="btn btn-ghost" (click)="cancelar()">Cancelar</button>
+        </div>
+      </form>
+    </section>
+  }
+}
+
+<app-dialogo-sesion
+  #dialogoSesion
+  [boleta]="pendiente()"
+  (ingresar)="irAIngresar()"
+  (registrarse)="irARegistro()"
+/>

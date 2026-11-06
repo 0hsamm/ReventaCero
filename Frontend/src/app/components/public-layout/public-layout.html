@@ -23,6 +23,10 @@
 
     @if (logueado()) {
       <a class="btn btn-primary" [routerLink]="rutaPanel()">Mi panel</a>
+      <button type="button" class="btn salir" (click)="confirmandoSalida.set(true)">
+        <i class="pi pi-sign-out" aria-hidden="true"></i>
+        Cerrar sesión
+      </button>
     } @else {
       <a class="btn btn-ghost" routerLink="/acceso">Ingresar</a>
       <a class="btn btn-primary" routerLink="/registro">Registrarme</a>
@@ -33,3 +37,12 @@
 <router-outlet></router-outlet>
 
 <app-site-footer></app-site-footer>
+
+<app-confirm-dialog
+  title="Cerrar sesión"
+  message="Tu sesión se cerrará en este dispositivo."
+  confirmLabel="Cerrar sesión"
+  [visible]="confirmandoSalida()"
+  (confirmed)="cerrarSesion()"
+  (cancelled)="confirmandoSalida.set(false)"
+></app-confirm-dialog>

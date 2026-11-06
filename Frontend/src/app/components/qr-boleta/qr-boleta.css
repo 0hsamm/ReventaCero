@@ -1,0 +1,99 @@
+:host {
+  display: block;
+}
+
+.miniatura {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  background: #ffffff;
+  border: 2px solid var(--line-strong);
+  border-radius: var(--radius);
+  color: #050505;
+}
+
+.miniatura:hover span {
+  text-decoration: underline;
+}
+
+.miniatura img {
+  display: block;
+  width: 148px;
+  height: 148px;
+  image-rendering: pixelated;
+}
+
+.miniatura span {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.qr-cargando {
+  width: 168px;
+  height: 190px;
+}
+
+.qr-error {
+  color: var(--danger);
+  font-size: 13px;
+}
+
+.dialogo {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  background: var(--surface);
+  border: 2px solid var(--line-strong);
+  border-radius: var(--radius);
+  color: var(--text-1);
+}
+
+.dialogo::backdrop {
+  background: rgb(0 0 0 / 70%);
+}
+
+.tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+h2 {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.grande {
+  align-self: center;
+  width: 280px;
+  height: 280px;
+  padding: 12px;
+  background: #ffffff;
+  image-rendering: pixelated;
+}
+
+pre {
+  margin: 0;
+  padding: 16px;
+  overflow-x: auto;
+  background: var(--surface-2);
+  border-left: 4px solid var(--neon);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}

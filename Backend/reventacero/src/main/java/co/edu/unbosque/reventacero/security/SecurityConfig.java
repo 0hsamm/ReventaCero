@@ -143,6 +143,14 @@ public class SecurityConfig {
 
                         .permitAll()
 
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/zonas/**",
+                                "/tipos-entrada/**",
+                                "/publicaciones-reventa")
+
+                        .permitAll()
+
                         /**
                          * Gestión de festivales:
                          * organizadores y administradores.

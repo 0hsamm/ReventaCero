@@ -43,7 +43,6 @@ function vistaDeRuta(actual: VistaUsuario, url: string): VistaUsuario {
 const MENU: Record<TipoUsuario, OpcionMenu[]> = {
   USUARIO: [
     { ruta: '/app/usuario/boletas', etiqueta: 'Mis boletas', icono: 'pi-ticket' },
-    { ruta: '/app/usuario/reventas', etiqueta: 'Boletas en reventa', icono: 'pi-shopping-cart' },
     { ruta: '/app/usuario/historial', etiqueta: 'Historial', icono: 'pi-receipt' },
     { ruta: '/app/usuario/listas', etiqueta: 'Listas de espera', icono: 'pi-clock' },
   ],

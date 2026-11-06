@@ -5,7 +5,6 @@ import { AdminAuditoriaComponent } from './components/admin/auditoria/auditoria'
 import { AdminDashboardComponent } from './components/admin/dashboard/dashboard';
 import { AdminUsuariosComponent } from './components/admin/usuarios/usuarios';
 import { CatalogoComponent } from './components/catalogo/catalogo';
-import { EventoDetalleComponent } from './components/evento-detalle/evento-detalle';
 import { GestionArtistasComponent } from './components/gestion/artistas/artistas';
 import { ControlAccesoComponent } from './components/gestion/control-acceso/control-acceso';
 import { FestivalConfigComponent } from './components/gestion/festival-config/festival-config';
@@ -21,16 +20,17 @@ import { PublicLayoutComponent } from './components/public-layout/public-layout'
 import { RegistroComponent } from './components/registro/registro';
 import { RevenderComponent } from './components/revendedor/revender/revender';
 import { VentasRevendedorComponent } from './components/revendedor/ventas/ventas';
-import { BoletasReventaComponent } from './components/usuario/boletas-reventa/boletas-reventa';
 import { HistorialComponent } from './components/usuario/historial/historial';
 import { ListasEsperaComponent } from './components/usuario/listas-espera/listas-espera';
 import { MisBoletasComponent } from './components/usuario/mis-boletas/mis-boletas';
+import { VerificarCorreoComponent } from './components/verificar-correo/verificar-correo';
 import { authGuard, rolGuard } from './guards/auth-guard-guard';
 import { AuthService } from './services/auth.service';
 
 export const routes: Routes = [
   { path: 'acceso', component: Login },
   { path: 'registro', component: RegistroComponent },
+  { path: 'verificar-correo', component: VerificarCorreoComponent },
   {
     path: 'app',
     component: MainLayoutComponent,
@@ -45,7 +45,6 @@ export const routes: Routes = [
         canActivateChild: [rolGuard('USUARIO')],
         children: [
           { path: 'boletas', component: MisBoletasComponent },
-          { path: 'reventas', component: BoletasReventaComponent },
           { path: 'historial', component: HistorialComponent },
           { path: 'listas', component: ListasEsperaComponent },
           { path: '', redirectTo: 'boletas', pathMatch: 'full' },
@@ -95,7 +94,11 @@ export const routes: Routes = [
     children: [
       { path: '', component: LandingComponent, pathMatch: 'full' },
       { path: 'eventos', component: CatalogoComponent },
-      { path: 'eventos/:id', component: EventoDetalleComponent },
+      {
+        path: 'eventos/:id',
+        loadComponent: () =>
+          import('./components/evento-detalle/evento-detalle').then((m) => m.EventoDetalleComponent),
+      },
       { path: '**', component: NoEncontradoComponent },
     ],
   },

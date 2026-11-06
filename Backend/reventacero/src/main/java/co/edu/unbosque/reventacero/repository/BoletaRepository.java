@@ -10,6 +10,7 @@ import java.util.function.LongFunction;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+import co.edu.unbosque.reventacero.dto.DatosQrBoletaDTO;
 import co.edu.unbosque.reventacero.entity.Boleta;
 import co.edu.unbosque.reventacero.entity.TipoEntrada;
 import co.edu.unbosque.reventacero.entity.Usuario;
@@ -114,6 +115,67 @@ public class BoletaRepository {
                 .param("codigo", codigoBoleta)
                 .param("comprador", documentoComprador)
                 .update();
+    }
+
+    public Optional<DatosQrBoletaDTO> findDatosQr(long codigoBoleta) {
+        return jdbcClient.sql(SELECT_DATOS_QR)
+                .param("codigo", codigoBoleta)
+                .query(this::mapDatosQr)
+                .optional();
+    }
+
+    private static final String SELECT_DATOS_QR =
+            "SELECT b.CODIGO_BOLETA, b.FECHA_EMISION, te.ID_TIPO_ENTRADA, te.CATEGORIA, z.NOMBRE AS ZONA_NOMBRE, "
+            + "f.ID_FESTIVAL, f.NOMBRE AS FESTIVAL_NOMBRE, f.EDICION, f.FECHA_INICIO, f.FECHA_FIN, f.UBICACION_CIUDAD, "
+            + "u.DOCUMENTO, u.NOMBRES, u.APELLIDOS, "
+            + "(SELECT MAX(v.NOMBRES || ' ' || v.APELLIDOS) "
+            + "        KEEP (DENSE_RANK LAST ORDER BY t.FECHA_HORA, t.ID_TRANSACCION) "
+            + "   FROM REVENTA_AUTORIZADA r "
+            + "   JOIN TRANSACCION t ON t.ID_TRANSACCION = r.ID_TRANSACCION "
+            + "   JOIN USUARIO v ON v.DOCUMENTO = r.VENDEDOR_DOCUMENTO "
+            + "  WHERE t.CODIGO_BOLETA = b.CODIGO_BOLETA "
+            + "    AND r.COMPRADOR_DOCUMENTO = b.COMPRADOR_DOCUMENTO) AS REVENDEDOR, "
+            + "(SELECT MAX(t2.ID_TRANSACCION) KEEP (DENSE_RANK LAST ORDER BY t2.FECHA_HORA, t2.ID_TRANSACCION) "
+            + "   FROM TRANSACCION t2 "
+            + "  WHERE t2.CODIGO_BOLETA = b.CODIGO_BOLETA "
+            + "    AND t2.TIPO_TRANSACCION IN ('VENTA_PRIMARIA', 'REVENTA_AUTORIZADA')) AS ID_TRANSACCION, "
+            + "CASE "
+            + "  WHEN EXISTS (SELECT 1 FROM DEVOLUCION d JOIN TRANSACCION t3 ON t3.ID_TRANSACCION = d.ID_TRANSACCION "
+            + "               WHERE t3.CODIGO_BOLETA = b.CODIGO_BOLETA) THEN 'DEVUELTA' "
+            + "  WHEN EXISTS (SELECT 1 FROM CONTROL_ACCESO c WHERE c.CODIGO_BOLETA = b.CODIGO_BOLETA "
+            + "               AND c.RESULTADO = 'PERMITIDO') THEN 'UTILIZADA' "
+            + "  ELSE 'VIGENTE' END AS ESTADO "
+            + "FROM BOLETA b "
+            + "JOIN TIPO_ENTRADA te ON te.ID_TIPO_ENTRADA = b.ID_TIPO_ENTRADA "
+            + "JOIN ZONA z ON z.ID_ZONA = te.ID_ZONA "
+            + "JOIN FESTIVAL f ON f.ID_FESTIVAL = z.ID_FESTIVAL "
+            + "JOIN USUARIO u ON u.DOCUMENTO = b.COMPRADOR_DOCUMENTO "
+            + "WHERE b.CODIGO_BOLETA = :codigo";
+
+    private DatosQrBoletaDTO mapDatosQr(ResultSet rs, int fila) throws SQLException {
+        long idTransaccion = rs.getLong("ID_TRANSACCION");
+        Long transaccion = rs.wasNull() ? null : idTransaccion;
+        return new DatosQrBoletaDTO(
+                rs.getLong("CODIGO_BOLETA"),
+                fecha(rs, "FECHA_EMISION"),
+                rs.getLong("ID_TIPO_ENTRADA"),
+                rs.getString("CATEGORIA"),
+                rs.getString("ZONA_NOMBRE"),
+                rs.getLong("ID_FESTIVAL"),
+                rs.getString("FESTIVAL_NOMBRE"),
+                rs.getInt("EDICION"),
+                fecha(rs, "FECHA_INICIO"),
+                fecha(rs, "FECHA_FIN"),
+                rs.getString("UBICACION_CIUDAD"),
+                rs.getLong("DOCUMENTO"),
+                nombreCompleto(rs.getString("NOMBRES"), rs.getString("APELLIDOS")),
+                rs.getString("REVENDEDOR"),
+                transaccion,
+                rs.getString("ESTADO"));
+    }
+
+    private static String nombreCompleto(String nombres, String apellidos) {
+        return ((nombres == null ? "" : nombres) + " " + (apellidos == null ? "" : apellidos)).trim();
     }
 
     public void bloquearPorCodigo(long codigoBoleta) {
