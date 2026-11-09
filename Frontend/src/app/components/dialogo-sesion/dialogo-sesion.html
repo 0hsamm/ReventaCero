@@ -1,0 +1,27 @@
+<dialog
+  #dialogo
+  class="dialogo"
+  aria-labelledby="titulo-dialogo-sesion"
+  (click)="clicFuera($event)"
+>
+  <div class="tarjeta">
+    <span class="cinta" aria-hidden="true"></span>
+    <span class="candado" aria-hidden="true"><i class="pi pi-lock"></i></span>
+    <h2 id="titulo-dialogo-sesion">Inicia sesión para comprar</h2>
+    @if (boleta(); as b) {
+      <p class="boleta">
+        <strong>{{ b.nombre }}</strong>
+        <span>{{ b.precio | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</span>
+      </p>
+    }
+    <p class="texto">
+      Las boletas se compran con una cuenta de usuario verificada. Así cada entrada queda a tu
+      nombre y con su código QR.
+    </p>
+    <div class="acciones">
+      <button type="button" class="btn btn-primary" (click)="elegirIngresar()">Iniciar sesión</button>
+      <button type="button" class="btn btn-ghost" (click)="elegirRegistro()">Crear cuenta</button>
+    </div>
+    <button type="button" class="cerrar" (click)="cerrar()">Seguir viendo boletas</button>
+  </div>
+</dialog>

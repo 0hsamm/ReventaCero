@@ -1,0 +1,166 @@
+<app-auth-shell
+  etiqueta="Nueva cuenta"
+  lineaNeon="Únete"
+  lineaHueca="al parche"
+  grafiti="¡Precio justo!"
+  texto="Crea tu cuenta, verifica tu correo y compra boletas a tu nombre. Si no puedes ir, revéndelas de forma autorizada y sin pasar el tope."
+  paso="3 pasos · 1 minuto"
+  tituloTarjeta="Crea tu cuenta"
+  [ancha]="true"
+>
+  @if (error()) {
+    <div class="auth-error" role="alert">{{ error() }}</div>
+  }
+
+  <form class="auth-formulario" novalidate (ngSubmit)="registrar()">
+    <fieldset class="auth-grupo">
+      <legend><span>01</span> Tus datos</legend>
+
+      <app-campo etiqueta="Número de documento" para="documento" [error]="errores()['documento']">
+        <input
+          id="documento"
+          name="documento"
+          class="input"
+          inputmode="numeric"
+          autocomplete="off"
+          [class.invalido]="errores()['documento']"
+          [attr.aria-invalid]="!!errores()['documento']"
+          [(ngModel)]="documento"
+        />
+      </app-campo>
+
+      <div class="auth-fila">
+        <app-campo etiqueta="Nombre" para="nombre" [error]="errores()['nombre']">
+          <input
+            id="nombre"
+            name="nombre"
+            class="input"
+            autocomplete="given-name"
+            [class.invalido]="errores()['nombre']"
+            [attr.aria-invalid]="!!errores()['nombre']"
+            [(ngModel)]="nombre"
+          />
+        </app-campo>
+        <app-campo etiqueta="Apellido" para="apellido" [error]="errores()['apellido']">
+          <input
+            id="apellido"
+            name="apellido"
+            class="input"
+            autocomplete="family-name"
+            [class.invalido]="errores()['apellido']"
+            [attr.aria-invalid]="!!errores()['apellido']"
+            [(ngModel)]="apellido"
+          />
+        </app-campo>
+      </div>
+
+      <app-campo
+        etiqueta="Fecha de nacimiento"
+        para="fechaNacimiento"
+        [error]="errores()['fechaNacimiento']"
+      >
+        <input
+          id="fechaNacimiento"
+          name="fechaNacimiento"
+          type="date"
+          class="input"
+          autocomplete="bday"
+          [max]="hoy"
+          [class.invalido]="errores()['fechaNacimiento']"
+          [attr.aria-invalid]="!!errores()['fechaNacimiento']"
+          [(ngModel)]="fechaNacimiento"
+        />
+      </app-campo>
+    </fieldset>
+
+    <fieldset class="auth-grupo">
+      <legend><span>02</span> Contacto</legend>
+
+      <div class="auth-fila">
+        <app-campo
+          etiqueta="Correo"
+          para="correo"
+          [error]="errores()['correo']"
+          ayuda="Te enviaremos un enlace para verificarlo."
+        >
+          <input
+            id="correo"
+            name="correo"
+            type="email"
+            class="input"
+            autocomplete="email"
+            [class.invalido]="errores()['correo']"
+            [attr.aria-invalid]="!!errores()['correo']"
+            [(ngModel)]="correo"
+          />
+        </app-campo>
+        <app-campo etiqueta="Teléfono (opcional)" para="telefono" [error]="errores()['telefono']">
+          <input
+            id="telefono"
+            name="telefono"
+            type="tel"
+            class="input"
+            autocomplete="tel"
+            [class.invalido]="errores()['telefono']"
+            [attr.aria-invalid]="!!errores()['telefono']"
+            [(ngModel)]="telefono"
+          />
+        </app-campo>
+      </div>
+    </fieldset>
+
+    <fieldset class="auth-grupo">
+      <legend><span>03</span> Tu acceso</legend>
+
+      <app-campo etiqueta="Nombre de usuario" para="nombreUsuario" [error]="errores()['nombreUsuario']">
+        <input
+          id="nombreUsuario"
+          name="nombreUsuario"
+          class="input"
+          autocomplete="username"
+          [class.invalido]="errores()['nombreUsuario']"
+          [attr.aria-invalid]="!!errores()['nombreUsuario']"
+          [(ngModel)]="nombreUsuario"
+        />
+      </app-campo>
+
+      <div class="auth-fila">
+        <app-campo
+          etiqueta="Contraseña"
+          para="contrasenia"
+          [error]="errores()['contrasenia']"
+          [ayuda]="'Mínimo ' + longitudMinima + ' caracteres.'"
+        >
+          <input
+            id="contrasenia"
+            name="contrasenia"
+            type="password"
+            class="input"
+            autocomplete="new-password"
+            [class.invalido]="errores()['contrasenia']"
+            [attr.aria-invalid]="!!errores()['contrasenia']"
+            [(ngModel)]="contrasenia"
+          />
+        </app-campo>
+        <app-campo etiqueta="Confirmar contraseña" para="confirmacion" [error]="errores()['confirmacion']">
+          <input
+            id="confirmacion"
+            name="confirmacion"
+            type="password"
+            class="input"
+            autocomplete="new-password"
+            [class.invalido]="errores()['confirmacion']"
+            [attr.aria-invalid]="!!errores()['confirmacion']"
+            [(ngModel)]="confirmacion"
+          />
+        </app-campo>
+      </div>
+    </fieldset>
+
+    <button type="submit" class="btn btn-primary auth-enviar" [disabled]="cargando()">
+      {{ cargando() ? 'Creando cuenta…' : 'Crear cuenta →' }}
+    </button>
+  </form>
+
+  <p pie class="auth-pie-texto">¿Ya tienes cuenta?<a routerLink="/acceso">Inicia sesión</a></p>
+</app-auth-shell>

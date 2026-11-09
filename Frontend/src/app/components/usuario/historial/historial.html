@@ -1,0 +1,41 @@
+<div class="pagina-panel">
+  <header class="panel-header">
+    <h1>Historial</h1>
+    <p>Tus compras, reventas y devoluciones.</p>
+  </header>
+
+  @if (cargando()) {
+    <div class="esqueleto" style="height: 240px"></div>
+  } @else if (error()) {
+    <div class="aviso aviso-error" role="alert">
+      <strong>{{ error() }}</strong>
+      <button type="button" class="btn btn-ghost" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (total() === 0) {
+    <div class="aviso"><strong>Todavía no tienes movimientos</strong></div>
+  } @else {
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th scope="col">Fecha</th>
+          <th scope="col">Movimiento</th>
+          <th scope="col">Boleta</th>
+          <th scope="col">Método</th>
+          <th scope="col" class="numero">Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (fila of filas(); track fila.idTransaccion) {
+          <tr>
+            <td class="sin-salto">{{ fila.fechaHora | date: 'd MMM y, HH:mm' }}</td>
+            <td>{{ etiqueta(fila) }}</td>
+            <td>{{ fila.codigoBoleta }}</td>
+            <td>{{ fila.metodoPago }}</td>
+            <td class="numero">{{ fila.precio | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <app-paginacion [total]="total()" [(pagina)]="pagina"></app-paginacion>
+  }
+</div>

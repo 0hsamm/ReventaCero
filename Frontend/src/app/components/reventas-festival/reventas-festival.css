@@ -1,0 +1,338 @@
+:host {
+  --rojo: #e8262c;
+  display: block;
+}
+
+.encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.encabezado p {
+  max-width: 64ch;
+  color: var(--text-2);
+}
+
+.encabezado strong {
+  color: var(--text-1);
+}
+
+.sello-autorizada {
+  flex: none;
+  padding: 6px 14px;
+  border: 3px solid var(--rojo);
+  color: var(--rojo);
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transform: rotate(-6deg);
+}
+
+.reventas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px 32px;
+}
+
+.reventa {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  width: 100%;
+  min-height: 172px;
+  padding: 0;
+  overflow: hidden;
+  background: var(--surface);
+  border: 2px solid var(--line-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--sombra);
+  color: var(--text-1);
+  text-align: left;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    background-color 140ms ease;
+}
+
+.reventa:hover:not(:disabled) {
+  transform: translate(-3px, -3px);
+  box-shadow: 6px 6px 0 var(--rojo);
+}
+
+.reventa:active:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+}
+
+.reventa:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.banda {
+  display: grid;
+  place-items: center;
+  background: var(--rojo);
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 20px 24px;
+  border-left: 2px dashed var(--line-strong);
+}
+
+.zona {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.categoria {
+  font-family: var(--font-display);
+  font-size: 38px;
+  font-weight: 400;
+  line-height: 1.05;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.detalle {
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.pie {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 14px;
+}
+
+.precio {
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.accion {
+  padding: 8px 18px;
+  background: var(--surface-2);
+  border: 2px solid var(--line-strong);
+  color: var(--text-1);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.reventa:hover:not(:disabled) .accion {
+  background: var(--rojo);
+  border-color: var(--rojo);
+  color: #ffffff;
+}
+
+.reventa.elegida {
+  background: var(--neon);
+  border-color: var(--on-neon);
+  color: var(--on-neon);
+  box-shadow: 6px 6px 0 var(--rojo);
+  transform: translate(-3px, -3px);
+}
+
+.reventa.elegida .zona,
+.reventa.elegida .detalle {
+  color: var(--on-neon);
+}
+
+.reventa.elegida .cuerpo {
+  border-left-color: var(--on-neon);
+}
+
+.reventa.elegida .accion {
+  background: var(--on-neon);
+  border-color: var(--on-neon);
+  color: var(--neon);
+}
+
+.vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 56px 24px;
+  border: 2px dashed var(--line-strong);
+  text-align: center;
+}
+
+.vacio-icono {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  background: var(--surface-2);
+  font-size: 28px;
+  transform: rotate(-6deg);
+}
+
+.vacio strong {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.vacio p {
+  color: var(--text-2);
+}
+
+.compra {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: 32px;
+  margin-top: 36px;
+  padding: 28px;
+  background: var(--surface);
+  border: 2px solid var(--line-strong);
+  box-shadow: 10px 10px 0 var(--rojo);
+  animation: entrar 200ms ease-out;
+}
+
+.compra-resumen {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 32px;
+  border-right: 2px dashed var(--line);
+}
+
+.compra-etiqueta {
+  align-self: flex-start;
+  padding: 2px 10px;
+  background: var(--rojo);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.compra-resumen h3 {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.compra-resumen p {
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.compra-total {
+  margin-top: auto;
+  font-family: var(--font-display);
+  font-size: 48px;
+  line-height: 1;
+}
+
+.compra-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.metodos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.metodos legend {
+  margin-bottom: 8px;
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.metodos-opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.metodo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 2px solid var(--line-strong);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    transform 120ms ease;
+}
+
+.metodo input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.metodo:hover {
+  background: var(--surface-2);
+}
+
+.metodo:has(input:focus-visible) {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.metodo.metodo-elegido {
+  background: var(--neon);
+  border-color: var(--on-neon);
+  color: var(--on-neon);
+  transform: rotate(-2deg);
+}
+
+.compra-acciones {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.compra-acciones .btn {
+  min-height: 56px;
+  font-size: 17px;
+  text-transform: uppercase;
+}
+
+@keyframes entrar {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}

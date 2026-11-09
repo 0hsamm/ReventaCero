@@ -1,0 +1,81 @@
+:host {
+  display: block;
+  overflow-x: clip;
+}
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  height: 72px;
+  padding: 0 48px;
+  background: var(--bg);
+  border-bottom: 2px solid var(--line-strong);
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: var(--text-1);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.logo span {
+  margin-left: 2px;
+  padding: 0 6px;
+  background: var(--neon);
+  color: var(--on-neon);
+}
+
+nav {
+  display: flex;
+  gap: 32px;
+}
+
+nav a {
+  padding: 8px 0;
+  color: var(--text-1);
+  font-weight: 600;
+  text-decoration: none;
+  text-transform: uppercase;
+  background: linear-gradient(var(--neon), var(--neon)) left bottom / 0 3px no-repeat;
+  transition: background-size 160ms ease;
+}
+
+nav a:hover,
+nav a.activo {
+  background-size: 100% 3px;
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.tema {
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: 2px solid var(--line-strong);
+  border-radius: var(--radius);
+}
+
+.tema:hover {
+  background: var(--surface-2);
+}
+
+.salir {
+  background: transparent;
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.salir:hover {
+  background: var(--danger);
+  color: var(--bg);
+}

@@ -1,0 +1,19 @@
+<div class="cinta" [class]="variante()" [class.pausado]="pausado()">
+  <p class="visually-hidden">{{ texto() }}</p>
+
+  <!-- Dos pistas iguales: al llegar a -50% el bucle no se nota -->
+  <div class="pista" aria-hidden="true">
+    @for (copia of [1, 2, 3, 4, 5, 6]; track copia) {
+      <span>{{ texto() }}</span>
+    }
+  </div>
+
+  <button
+    type="button"
+    class="pausa"
+    [attr.aria-label]="pausado() ? 'Reanudar cinta de texto' : 'Pausar cinta de texto'"
+    (click)="pausado.set(!pausado())"
+  >
+    <i class="pi" [class.pi-pause]="!pausado()" [class.pi-play]="pausado()" aria-hidden="true"></i>
+  </button>
+</div>
